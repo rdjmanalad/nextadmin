@@ -1,8 +1,6 @@
-import styles from "./transaction.module.css"
+import styles from "./transaction.module.css";
 
-const Styles =()=>{
-    return(
-        <div>Styles</div>
-    )
-}
-export default Styles
+const Transaction = () => {
+  return <div>Transaction</div>;
+};
+export default Transaction;
