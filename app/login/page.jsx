@@ -14,7 +14,12 @@ const LoginPage =()=>{
     const [user, setUser] = useLocalState("user", "");
     const [userId, setUserId] = useLocalState("userId", "");
     const [userRole, setUserRole] = useLocalState("userRole", "");
-    const baseURL = localStorage.getItem("baseURL");
+    const [baseURL, setBaseURL] = useLocalState("baseURL", "");
+    // const baseURL = localStorage.getItem("baseURL");
+
+    useEffect(() => {
+        setBaseURL("http://localhost:8080");
+    },[]);    
 
     useEffect(() => {
         const keyDownHandler = (event) => {
