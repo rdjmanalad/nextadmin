@@ -1,0 +1,56 @@
+.container {
+  background-color: var(--bgSoft);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.filters {
+  padding: 10px;
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  justify-content: space-between;
+}
+
+.filters input {
+  /* width: 100%; */
+  background-color: var(--inputBg);
+  border: 1px solid black;
+  height: 30px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  padding-left: 5px;
+  color: black;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.filters select {
+  /* width: 100%; */
+  background-color: var(--inputBg);
+  border: 1px solid black;
+  height: 30px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  padding-left: 5px;
+  color: black;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  gap: 20px;
+}
+
+.filters label {
+  padding-top: 5px;
+}
+
+.search {
+  width: 100px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: var(--buttonBlue);
+  cursor: pointer;
+}

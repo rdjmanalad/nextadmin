@@ -1,24 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function useLocalState(key, initial) {
-  const [value, setValue] = useState(() => {
-    if (typeof window !== undefined && window.localStorage) {
-      const saved = window.localStorage.getItem(key);
-      if (saved) {
-        // return JSON.parse(saved);
-        return saved;
-        //return initial;
-      }
-    }
-    return initial;
-  });
+const useLocalState = (key, initialValue) => {
+  // Check for window to ensure you are on the client side
+  const isClient = typeof window !== "undefined";
 
+  // Get the stored value from localStorage or use the initialValue
+  const storedValue = isClient
+    ? localStorage.getItem(key) || initialValue
+    : initialValue;
+
+  // Create state to hold the current value
+  const [value, setValue] = useState(storedValue);
+
+  // Update the value in useEffect to avoid issues during server-side rendering
   useEffect(() => {
-    if (window.localStorage) {
-      //window.localStorage.setItem(key, JSON.stringify(value));
-      window.localStorage.setItem(key, value);
+    if (isClient) {
+      localStorage.setItem(key, value);
     }
-  }, [value]);
+  }, [key, value, isClient]);
 
   return [value, setValue];
-}
+};
+
+export default useLocalState;

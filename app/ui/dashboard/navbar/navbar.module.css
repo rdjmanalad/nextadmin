@@ -1,40 +1,64 @@
-.container{
-    display: flex;
-    justify-content: space-between;
-    border-radius: 10px;
-    padding: 20px;
-    align-items: center;
-    background-color: var(--bgSoft);
+.container {
+  display: flex;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 20px;
+  align-items: center;
+  background-color: var(--bgSoft);
 }
 
-.title{
-    color: var(--textSoft);
-    font-weight: bold;
+.title {
+  color: var(--textSoft);
+  font-weight: bold;
+  text-transform: capitalize;
 }
 
-.menu{
-    display: flex;
-    align-items: center;
-    gap: 20px;
-
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
-.search{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background-color: #2e374a;
-    padding: 10px;
-    border-radius: 10px;
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #2e374a;
+  padding: 10px;
+  border-radius: 10px;
 }
 
-.input{
-    background-color: transparent;
-    border: none;
-    color: var(--text);
+.input {
+  background-color: transparent;
+  border: none;
+  color: var(--text);
 }
 
-.icon{
-    display: flex;
-    gap: 20px;
+.icon {
+  display: flex;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.userImage {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-weight: 500;
+}
+
+.userTitle {
+  font-size: 12px;
+  color: var(--textSoft);
 }

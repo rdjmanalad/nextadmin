@@ -1,16 +1,17 @@
-import { MdSupervisedUserCircle } from "react-icons/md";
+import { GiMoneyStack } from "react-icons/gi";
 import styles from "./card.module.css";
 
-const Card = () => {
+const Card = ({ details }) => {
   return (
     <div className={styles.container}>
-      <MdSupervisedUserCircle size={24} />
+      <GiMoneyStack size={30} />
       <div className={styles.text}>
-        <span className={styles.title}>Total Transaction</span>
-        <span className={styles.number}>500.00</span>
-        <span className={styles.detail}>
+        <span className={styles.title}>{details.title}</span>
+        <span className={styles.number}>{details.amount}</span>
+        {/* <span className={styles.detail}>
           <span className={styles.positive}>12%</span>Compare
-        </span>
+        </span> */}
+        <br></br>
       </div>
     </div>
   );

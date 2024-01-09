@@ -1,18 +1,23 @@
+"use client";
+
+import { useEffect } from "react";
 import Image from "next/image";
 import MenuLink from "./menuLink/menuLink";
 import styles from "./sidebar.module.css";
+import { useRouter } from "next/navigation";
 import {
   MdDashboard,
   MdSupervisedUserCircle,
-  MdShoppingBag,
-  MdAttachMoney,
   MdWork,
   MdAnalytics,
-  MdPeople,
   MdOutlineSettings,
-  MdHelpCenter,
   MdLogout,
+  MdPostAdd,
+  MdList,
+  MdKeyboardArrowDown,
 } from "react-icons/md";
+import { GiMoneyStack } from "react-icons/gi";
+import SubMenuLink from "./subMenuLink/subMenuLink";
 
 const menuItems = [
   {
@@ -26,77 +31,91 @@ const menuItems = [
       {
         title: "Transactions",
         path: "/dashboard/transactions",
-        icon: <MdAttachMoney />,
+        icon: <GiMoneyStack />,
+        expand: <MdKeyboardArrowDown />,
+        subMenu: [
+          {
+            title: "All Transactions",
+            path: "/dashboard/listTransactions",
+            icon: <MdList />,
+          },
+          {
+            title: "Add Transactions",
+            path: "/dashboard/transactions",
+            icon: <MdPostAdd />,
+          },
+          // Add more sub-menu items as needed
+        ],
       },
       {
         title: "Users",
         path: "/dashboard/users",
         icon: <MdSupervisedUserCircle />,
+        expand: <MdKeyboardArrowDown />,
+        subMenu: [
+          {
+            title: "Add Users",
+            path: "/dashboard/users",
+            icon: <MdList />,
+          },
+          // Add more sub-menu items as needed
+        ],
       },
-      // {
-      //   title: "Products",
-      //   path: "/dashboard/products",
-      //   icon: <MdShoppingBag />,
-      // },
     ],
   },
   {
     title: "Analytics",
     list: [
       {
-        title: "Revenue",
-        path: "/dashboard/revenue",
-        icon: <MdWork />,
-      },
-      {
         title: "Reports",
         path: "/dashboard/reports",
         icon: <MdAnalytics />,
       },
-      // {
-      //   title: "Teams",
-      //   path: "/dashboard/teams",
-      //   icon: <MdPeople />,
-      // },
     ],
   },
   {
-    title: "User",
+    title: "Maintenance",
     list: [
       {
         title: "Settings",
         path: "/dashboard/settings",
         icon: <MdOutlineSettings />,
       },
-      // {
-      //   title: "Help",
-      //   path: "/dashboard/help",
-      //   icon: <MdHelpCenter />,
-      // },
     ],
   },
 ];
 
 const Sidebar = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (window.sessionStorage.getItem("jwt")?.length === 0) {
+      router.push("/login");
+    }
+    if (window.sessionStorage.getItem("jwt") === null) {
+      router.push("/login");
+    }
+  }, []);
+
+  const handleLogout = () => {
+    window.sessionStorage.clear();
+    router.push("/login");
+  };
+
   return (
     <div className={styles.container}>
-      <div className={styles.user}>
+      <div>
         <Image
-          className={styles.userImage}
-          src="/noavatar.png"
+          className={styles.banner}
+          src="/TambuntingLogo.png"
+          width="200"
+          height="75"
           alt=""
-          width="50"
-          height="50"
         />
-        <div className={styles.userDetails}>
-          <span className={styles.username}>John Doe</span>
-          <span className={styles.userTitle}>Admin</span>
-        </div>
       </div>
       <ul className={styles.list}>
         {menuItems.map((cat) => (
           <li key={cat.title}>
-            {cat.title}
             <span className={styles.cat}>{cat.title}</span>
             {cat.list.map((item) => (
               <MenuLink item={item} key={item.title} />
@@ -104,10 +123,23 @@ const Sidebar = () => {
           </li>
         ))}
       </ul>
-      <button className={styles.logout}>
+
+      <button className={styles.logout} onClick={(e) => handleLogout()}>
         <MdLogout />
         Logout
       </button>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
     </div>
   );
 };

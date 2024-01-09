@@ -12,16 +12,5 @@
 }
 
 .list {
-  margin-left: 15px;
   list-style: none;
-  background-color: var(--bg);
-  border-radius: 5px;
-}
-
-.drop {
-  rotate: 180deg;
-}
-
-.hide {
-  display: none;
 }
