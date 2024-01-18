@@ -11,11 +11,11 @@ const MenuLink = ({ item }) => {
   const [subM, setSubM] = useState(item.subMenu ? item.subMenu : {});
   const [active, setActive] = useState(true);
 
-  useEffect(() => {
-    if (item.subMenu) {
-      console.log(subM);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (item.subMenu) {
+  //     console.log(subM);
+  //   }
+  // }, []);
 
   const toggleActive = (e) => {
     e.preventDefault();

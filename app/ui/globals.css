@@ -3,11 +3,12 @@
   --bgSoft: #182237;
   --text: white;
   --textSoft: #b7bac1;
-  --inputBg: rgb(201, 201, 201);
+  --inputBg: rgb(241, 241, 241);
   --buttonGreen: #198754;
   --buttonRed: #dc3545;
   --buttonYellow: #ffc107;
   --buttonBlue: #0d6efd;
+  --bgModal: rgb(47, 47, 47);
 }
 
 * {

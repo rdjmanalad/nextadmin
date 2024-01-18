@@ -4,6 +4,7 @@ import styles from "@/app/ui/login/login.module.css";
 import { useState, useEffect } from "react";
 import useLocalState from "../hooks/useLocalState";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -80,8 +81,16 @@ const LoginPage = () => {
   return (
     <div className={styles.container}>
       <form action="" className={styles.form}>
-        <h3>Tambunting Live Selling</h3>
-        <h2>Login</h2>
+        <div className={styles.banner}>
+          <Image
+            className={styles.banner}
+            src="/TambuntingLogo.png"
+            width="300"
+            height="85"
+            alt=""
+          />
+        </div>
+        {/* <h2>Login</h2> */}
         <input
           type="text"
           placeholder="username"
@@ -101,6 +110,7 @@ const LoginPage = () => {
         >
           Login
         </button>
+        <br></br>
       </form>
     </div>
   );

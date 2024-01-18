@@ -16,6 +16,7 @@ import {
   MdList,
   MdKeyboardArrowDown,
 } from "react-icons/md";
+import { LuUserCog, LuUserPlus } from "react-icons/lu";
 import { GiMoneyStack } from "react-icons/gi";
 import SubMenuLink from "./subMenuLink/subMenuLink";
 
@@ -54,9 +55,14 @@ const menuItems = [
         expand: <MdKeyboardArrowDown />,
         subMenu: [
           {
-            title: "Add Users",
+            title: "Change Password",
             path: "/dashboard/users",
-            icon: <MdList />,
+            icon: <LuUserCog />,
+          },
+          {
+            title: "Add Users",
+            path: "/dashboard/userAdd",
+            icon: <LuUserPlus />,
           },
           // Add more sub-menu items as needed
         ],
@@ -104,42 +110,33 @@ const Sidebar = () => {
 
   return (
     <div className={styles.container}>
-      <div>
+      <div className={styles.banner}>
         <Image
-          className={styles.banner}
+          // className={styles.banner}
           src="/TambuntingLogo.png"
           width="200"
           height="75"
           alt=""
         />
       </div>
-      <ul className={styles.list}>
-        {menuItems.map((cat) => (
-          <li key={cat.title}>
-            <span className={styles.cat}>{cat.title}</span>
-            {cat.list.map((item) => (
-              <MenuLink item={item} key={item.title} />
-            ))}
-          </li>
-        ))}
-      </ul>
-
-      <button className={styles.logout} onClick={(e) => handleLogout()}>
-        <MdLogout />
-        Logout
-      </button>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
+      <div className={styles.divList}>
+        <ul className={styles.list}>
+          {menuItems.map((cat) => (
+            <li key={cat.title}>
+              <span className={styles.cat}>{cat.title}</span>
+              {cat.list.map((item) => (
+                <MenuLink item={item} key={item.title} />
+              ))}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className={styles.logoutDiv}>
+        <button className={styles.logout} onClick={(e) => handleLogout()}>
+          <MdLogout />
+          Logout
+        </button>
+      </div>
     </div>
   );
 };

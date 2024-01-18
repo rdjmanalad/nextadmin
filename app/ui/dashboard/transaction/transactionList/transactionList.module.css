@@ -54,3 +54,38 @@
   background-color: var(--buttonBlue);
   cursor: pointer;
 }
+
+.aggrid {
+  height: 450px;
+  --ag-grid-size: 10px;
+  --ag-list-item-height: 40px;
+  --ag-selected-row-background-color: rgba(0, 12, 120, 0.26);
+  --ag-odd-row-background-color: rgb(241, 241, 241);
+  --ag-header-background-color: rgb(202, 202, 202);
+}
+
+.backToList {
+  background-color: var(--bgSoft);
+}
+
+.backToList button {
+  width: 150px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: var(--buttonBlue);
+  cursor: pointer;
+}
+
+.viewEdit {
+  margin-top: 10px;
+}
+
+.viewEdit button {
+  width: 150px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: var(--buttonBlue);
+  cursor: pointer;
+}
