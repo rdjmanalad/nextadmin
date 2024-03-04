@@ -55,6 +55,9 @@ const Transaction = ({ emptyObj }) => {
   const fullPaymentDateRef = useRef();
   const forfeitedAmtRef = useRef();
   const forfeitedDateRef = useRef();
+  const senderNameRef = useRef();
+  const senderAddressRef = useRef();
+  const senderContactNoRef = useRef();
 
   const router = useRouter();
 
@@ -216,6 +219,79 @@ const Transaction = ({ emptyObj }) => {
   const save = (e) => {
     e.preventDefault();
     saveTransaction();
+  };
+
+  const printLbc = () => {
+    printReport();
+  };
+
+  const printReport = () => {
+    var senderName = senderNameRef.current.value;
+    var senderAddress = senderAddressRef.current.value;
+    var senderContactNo = senderContactNoRef.current.value;
+    var receiverName = customerNameRef.current.value;
+    var receiverAddress = addressRef.current.value;
+    var receiverContactNo = contactNoRef.current.value;
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(
+        baseUrl +
+          "/api/reports/lbc/" +
+          senderName +
+          "/" +
+          senderAddress +
+          "/" +
+          senderContactNo +
+          "/" +
+          receiverName +
+          "/" +
+          receiverAddress +
+          "/" +
+          receiverContactNo,
+        {
+          headers: {
+            contentType: "application/json",
+            accept: "application/pdf",
+          },
+          responseType: "blob",
+        }
+      )
+      .then((response) => {
+        const file = new Blob([response.data], { type: "application/pdf" });
+        var w = window.open(window.URL.createObjectURL(file));
+        w.document.title = "sample";
+      });
+  };
+
+  const printReceipt = () => {
+    if (trans.id === undefined) {
+      alert("Please save the transaction first.");
+    } else {
+      var id = trans.id;
+      var jwt = window.sessionStorage.getItem("jwt");
+      axios.defaults.headers.common["Authorization"] =
+        "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+      axios
+        .get(baseUrl + "/api/reports/receipt/" + id, {
+          headers: {
+            contentType: "application/json",
+            accept: "application/pdf",
+          },
+          responseType: "blob",
+        })
+        .then((response) => {
+          const file = new Blob([response.data], { type: "application/pdf" });
+          var w = window.open(window.URL.createObjectURL(file));
+          // w.document.title = "sample";
+          w.addEventListener("load", function () {
+            w.document.title = "New Tab Title";
+            w.focus(); // Focus on the new tab/window
+            document.title = "New Tab Title"; // Change title of current window/tab
+          });
+        });
+    }
   };
 
   const onPayTerm = (e) => {
@@ -425,14 +501,23 @@ const Transaction = ({ emptyObj }) => {
               }}
             ></input>
             <label>Senders Name</label>
-            <input readOnly value={"Aurora Jewelry Collection"}></input>
+            <input
+              ref={senderNameRef}
+              readOnly
+              value={"Aurora Jewelry Collection"}
+            ></input>
             <label>Complete Address</label>
             <input
+              ref={senderAddressRef}
               readOnly
-              value={"# 3286 Jervois St. Brgy. Pinagkaisahan, Makati City"}
+              value={"3286 Jervois St. Brgy. Pinagkaisahan, Makati City"}
             ></input>
             <label>Contact No.</label>
-            <input readOnly value={"0999-993-1148"}></input>
+            <input
+              ref={senderContactNoRef}
+              readOnly
+              value={"0999-993-1148"}
+            ></input>
           </div>
           <div className={styles.row2}>
             <div className={styles.cardContainer}>
@@ -627,14 +712,37 @@ const Transaction = ({ emptyObj }) => {
               <button>Show Lay-Away Payments</button>
             </div>
             <div className={styles.buttonContainer2}>
-              <button className={styles.lbc}>Print LBC form</button>
-              <button className={styles.receipt}>Print Receipt</button>
+              <button
+                className={styles.lbc}
+                onClick={(e) => {
+                  e.preventDefault();
+                  printLbc();
+                }}
+              >
+                Print LBC form
+              </button>
+              <button
+                className={styles.receipt}
+                onClick={(e) => {
+                  e.preventDefault();
+                  printReceipt();
+                }}
+              >
+                Print Receipt
+              </button>
             </div>
             <div className={styles.buttonContainer3}>
               <button className={styles.save} onClick={(e) => save(e)}>
                 Save Details
               </button>
-              <button className={styles.printForfeited} disabled={isCash}>
+              <button
+                className={styles.printForfeited}
+                disabled={isCash}
+                onClick={(e) => {
+                  e.preventDefault();
+                  printReceipt();
+                }}
+              >
                 Print Forfeited
               </button>
             </div>
