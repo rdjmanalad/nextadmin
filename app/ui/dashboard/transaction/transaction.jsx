@@ -21,6 +21,7 @@ const Transaction = ({ emptyObj }) => {
   const [openModal, setOpenModal] = useState(false);
   const isClient = typeof window !== "undefined";
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
+  const [isfullyPaid, setIsfullyPaid] = useState(false);
 
   const [layAway, setLayAway] = useState({
     id: "",
@@ -73,6 +74,7 @@ const Transaction = ({ emptyObj }) => {
     }
     if (jwtToken && !isTokenExpired(jwtToken)) {
       getReference();
+      initiate();
       if (window.sessionStorage.getItem("jwt") != null) {
         if (emptyObj.id != "") {
           setTrans(emptyObj);
@@ -88,12 +90,33 @@ const Transaction = ({ emptyObj }) => {
     }
   }, [trans]);
 
+  const initiate = () => {
+    trans.codeNo = "";
+    trans.inventoryNo = "";
+    trans.transactDate = "";
+    trans.description = "";
+    trans.karat = "";
+    trans.weight = "";
+    trans.capital = "";
+    trans.discountedPrice = "";
+    trans.customerName = "";
+    trans.receiverName = "";
+    trans.address = "";
+    trans.contactNo = "";
+    trans.paymentTerm = "";
+    trans.paymentMode = "";
+    trans.cashPaymentDate = "";
+    trans.cashPayment = "";
+    trans.referenceNo = "";
+  };
+
   useEffect(() => {
     // alert("all");
     forfeitedAmtRef.current.value = currencyFormat(trans.forfeitedAmt);
   }, [isForfeited]);
 
   const populate = () => {
+    // alert("populate");
     codeRef.current.value = trans.codeNo;
     inventoryNoRef.current.value = trans.inventoryNo;
     transactDateRef.current.value = formatDate(trans.transactDate);
@@ -126,6 +149,10 @@ const Transaction = ({ emptyObj }) => {
     if (trans.forfeitedAmt > 0) {
       setIsForfeited(true);
     }
+    if (trans.paymentTerm === "LAY-AWAY" && trans.balance === 0) {
+      setIsfullyPaid(true);
+      setAllowForfeit(false);
+    }
   };
 
   const formatDate = (date) => {
@@ -134,6 +161,11 @@ const Transaction = ({ emptyObj }) => {
     }
     return "";
   };
+
+  function removeCommas(inputString) {
+    // Use the replace() method with a regular expression to remove all commas
+    return inputString.replace(/,/g, "");
+  }
 
   const getReference = () => {
     var jwt = window.sessionStorage.getItem("jwt");
@@ -171,8 +203,14 @@ const Transaction = ({ emptyObj }) => {
   };
 
   const saveTransaction = () => {
+    // alert(trans.id);
+    if (pTerm === "LAY-AWAY") {
+      trans.totalPayment = removeCommas(cashPaymentRef.current.value);
+      trans.balance =
+        trans.balance - removeCommas(cashPaymentRef.current.value);
+    }
     var jwt = window.sessionStorage.getItem("jwt");
-    alert(trans.totalPayment);
+    // alert(trans.totalPayment);
     axios
       .post(baseUrl + "/api/transactions/save", trans, {
         headers: {
@@ -185,7 +223,14 @@ const Transaction = ({ emptyObj }) => {
         if (response.status === 200) {
           console.log(response.data);
           setTrans(response.data);
-          alert("success");
+          alert("success" + response.data.id);
+          layAway.transactionId = response.data.id;
+          layAway.user = user;
+          if (pTerm === "LAY-AWAY") {
+            saveLayAwayPay();
+          }
+          saveBalance();
+          populate();
         }
       })
       .catch((message) => {
@@ -194,7 +239,8 @@ const Transaction = ({ emptyObj }) => {
   };
 
   const saveLayAwayPay = () => {
-    // alert("save lay away");
+    // alert("lay awayid:" + layAway.id);
+    layAway.id = null;
     var jwt = window.sessionStorage.getItem("jwt");
     axios
       .post(baseUrl + "/api/layAwayPay/save", layAway, {
@@ -216,10 +262,69 @@ const Transaction = ({ emptyObj }) => {
       });
   };
 
+  const saveTransaction2 = () => {
+    // alert(trans.id);
+
+    var jwt = window.sessionStorage.getItem("jwt");
+    // alert(trans.totalPayment);
+    axios
+      .post(baseUrl + "/api/transactions/save", trans, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response.data);
+          setTrans(response.data);
+          alert("Saved");
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
   const save = (e) => {
     e.preventDefault();
-    saveTransaction();
+    if (validate()) {
+      saveTransaction();
+    } else {
+      alert("Please fill all fields");
+    }
+
+    // saveTransaction();
   };
+
+  const validate = () => {
+    var isvalid = true;
+    if (
+      trans.codeNo === "" ||
+      trans.inventoryNo === "" ||
+      trans.transactDate === "" ||
+      trans.description === "" ||
+      trans.karat === "" ||
+      trans.weight === "" ||
+      trans.capital === "" ||
+      trans.discountedPrice === "" ||
+      trans.customerName === "" ||
+      trans.receiverName === "" ||
+      trans.address === "" ||
+      trans.contactNo === "" ||
+      trans.paymentTerm === "" ||
+      trans.paymentMode === "" ||
+      trans.cashPaymentDate === "" ||
+      trans.cashPayment === "" ||
+      trans.referenceNo === ""
+    ) {
+      isvalid = false;
+    }
+    return isvalid;
+  };
+
+  const test = (e) => {};
 
   const printLbc = () => {
     printReport();
@@ -284,14 +389,37 @@ const Transaction = ({ emptyObj }) => {
         .then((response) => {
           const file = new Blob([response.data], { type: "application/pdf" });
           var w = window.open(window.URL.createObjectURL(file));
-          // w.document.title = "sample";
-          w.addEventListener("load", function () {
-            w.document.title = "New Tab Title";
-            w.focus(); // Focus on the new tab/window
-            document.title = "New Tab Title"; // Change title of current window/tab
-          });
+          w.document.title = "sample";
         });
     }
+  };
+
+  const saveBalance = () => {
+    // alert("save balance");
+    const date = cashPaymentDateRef.current.value;
+    var amount = removeCommas(cashPaymentRef.current.value);
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(
+        baseUrl + "/api/dashboard/saveAdd/" + pMode + "/" + date + "/" + amount,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+          },
+        }
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response.data);
+          // setLayAway(response.data);
+          // alert("success");
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
   };
 
   const onPayTerm = (e) => {
@@ -320,6 +448,7 @@ const Transaction = ({ emptyObj }) => {
 
   const addPayment = (e) => {
     e.preventDefault();
+    // alert("iscash:" + isCash);
     if (!isCash) {
       if (trans.id === "" || trans.id === undefined) {
         saveTransaction();
@@ -328,6 +457,8 @@ const Transaction = ({ emptyObj }) => {
       layAway.user = user;
       saveLayAwayPay();
       saveTranPayment();
+      saveBalance();
+      populate();
     }
   };
 
@@ -339,8 +470,8 @@ const Transaction = ({ emptyObj }) => {
       trans.fullPaymentDate = layAway.paymentDate;
     }
     trans.paymentMode = "";
-    saveTransaction();
-    clearPayment();
+    saveTransaction2();
+    // clearPayment();
   };
 
   const clearPayment = () => {
@@ -528,6 +659,7 @@ const Transaction = ({ emptyObj }) => {
                 value={trans.paymentTerm}
                 onChange={(e) => {
                   onPayTerm(e);
+                  trans.paymentTerm = e.target.value;
                 }}
               >
                 <option></option>
@@ -549,6 +681,7 @@ const Transaction = ({ emptyObj }) => {
                 // placeholder="Payment Mode"
                 onChange={(e) => {
                   onPayMode(e);
+                  trans.paymentMode = e.target.value;
                 }}
               >
                 <option></option>
@@ -605,7 +738,7 @@ const Transaction = ({ emptyObj }) => {
               <div className={styles.buttonContainer}>
                 <button
                   className={styles.add}
-                  disabled={isCash}
+                  disabled={isfullyPaid}
                   onClick={(e) => {
                     addPayment(e);
                   }}
@@ -630,7 +763,7 @@ const Transaction = ({ emptyObj }) => {
                   ref={totalPaymentRef}
                   defaultValue="0.00"
                   // placeholder="Total Payment"
-                  disabled={isCash}
+                  disabled
                   maxLength="12"
                   style={{ textAlign: "right" }}
                   onFocus={(event) => event.target.select()}
@@ -646,7 +779,8 @@ const Transaction = ({ emptyObj }) => {
                 <input
                   ref={balanceRef}
                   // placeholder="Total Balance"
-                  disabled={isCash}
+                  // disabled={isCash}
+                  disabled
                   defaultValue="0.00"
                   maxLength="12"
                   style={{ textAlign: "right" }}
@@ -663,7 +797,7 @@ const Transaction = ({ emptyObj }) => {
                 <input
                   ref={fullPaymentDateRef}
                   type="date"
-                  disabled={isCash}
+                  disabled
                   onChange={(e) => {
                     trans.fullPaymentDate = e.target.value;
                   }}
@@ -703,13 +837,16 @@ const Transaction = ({ emptyObj }) => {
             </div>
             <div
               style={{ display: isCash ? "none" : "block" }}
-              className={styles.buttonShowLayAway}
-              onClick={(e) => {
-                e.preventDefault();
-                setOpenModal(true);
-              }}
+              className={styles.buttonContainer2}
             >
-              <button>Show Lay-Away Payments</button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpenModal(true);
+                }}
+              >
+                Show Lay-Away Payments
+              </button>
             </div>
             <div className={styles.buttonContainer2}>
               <button
@@ -737,13 +874,22 @@ const Transaction = ({ emptyObj }) => {
               </button>
               <button
                 className={styles.printForfeited}
-                disabled={isCash}
+                disabled={isfullyPaid || isCash || !isForfeited}
                 onClick={(e) => {
                   e.preventDefault();
                   printReceipt();
                 }}
               >
                 Print Forfeited
+              </button>
+            </div>
+            <div className={styles.buttonContainer2}>
+              <button
+                onClick={(e) => {
+                  test(e);
+                }}
+              >
+                Clear/Refresh
               </button>
             </div>
           </div>

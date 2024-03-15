@@ -44,6 +44,7 @@ const UserAdd = () => {
   useEffect(() => {
     if (count > 0) {
       //   setErrorMessage("");
+      alert(userName);
       if (userName === "" || userName === null) {
         if (validUser) {
           setErrorMessage("");

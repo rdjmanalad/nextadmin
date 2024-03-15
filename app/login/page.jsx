@@ -1,5 +1,5 @@
 "use client";
-
+import axios from "axios";
 import styles from "@/app/ui/login/login.module.css";
 import { useState, useEffect } from "react";
 import useLocalState from "../hooks/useLocalState";
@@ -22,7 +22,12 @@ const LoginPage = () => {
     if (window.sessionStorage.getItem("jwt") != null) {
       router.push("/dashboard");
     }
-    setBaseURL("http://localhost:8080");
+
+    // setBaseURL("http://localhost:8585");
+    // setBaseURL("http://52.74.232.36:8080");
+    setBaseURL(
+      "http://ec2-52-74-232-36.ap-southeast-1.compute.amazonaws.com:8585"
+    );
   }, []);
 
   useEffect(() => {
@@ -40,6 +45,7 @@ const LoginPage = () => {
   }, [username, password, senLoginRequest]);
 
   function senLoginRequest() {
+    // alert(baseURL);
     const reqBody = {
       username: username,
       password: password,
@@ -66,6 +72,8 @@ const LoginPage = () => {
         console.log(data);
         setJwt(data["accessToken"]);
         window.sessionStorage.setItem("jwt", data["accessToken"]);
+        setUserId(0);
+        getId();
         setUser(username);
         jw = data["accessToken"].split(".")[1];
         setUserRole(JSON.parse(window.atob(jw)).roles);
@@ -77,6 +85,22 @@ const LoginPage = () => {
         alert("mensahe " + message);
       });
   }
+
+  const getId = () => {
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseURL + "/api/users/getId/" + username, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setUserId(data);
+      });
+  };
 
   return (
     <div className={styles.container}>

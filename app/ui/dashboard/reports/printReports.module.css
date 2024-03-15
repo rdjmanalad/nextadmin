@@ -13,7 +13,7 @@
 }
 
 .form {
-  margin-top: 40px;
+  margin-top: 30px;
   display: grid;
   align-items: left;
   gap: 10px;
@@ -31,6 +31,16 @@
   border: none;
   cursor: pointer;
   background-color: var(--buttonBlue);
+}
+
+.buttonSave {
+  margin-right: 2px;
+  width: 98%;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  background-color: var(--buttonGreen);
 }
 
 .inputDate {
