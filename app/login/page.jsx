@@ -23,11 +23,11 @@ const LoginPage = () => {
       router.push("/dashboard");
     }
 
-    // setBaseURL("http://localhost:8585");
+    setBaseURL("http://localhost:8585");
     // setBaseURL("http://52.74.232.36:8080");
-    setBaseURL(
-      "http://ec2-52-74-232-36.ap-southeast-1.compute.amazonaws.com:8585"
-    );
+    // setBaseURL(
+    //   "http://ec2-52-74-232-36.ap-southeast-1.compute.amazonaws.com:8585"
+    // );
   }, []);
 
   useEffect(() => {
