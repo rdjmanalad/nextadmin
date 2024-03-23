@@ -134,7 +134,7 @@ const TransactionList = () => {
       )
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
+        // console.log(data);
         setRowData(data);
       });
   };
@@ -162,7 +162,7 @@ const TransactionList = () => {
   }, []);
 
   useEffect(() => {
-    console.log("rowSelected updated:", rowSelected);
+    // console.log("rowSelected updated:", rowSelected);
   }, [rowSelected]);
 
   const dateFormatter = (params) => {

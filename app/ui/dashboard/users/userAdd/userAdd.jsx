@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import useLocalState from "@/app/hooks/useLocalState";
 import styles from "./userAdd.module.css";
@@ -21,6 +21,23 @@ const UserAdd = () => {
   const [rolesdp, setRoledp] = useState([]);
   const router = useRouter();
   const [userRole, setUserRole] = useState("");
+  const userNameRef = useRef();
+  const passRef = useRef();
+  const [appUsers, setAppUsers] = useState({});
+  const [appUser, setAppUser] = useState({
+    userId: "",
+    username: "",
+    password: "",
+    roles: [{ roleId: "", roleName: "" }],
+  });
+  const [appUserRole, setAppUserRole] = useState({
+    userId: "",
+    username: "",
+    password: "",
+    roles: {},
+  });
+
+  const [roleId, setRoleId] = useState("");
 
   //   useEffect(() => {
   //     alert("fdfdf");
@@ -28,6 +45,9 @@ const UserAdd = () => {
 
   useEffect(() => {
     // setJwt(window.sessionStorage.getItem("jwt"));
+    userNameRef.current.value = "";
+    passRef.current.value = "";
+    setUserName("");
     const jwtToken = window.sessionStorage.getItem("jwt");
     if (window.sessionStorage.getItem("jwt") === null) {
       router.push("/login");
@@ -38,14 +58,17 @@ const UserAdd = () => {
     }
     if (jwtToken && !isTokenExpired(jwtToken)) {
       getDropdown();
+      getUsers();
     }
   }, []);
 
   useEffect(() => {
     if (count > 0) {
-      //   setErrorMessage("");
-      alert(userName);
-      if (userName === "" || userName === null) {
+      if (
+        userNameRef.current.value !== "" ||
+        userNameRef.current.value !== null
+      ) {
+        // alert("username:::" + userNameRef.current.value);
         if (validUser) {
           setErrorMessage("");
           // Check if the new password and confirmation match
@@ -53,8 +76,8 @@ const UserAdd = () => {
             setErrorMessage("Password must not be empty");
           } else {
             if (newPassword === confirmPassword) {
-              setSuccessMessage("saving success");
-              // saveNewPass();
+              // setSuccessMessage("saving success");
+              saveNewUser();
             } else {
               setErrorMessage("New password and confirmation do not match.");
             }
@@ -64,17 +87,35 @@ const UserAdd = () => {
           setErrorMessage("Username already exist.");
         }
       } else {
-        setErrorMessage("Please fill in Username.");
+        setErrorMessage("Please fill in Username..");
       }
     }
     setCount(count + 1);
   }, [validUser]);
 
+  const getUsers = () => {
+    const jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + localStorage.getItem("jwt").replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/users")
+      .then((response) => response.data)
+      .then((data) => {
+        // console.log(data);
+        setAppUsers(data);
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
   const handleSaveUser = () => {
-    if (userName === "" || userName === null) {
+    if (
+      userNameRef.current.value === "" ||
+      userNameRef.current.value === null
+    ) {
       setErrorMessage("Please fill in Username.");
     } else {
-      alert("sss");
       validateUser();
     }
   };
@@ -96,10 +137,13 @@ const UserAdd = () => {
       });
   };
 
-  const saveNewPass = () => {
+  const saveNewUser = () => {
     var jwt = window.sessionStorage.getItem("jwt");
+    appUser.username = userName;
+    appUser.password = newPassword;
+    appUser.roles[0].roleId = userRole;
     axios
-      .post(baseUrl + "/api/users/savePass/" + user + "/" + newPassword, {
+      .post(baseUrl + "/api/users/saveUser", appUser, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -108,12 +152,10 @@ const UserAdd = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
-          //   setValidPass(false);
+          // console.log(response.data);
+          setAppUser(response.data);
           setErrorMessage("");
-          setSuccessMessage("Password updated successfully!");
-
-          // alert("success");
+          setSuccessMessage("New User successfully created!");
         }
       })
       .catch((message) => {
@@ -135,7 +177,7 @@ const UserAdd = () => {
       .then((response) => {
         if (response.status === 200) {
           setRoledp(response.data);
-          console.log("roles: " + response.data);
+          // console.log("roles: " + response.data);
         }
       })
       .catch((message) => {
@@ -151,6 +193,8 @@ const UserAdd = () => {
           <div className={styles.row} style={{ marginTop: "20px" }}>
             <label>User Name:</label>
             <input
+              ref={userNameRef}
+              autoComplete="off"
               type="text"
               id="userName"
               value={userName}
@@ -160,6 +204,8 @@ const UserAdd = () => {
           <div className={styles.row}>
             <label>Password:</label>
             <input
+              ref={passRef}
+              autoComplete="new-password"
               type="password"
               id="newPassword"
               value={newPassword}
@@ -180,7 +226,11 @@ const UserAdd = () => {
             <select onChange={(e) => setUserRole(e.target.value)}>
               <option></option>
               {rolesdp.map((o, i) => (
-                <option value={rolesdp[i].roleName} key={rolesdp[i].roleId}>
+                <option
+                  value={rolesdp[i].roleId}
+                  key={rolesdp[i].roleId}
+                  // onChange={(e) => setRoleId(rolesdp[i].roleId)}
+                >
                   {rolesdp[i].roleName}
                 </option>
               ))}

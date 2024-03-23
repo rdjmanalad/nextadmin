@@ -15,6 +15,8 @@ const LoginPage = () => {
   const [userId, setUserId] = useLocalState("userId", "");
   const [userRole, setUserRole] = useLocalState("userRole", "");
   const [baseURL, setBaseURL] = useLocalState("baseURL", "");
+  const [logi, setLogi] = useState(false);
+  const [invalid, setInvalid] = useState(false);
   const router = useRouter();
   // const baseURL = localStorage.getItem("baseURL");
 
@@ -23,16 +25,13 @@ const LoginPage = () => {
       router.push("/dashboard");
     }
 
-    setBaseURL("http://localhost:8585");
-    // setBaseURL("http://52.74.232.36:8080");
-    // setBaseURL(
-    //   "http://ec2-52-74-232-36.ap-southeast-1.compute.amazonaws.com:8585"
-    // );
+    // setBaseURL("http://localhost:8080");
+    setBaseURL("http://52.74.232.36:85");
   }, []);
 
   useEffect(() => {
     const keyDownHandler = (event) => {
-      console.log("User pressed: ", event.key);
+      // console.log("User pressed: ", event.key);
       if (event.key === "Enter") {
         event.preventDefault();
         senLoginRequest();
@@ -56,6 +55,7 @@ const LoginPage = () => {
     fetch(baseURL + "/api/login", {
       headers: {
         "Content-Type": "application-json",
+        "Access-Control-Allow-Origin": "*",
       },
       method: "post",
       body: JSON.stringify(reqBody),
@@ -69,7 +69,9 @@ const LoginPage = () => {
       })
 
       .then(([data, headers, json]) => {
-        console.log(data);
+        // console.log(data);
+        setInvalid(false);
+        setLogi(true);
         setJwt(data["accessToken"]);
         window.sessionStorage.setItem("jwt", data["accessToken"]);
         setUserId(0);
@@ -77,12 +79,16 @@ const LoginPage = () => {
         setUser(username);
         jw = data["accessToken"].split(".")[1];
         setUserRole(JSON.parse(window.atob(jw)).roles);
-        console.log(localStorage.getItem("user"));
-        router.push("/dashboard");
+        // console.log(localStorage.getItem("user"));
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
+
         // window.location.reload();
       })
       .catch((message) => {
-        alert("mensahe " + message);
+        // alert("mensahe " + message);
+        setInvalid(true);
       });
   }
 
@@ -134,6 +140,10 @@ const LoginPage = () => {
         >
           Login
         </button>
+        <label style={{ display: invalid ? "block" : "none" }}>
+          Invalid Login Credentials
+        </label>
+        <label style={{ display: logi ? "block" : "none" }}>Loging In...</label>
         <br></br>
       </form>
     </div>

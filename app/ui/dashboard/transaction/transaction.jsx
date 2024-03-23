@@ -221,7 +221,7 @@ const Transaction = ({ emptyObj }) => {
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
+          // console.log(response.data);
           setTrans(response.data);
           alert("success" + response.data.id);
           layAway.transactionId = response.data.id;
@@ -252,7 +252,7 @@ const Transaction = ({ emptyObj }) => {
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
+          // console.log(response.data);
           setLayAway(response.data);
           // alert("success");
         }
@@ -277,7 +277,7 @@ const Transaction = ({ emptyObj }) => {
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
+          // console.log(response.data);
           setTrans(response.data);
           alert("Saved");
         }
@@ -412,7 +412,7 @@ const Transaction = ({ emptyObj }) => {
       )
       .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
+          // console.log(response.data);
           // setLayAway(response.data);
           // alert("success");
         }

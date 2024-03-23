@@ -69,10 +69,6 @@ const DashboardHome = () => {
     }
   }, [begBal, addBal, lesBal, endBal]);
 
-  const populate = () => {
-    alert("popu");
-  };
-
   function getTodayDate() {
     const today = new Date();
     const year = today.getFullYear();
@@ -102,8 +98,8 @@ const DashboardHome = () => {
         setEndBal(data.endingBal);
         setBegBal(data.beginningBal);
 
-        console.log("begBal" + begBal);
-        console.log(startingBal);
+        // console.log("begBal" + begBal);
+        // console.log(startingBal);
       });
   };
 

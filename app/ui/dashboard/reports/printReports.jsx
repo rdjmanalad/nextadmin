@@ -279,7 +279,7 @@ const PrintReports = () => {
       .then((response) => response.data)
       .then((data) => {
         setBalances(data);
-        console.log(balances);
+        // console.log(balances);
         if (mode === "CASH PALAWAN") {
           begBalRef1.current.value = currencyFormat(data.beginningBal);
           endBalRef1.current.value = currencyFormat(data.endingBal);
@@ -300,7 +300,7 @@ const PrintReports = () => {
           forfeitedRef2.current.value = currencyFormat(data.forfeited);
           bankTransferRef2.current.value = currencyFormat(data.bankTransfer);
         }
-        console.log(data);
+        // console.log(data);
       });
   };
 
@@ -316,7 +316,7 @@ const PrintReports = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
+          // console.log(response.data);
           alert("Saved");
         }
       })
