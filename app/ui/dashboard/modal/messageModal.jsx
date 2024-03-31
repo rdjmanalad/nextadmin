@@ -1,24 +1,22 @@
 "use client";
-import { useState } from "react";
-import LayAwayTable from "./layAwayTable";
-import styles from "./modal.module.css";
+import styles from "./messageModal.module.css";
 
-const ModalLayAway = ({ openModalLA, setOpenModalLA, transactionId }) => {
+const MessageModal = ({ setOpenModal, message }) => {
   return (
     <>
       <div className={styles.mainContainer}>
         <div className={styles.modalContainer}>
-          <h3 className="">Lay Away Payment</h3>
+          <h3 className="">Message</h3>
           <div>
             <div>
-              <LayAwayTable transactionId={transactionId} />
+              <h2>{message}</h2>
             </div>
           </div>
           <div className={styles.modalFooter}>
             <button
               className={styles.modalButtonCancel}
               onClick={() => {
-                setOpenModalLA(false);
+                setOpenModal(false);
               }}
             >
               Close
@@ -29,4 +27,4 @@ const ModalLayAway = ({ openModalLA, setOpenModalLA, transactionId }) => {
     </>
   );
 };
-export default ModalLayAway;
+export default MessageModal;

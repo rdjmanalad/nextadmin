@@ -1,0 +1,51 @@
+.mainContainer {
+  background-color: rgba(20, 21, 26, 0.716);
+  z-index: 1000;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+}
+.modalContainer {
+  width: 500px;
+  height: 200px;
+  gap: 20px;
+  pointer-events: auto;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: var(--bgSoft);
+  box-sizing: border-box;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  border: 1px solid gray;
+  border-radius: 8px;
+  outline: 0;
+  padding: 8px 24px;
+  margin: 0 auto;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.modalButtonCancel {
+  width: 150px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: var(--buttonBlue);
+  cursor: pointer;
+  gap: 20px;
+}
+
+.modalFooter {
+  position: absolute;
+  bottom: 0;
+  width: 94%;
+  padding: 10px;
+  display: inline-flex;
+  justify-content: right;
+  /* text-align: right; */
+}

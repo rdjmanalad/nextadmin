@@ -5,11 +5,24 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import SubMenuLink from "../subMenuLink/subMenuLink";
 import { MdKeyboardArrowUp } from "react-icons/md";
+import useLocalState from "@/app/hooks/useLocalState";
 
 const MenuLink = ({ item }) => {
   const pathname = usePathname();
   const [subM, setSubM] = useState(item.subMenu ? item.subMenu : {});
   const [active, setActive] = useState(true);
+
+  const isClient = typeof window !== "undefined";
+  const [userRole, setUserRole] = isClient
+    ? useLocalState("userRole", "")
+    : ["", () => {}];
+  const [isAdmin, setIsAdmin] = useState(true);
+
+  useEffect(() => {
+    if (userRole !== "ROLE_ADMIN" && item.title.toString() === "Settings") {
+      setIsAdmin(false);
+    }
+  }, []);
 
   // useEffect(() => {
   //   if (item.subMenu) {
@@ -40,15 +53,17 @@ const MenuLink = ({ item }) => {
           )}
         </div>
       ) : (
-        <Link
-          href={item.path}
-          className={`${styles.container} 
+        isAdmin && (
+          <Link
+            href={item.path}
+            className={`${styles.container} 
             ${pathname === item.path && styles.active}`}
-        >
-          {item.icon}
-          {item.title}
-          {item.subMenu && <MdKeyboardArrowDown />}
-        </Link>
+          >
+            {item.icon}
+            {item.title}
+            {item.subMenu && <MdKeyboardArrowDown />}
+          </Link>
+        )
       )}
 
       {item.subMenu && (

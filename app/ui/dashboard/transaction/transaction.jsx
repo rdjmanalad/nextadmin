@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./transaction.module.css";
 import { useRouter } from "next/navigation";
 import ModalLayAway from "../modal/modalLayAway";
+import MessageModal from "../modal/messageModal";
 import { isTokenExpired } from "@/app/auth";
 
 const Transaction = ({ emptyObj }) => {
@@ -19,9 +20,11 @@ const Transaction = ({ emptyObj }) => {
   const [allowForfeit, setAllowForfeit] = useState(false);
   const [formattedNumber, setFormattedNumber] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [openModalLA, setOpenModalLA] = useState(false);
   const isClient = typeof window !== "undefined";
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [isfullyPaid, setIsfullyPaid] = useState(false);
+  const [message, setMessage] = useState("");
 
   const [layAway, setLayAway] = useState({
     id: "",
@@ -223,7 +226,9 @@ const Transaction = ({ emptyObj }) => {
         if (response.status === 200) {
           // console.log(response.data);
           setTrans(response.data);
-          alert("success" + response.data.id);
+          // alert("success" + response.data.id);
+          setMessage("Transaction saved.");
+          setOpenModal(true);
           layAway.transactionId = response.data.id;
           layAway.user = user;
           if (pTerm === "LAY-AWAY") {
@@ -231,6 +236,29 @@ const Transaction = ({ emptyObj }) => {
           }
           saveBalance();
           populate();
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
+  const saveForfeited = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/transactions/save", trans, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          // console.log(response.data);
+          setTrans(response.data);
+          setMessage("Transaction is now forfeited");
+          setOpenModal(true);
         }
       })
       .catch((message) => {
@@ -279,7 +307,9 @@ const Transaction = ({ emptyObj }) => {
         if (response.status === 200) {
           // console.log(response.data);
           setTrans(response.data);
-          alert("Saved");
+          // alert("Saved");
+          setMessage("Transaction saved.");
+          setOpenModal(true);
         }
       })
       .catch((message) => {
@@ -290,36 +320,90 @@ const Transaction = ({ emptyObj }) => {
   const save = (e) => {
     e.preventDefault();
     if (validate()) {
-      saveTransaction();
+      if (trans.forfeitedAmt > 0) {
+        saveForfeited();
+      } else {
+        saveTransaction();
+      }
     } else {
-      alert("Please fill all fields");
+      setMessage("Please fill all fields.");
+      setOpenModal(true);
     }
-
-    // saveTransaction();
   };
 
   const validate = () => {
     var isvalid = true;
-    if (
-      trans.codeNo === "" ||
-      trans.inventoryNo === "" ||
-      trans.transactDate === "" ||
-      trans.description === "" ||
-      trans.karat === "" ||
-      trans.weight === "" ||
-      trans.capital === "" ||
-      trans.discountedPrice === "" ||
-      trans.customerName === "" ||
-      trans.receiverName === "" ||
-      trans.address === "" ||
-      trans.contactNo === "" ||
-      trans.paymentTerm === "" ||
-      trans.paymentMode === "" ||
-      trans.cashPaymentDate === "" ||
-      trans.cashPayment === "" ||
-      trans.referenceNo === ""
-    ) {
-      isvalid = false;
+    if (isCash) {
+      if (
+        trans.codeNo === "" ||
+        trans.inventoryNo === "" ||
+        trans.transactDate === "" ||
+        trans.description === "" ||
+        trans.karat === "" ||
+        trans.weight === "" ||
+        trans.capital === "" ||
+        trans.discountedPrice === "" ||
+        trans.customerName === "" ||
+        trans.receiverName === "" ||
+        trans.address === "" ||
+        trans.contactNo === "" ||
+        trans.paymentTerm === "" ||
+        trans.paymentMode === "" ||
+        trans.cashPaymentDate === "" ||
+        trans.cashPayment === "" ||
+        trans.referenceNo === ""
+      ) {
+        isvalid = false;
+      }
+    } else {
+      if (trans.forfeitedAmt > 0) {
+        trans.balance = balanceRef.current.value
+          .replaceAll(",", "")
+          .replaceAll("₱", "");
+        trans.totalPayment = totalPaymentRef.current.value
+          .replaceAll(",", "")
+          .replaceAll("₱", "");
+        if (
+          trans.codeNo === "" ||
+          trans.inventoryNo === "" ||
+          trans.transactDate === "" ||
+          trans.description === "" ||
+          trans.karat === "" ||
+          trans.weight === "" ||
+          trans.capital === "" ||
+          trans.discountedPrice === "" ||
+          trans.customerName === "" ||
+          trans.receiverName === "" ||
+          trans.address === "" ||
+          trans.contactNo === "" ||
+          trans.paymentTerm === "" ||
+          trans.forfeitedDate === ""
+        ) {
+          isvalid = false;
+        }
+      } else {
+        if (
+          trans.codeNo === "" ||
+          trans.inventoryNo === "" ||
+          trans.transactDate === "" ||
+          trans.description === "" ||
+          trans.karat === "" ||
+          trans.weight === "" ||
+          trans.capital === "" ||
+          trans.discountedPrice === "" ||
+          trans.customerName === "" ||
+          trans.receiverName === "" ||
+          trans.address === "" ||
+          trans.contactNo === "" ||
+          trans.paymentTerm === "" ||
+          paymentModeRef.current.value === "" ||
+          cashPaymentDateRef.current.value == "" ||
+          cashPaymentRef.current.value === "" ||
+          referenceNoRef.current.value === ""
+        ) {
+          isvalid = false;
+        }
+      }
     }
     return isvalid;
   };
@@ -327,7 +411,12 @@ const Transaction = ({ emptyObj }) => {
   const test = (e) => {};
 
   const printLbc = () => {
-    printReport();
+    if (trans.id === undefined) {
+      setMessage("Please save the transaction first.");
+      setOpenModal(true);
+    } else {
+      printReport();
+    }
   };
 
   const printReport = () => {
@@ -372,7 +461,9 @@ const Transaction = ({ emptyObj }) => {
 
   const printReceipt = () => {
     if (trans.id === undefined) {
-      alert("Please save the transaction first.");
+      // alert("Please save the transaction first.");
+      setMessage("Please save the transaction first.");
+      setOpenModal(true);
     } else {
       var id = trans.id;
       var jwt = window.sessionStorage.getItem("jwt");
@@ -395,7 +486,6 @@ const Transaction = ({ emptyObj }) => {
   };
 
   const saveBalance = () => {
-    // alert("save balance");
     const date = cashPaymentDateRef.current.value;
     var amount = removeCommas(cashPaymentRef.current.value);
     var jwt = window.sessionStorage.getItem("jwt");
@@ -448,17 +538,40 @@ const Transaction = ({ emptyObj }) => {
 
   const addPayment = (e) => {
     e.preventDefault();
-    // alert("iscash:" + isCash);
-    if (!isCash) {
-      if (trans.id === "" || trans.id === undefined) {
-        saveTransaction();
+    if (trans.id === undefined) {
+      setMessage("Please save the transaction first.");
+      setOpenModal(true);
+    } else {
+      // alert("iscash:" + isCash);
+      if (validPayDetails()) {
+        if (!isCash) {
+          if (trans.id === "" || trans.id === undefined) {
+            saveTransaction();
+          }
+          layAway.transactionId = trans.id;
+          layAway.user = user;
+          saveLayAwayPay();
+          saveTranPayment();
+          saveBalance();
+          populate();
+        }
+      } else {
+        setMessage("Please fill all payment details");
+        setOpenModal(true);
       }
-      layAway.transactionId = trans.id;
-      layAway.user = user;
-      saveLayAwayPay();
-      saveTranPayment();
-      saveBalance();
-      populate();
+    }
+  };
+
+  const validPayDetails = () => {
+    if (
+      paymentModeRef.current.value === "" ||
+      cashPaymentDateRef.current.value === "" ||
+      cashPaymentRef.current.value === "" ||
+      referenceNoRef.current.value === ""
+    ) {
+      return false;
+    } else {
+      return true;
     }
   };
 
@@ -842,7 +955,7 @@ const Transaction = ({ emptyObj }) => {
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  setOpenModal(true);
+                  setOpenModalLA(true);
                 }}
               >
                 Show Lay-Away Payments
@@ -895,12 +1008,15 @@ const Transaction = ({ emptyObj }) => {
           </div>
         </div>
       </form>
-      {openModal && (
+      {openModalLA && (
         <ModalLayAway
-          openModal={openModal}
-          setOpenModal={setOpenModal}
+          openModalLA={openModalLA}
+          setOpenModalLA={setOpenModalLA}
           transactionId={trans.id != undefined ? trans.id : "0"}
         />
+      )}
+      {openModal && (
+        <MessageModal setOpenModal={setOpenModal} message={message} />
       )}
     </div>
   );

@@ -1,0 +1,10 @@
+.container {
+  position: sticky;
+  top: 20px;
+  max-height: 100svh;
+  min-height: 95svh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bgSoft);
+  border-radius: 10px;
+}

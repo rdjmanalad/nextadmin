@@ -4,9 +4,13 @@ import Chart from "../chart/chart";
 import styles from "./dashboard.module.css";
 import useLocalState from "@/app/hooks/useLocalState";
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { isTokenExpired } from "@/app/auth";
+import Rightbar from "../rightbar/rightbar";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 
 const DashboardHome = () => {
   const isClient = typeof window !== "undefined";
@@ -25,6 +29,11 @@ const DashboardHome = () => {
   const [bal, setBal] = useState([]);
   const [isCash, setIsCash] = useState(false);
   const [toDisplay, setToDisplay] = useState(false);
+  const [balances, setBalances] = useState([]);
+
+  const onGridReady = useCallback((params) => {
+    getAllBalances();
+  }, []);
 
   var balvar = {};
 
@@ -59,7 +68,8 @@ const DashboardHome = () => {
       window.sessionStorage.clear();
     }
     if (jwtToken && !isTokenExpired(jwtToken)) {
-      getBalances();
+      // getBalances();
+      getAllBalances();
     }
   }, []);
 
@@ -103,6 +113,83 @@ const DashboardHome = () => {
       });
   };
 
+  const getAllBalances = () => {
+    const date = getTodayDate();
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/dashboard/balance/all/" + date, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setBalances(data);
+        // console.log(data);
+      });
+  };
+
+  const begBalFormatter = (params) => {
+    const amount = currencyFormat(params.data.beginningBal);
+    return amount;
+  };
+
+  const addBalFormatter = (params) => {
+    const amount = currencyFormat(params.data.addBal);
+    return amount;
+  };
+
+  const lessBalFormatter = (params) => {
+    const amount = currencyFormat(params.data.lessBal);
+    return amount;
+  };
+
+  const endBalFormatter = (params) => {
+    const amount = currencyFormat(params.data.endingBal);
+    return amount;
+  };
+
+  const currencyFormat = (value) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "PHP",
+    }).format(value);
+
+  const columnDefs = [
+    {
+      headerName: "Account Name",
+      field: "accountName",
+      width: "200",
+    },
+    {
+      headerName: "Beginning Balance",
+      field: "beginningBal",
+      width: "180",
+      valueFormatter: begBalFormatter,
+    },
+    {
+      headerName: "Add",
+      field: "addBal",
+      width: "150",
+      valueFormatter: addBalFormatter,
+    },
+    {
+      headerName: "Less",
+      field: "lessBal",
+      width: "150",
+      valueFormatter: lessBalFormatter,
+    },
+    {
+      headerName: "Ending Balance",
+      field: "endingBal",
+      width: "180",
+      valueFormatter: endBalFormatter,
+    },
+  ];
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.main}>
@@ -114,12 +201,25 @@ const DashboardHome = () => {
             <Card details={endingBal} />
           </div>
         )}
-        {/* <Transaction /> */}
-        {/* <Chart /> */}
+        <div className={styles.container2}>
+          <h2 className={styles.header}>Balances</h2>
+          <div className={styles.balTable}>
+            <div className={`ag-theme-quartz ${styles.aggrid}`}>
+              <AgGridReact
+                rowData={balances}
+                columnDefs={columnDefs}
+                rowSelection={"single"}
+                // ref={gridRef}
+                onGridReady={onGridReady}
+                alwaysShowHorizontalScroll={true}
+              />
+            </div>
+          </div>
+        </div>
       </div>
-      {/* <div className={styles.side}>
-          <Rightbar />
-        </div> */}
+      <div className={styles.side}>
+        <Rightbar />
+      </div>
     </div>
   );
 };

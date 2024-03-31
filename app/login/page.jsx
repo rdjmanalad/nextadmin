@@ -25,8 +25,8 @@ const LoginPage = () => {
       router.push("/dashboard");
     }
 
-    // setBaseURL("http://localhost:8080");
-    setBaseURL("http://52.74.232.36:85");
+    setBaseURL("http://localhost:8080");
+    // setBaseURL("http://52.74.232.36:85");
   }, []);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const LoginPage = () => {
     fetch(baseURL + "/api/login", {
       headers: {
         "Content-Type": "application-json",
-        "Access-Control-Allow-Origin": "*",
+        // "Access-Control-Allow-Origin": "*",
       },
       method: "post",
       body: JSON.stringify(reqBody),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import MenuLink from "./menuLink/menuLink";
 import styles from "./sidebar.module.css";
@@ -60,7 +60,7 @@ const menuItems = [
             icon: <LuUserCog />,
           },
           {
-            title: "Add Users",
+            title: "Add/Edit Users",
             path: "/dashboard/userAdd",
             icon: <LuUserPlus />,
           },

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import useLocalState from "@/app/hooks/useLocalState";
 import styles from "./userEdit.module.css";
+import MessageModal from "../../modal/messageModal";
 
 const UserEdit = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -17,23 +18,30 @@ const UserEdit = () => {
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [count, setCount] = useState(0);
+  const [openModal, setOpenModal] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (count > 0) {
       if (validPass) {
         // Check if the new password and confirmation match
         if (newPassword === "" || newPassword === null) {
-          setErrorMessage("Password must not be empty");
+          setMessage("Password must not be empty.");
+          setOpenModal(true);
+          // setErrorMessage("Password must not be empty");
         } else {
           if (newPassword === confirmPassword) {
             saveNewPass();
           } else {
-            setErrorMessage("New password and confirmation do not match.");
+            // setErrorMessage("New password and confirmation do not match.");
+            setMessage("New password and confirmation do not match.");
+            setOpenModal(true);
           }
         }
       } else {
-        // Password is invalid, show an error message
-        setErrorMessage("Invalid current password. Please try again.");
+        // setErrorMessage("Invalid current password. Please try again.");
+        setMessage("Invalid current password. Please try again.");
+        setOpenModal(true);
       }
     }
     setCount(count + 1);
@@ -79,9 +87,9 @@ const UserEdit = () => {
           console.log(response.data);
           //   setValidPass(false);
           setErrorMessage("");
-          setSuccessMessage("Password updated successfully!");
-
-          // alert("success");
+          // setSuccessMessage("Password updated successfully!");
+          setMessage("Password updated successfully!");
+          setOpenModal(true);
         }
       })
       .catch((message) => {
@@ -128,6 +136,9 @@ const UserEdit = () => {
           <div style={{ color: "green" }}>{successMessage}</div>
         )}
       </div>
+      {openModal && (
+        <MessageModal setOpenModal={setOpenModal} message={message} />
+      )}
     </div>
   );
 };
