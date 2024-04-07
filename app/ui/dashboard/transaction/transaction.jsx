@@ -266,6 +266,29 @@ const Transaction = ({ emptyObj }) => {
       });
   };
 
+  const saveDetailsOnly = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/transactions/save", trans, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          // console.log(response.data);
+          setTrans(response.data);
+          setMessage("Saved");
+          setOpenModal(true);
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
   const saveLayAwayPay = () => {
     // alert("lay awayid:" + layAway.id);
     layAway.id = null;
@@ -323,7 +346,11 @@ const Transaction = ({ emptyObj }) => {
       if (trans.forfeitedAmt > 0) {
         saveForfeited();
       } else {
-        saveTransaction();
+        if (trans.id === "") {
+          saveTransaction();
+        } else {
+          saveDetailsOnly();
+        }
       }
     } else {
       setMessage("Please fill all fields.");
@@ -382,26 +409,46 @@ const Transaction = ({ emptyObj }) => {
           isvalid = false;
         }
       } else {
-        if (
-          trans.codeNo === "" ||
-          trans.inventoryNo === "" ||
-          trans.transactDate === "" ||
-          trans.description === "" ||
-          trans.karat === "" ||
-          trans.weight === "" ||
-          trans.capital === "" ||
-          trans.discountedPrice === "" ||
-          trans.customerName === "" ||
-          trans.receiverName === "" ||
-          trans.address === "" ||
-          trans.contactNo === "" ||
-          trans.paymentTerm === "" ||
-          paymentModeRef.current.value === "" ||
-          cashPaymentDateRef.current.value == "" ||
-          cashPaymentRef.current.value === "" ||
-          referenceNoRef.current.value === ""
-        ) {
-          isvalid = false;
+        if (trans.id === "") {
+          if (
+            trans.codeNo === "" ||
+            trans.inventoryNo === "" ||
+            trans.transactDate === "" ||
+            trans.description === "" ||
+            trans.karat === "" ||
+            trans.weight === "" ||
+            trans.capital === "" ||
+            trans.discountedPrice === "" ||
+            trans.customerName === "" ||
+            trans.receiverName === "" ||
+            trans.address === "" ||
+            trans.contactNo === "" ||
+            trans.paymentTerm === "" ||
+            paymentModeRef.current.value === "" ||
+            cashPaymentDateRef.current.value == "" ||
+            cashPaymentRef.current.value === "" ||
+            referenceNoRef.current.value === ""
+          ) {
+            isvalid = false;
+          }
+        } else {
+          if (
+            trans.codeNo === "" ||
+            trans.inventoryNo === "" ||
+            trans.transactDate === "" ||
+            trans.description === "" ||
+            trans.karat === "" ||
+            trans.weight === "" ||
+            trans.capital === "" ||
+            trans.discountedPrice === "" ||
+            trans.customerName === "" ||
+            trans.receiverName === "" ||
+            trans.address === "" ||
+            trans.contactNo === "" ||
+            trans.paymentTerm === ""
+          ) {
+            isvalid = false;
+          }
         }
       }
     }

@@ -6,27 +6,28 @@ import { isTokenExpired } from "@/app/auth";
 import useLocalState from "@/app/hooks/useLocalState";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import MessageModal from "../modal/messageModal";
+import ConfirmmModal from "../modal/confirmModal";
 
 const PrintReports = () => {
-  const [pm, setPm] = useState([]);
-  const [mode, setMode] = useState("");
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
-  const [isCashPal, setIsCashPal] = useState(false);
-  const [isOther, setIsOther] = useState(false);
-  const router = useRouter();
   const isClient = typeof window !== "undefined";
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [userId, setUserId] = isClient
     ? useLocalState("userId", "")
     : ["", () => {}];
-
-  const [repDate, setRepDate] = useState(new Date());
+  const router = useRouter();
+  const [pm, setPm] = useState([]);
+  const [mode, setMode] = useState("");
+  const [isCashPal, setIsCashPal] = useState(false);
+  const [isOther, setIsOther] = useState(false);
   const [balances, setBalances] = useState({});
+  const [message, setMessage] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [openModalConf, setOpenModalConf] = useState(false);
 
   const startDateRef = useRef();
   const endDateRef = useRef();
-  const dateRef1 = useRef();
-  const dateRef2 = useRef();
   const begBalRef1 = useRef();
   const begBalRef2 = useRef();
   const payRecRef1 = useRef();
@@ -128,6 +129,22 @@ const PrintReports = () => {
     var dateTo = endDateRef.current.value;
     axios
       .get(baseUrl + "/api/reports/sold/" + dateTo + "/" + dateFrom, {
+        headers: {
+          contentType: "application/json",
+          accept: "application/pdf",
+        },
+        responseType: "blob",
+      })
+      .then((response) => {
+        const file = new Blob([response.data], { type: "application/pdf" });
+        var w = window.open(window.URL.createObjectURL(file));
+      });
+  };
+
+  const printDailySummary = (e) => {
+    const date = repDateRef.current.value;
+    axios
+      .get(baseUrl + "/api/reports/daily/summary/" + date, {
         headers: {
           contentType: "application/json",
           accept: "application/pdf",
@@ -305,6 +322,17 @@ const PrintReports = () => {
   };
 
   const saveBalance = () => {
+    if (isCashPal) {
+      balances.endingBal = endBalRef1.current.value
+        .replaceAll(",", "")
+        .replaceAll("₱", "");
+    } else {
+      balances.endingBal = endBalRef2.current.value
+        .replaceAll(",", "")
+        .replaceAll("₱", "");
+    }
+    balances;
+
     var jwt = window.sessionStorage.getItem("jwt");
     axios
       .post(baseUrl + "/api/dashboard/save", balances, {
@@ -317,7 +345,30 @@ const PrintReports = () => {
       .then((response) => {
         if (response.status === 200) {
           // console.log(response.data);
-          alert("Saved");
+          setMessage("Saved");
+          setOpenModal(true);
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
+  const generateBalance = (e) => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/dashboard/balance/createNewBal", {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setMessage(response.data);
+          setOpenModal(true);
+          location.reload();
         }
       })
       .catch((message) => {
@@ -375,6 +426,10 @@ const PrintReports = () => {
     balances.lessBal = less;
   };
 
+  const confirmOk = () => {
+    alert("sss");
+  };
+
   return (
     <div className={styles.container1}>
       <div className={styles.container}>
@@ -402,6 +457,16 @@ const PrintReports = () => {
               ))}
             </select>
           </div>
+          <hr></hr>
+          <button
+            className={styles.buttons}
+            onClick={(e) => {
+              e.preventDefault();
+              printDailySummary(e);
+            }}
+          >
+            Print Summary
+          </button>
         </div>
         <div className={styles.form}>
           <h3>Sold Monthly Reports</h3>
@@ -777,6 +842,30 @@ const PrintReports = () => {
             </button>
           </div>
         </div>
+        <div className={styles.form}>
+          <button
+            className={styles.buttonsOra}
+            onClick={(e) => {
+              e.preventDefault();
+              setMessage("Generate new beginning balance?");
+              setOpenModalConf(true);
+
+              // generateBalance(e);
+            }}
+          >
+            Generate new beginning balance
+          </button>
+        </div>
+        {openModal && (
+          <MessageModal setOpenModal={setOpenModal} message={message} />
+        )}
+        {openModalConf && (
+          <ConfirmmModal
+            setOpenModalConf={setOpenModalConf}
+            message={message}
+            confirmOk={confirmOk}
+          />
+        )}
       </div>
       <br></br>
     </div>
