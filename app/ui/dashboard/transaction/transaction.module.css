@@ -196,3 +196,7 @@
   cursor: pointer;
   background-color: var(--buttonBlue);
 }
+
+.buttonLAP {
+  background-color: var(--buttonBlue);
+}

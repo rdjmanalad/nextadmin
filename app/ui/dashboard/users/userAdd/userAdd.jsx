@@ -398,7 +398,7 @@ const UserAdd = () => {
                 autoComplete="off"
                 maxLength={30}
                 type="text"
-                id="userName"
+                id="userNameE"
                 value={edUName}
                 onChange={(e) => handleChange(e)}
               />

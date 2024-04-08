@@ -354,7 +354,7 @@ const PrintReports = () => {
       });
   };
 
-  const generateBalance = (e) => {
+  const generateBalance = () => {
     var jwt = window.sessionStorage.getItem("jwt");
     axios
       .post(baseUrl + "/api/dashboard/balance/createNewBal", {
@@ -427,7 +427,8 @@ const PrintReports = () => {
   };
 
   const confirmOk = () => {
-    alert("sss");
+    // alert("sss");
+    generateBalance();
   };
 
   return (

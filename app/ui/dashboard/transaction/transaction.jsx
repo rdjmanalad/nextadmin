@@ -346,7 +346,7 @@ const Transaction = ({ emptyObj }) => {
       if (trans.forfeitedAmt > 0) {
         saveForfeited();
       } else {
-        if (trans.id === "") {
+        if (trans.id === "" || trans.id === undefined) {
           saveTransaction();
         } else {
           saveDetailsOnly();
@@ -470,7 +470,7 @@ const Transaction = ({ emptyObj }) => {
     var senderName = senderNameRef.current.value;
     var senderAddress = senderAddressRef.current.value;
     var senderContactNo = senderContactNoRef.current.value;
-    var receiverName = customerNameRef.current.value;
+    var receiverName = receiverNameRef.current.value;
     var receiverAddress = addressRef.current.value;
     var receiverContactNo = contactNoRef.current.value;
     var jwt = window.sessionStorage.getItem("jwt");
@@ -677,7 +677,7 @@ const Transaction = ({ emptyObj }) => {
               maxLength="15"
               // placeholder="Code#"
               onChange={(e) => {
-                trans.codeNo = e.target.value;
+                trans.codeNo = e.target.value.toUpperCase();
               }}
             ></input>
             <label>Inv#</label>
@@ -686,7 +686,7 @@ const Transaction = ({ emptyObj }) => {
               // placeholder="Inventory No."
               maxLength="15"
               onChange={(e) => {
-                trans.inventoryNo = e.target.value;
+                trans.inventoryNo = e.target.value.toUpperCase();
               }}
             ></input>
             <label>Transaction Date</label>
@@ -704,7 +704,7 @@ const Transaction = ({ emptyObj }) => {
               // placeholder="Description"
               maxLength="30"
               onChange={(e) => {
-                trans.description = e.target.value;
+                trans.description = e.target.value.toUpperCase();
               }}
             ></input>
             <label>Karat</label>
@@ -713,7 +713,7 @@ const Transaction = ({ emptyObj }) => {
               // placeholder="Karat"
               maxLength="15"
               onChange={(e) => {
-                trans.karat = e.target.value;
+                trans.karat = e.target.value.toUpperCase();
               }}
             ></input>
             <label>Weight</label>
@@ -761,7 +761,7 @@ const Transaction = ({ emptyObj }) => {
               // placeholder="Customer Name"
               maxLength="50"
               onChange={(e) => {
-                trans.customerName = e.target.value;
+                trans.customerName = e.target.value.toUpperCase();
               }}
             ></input>
             <label>Receivers Name</label>
@@ -770,7 +770,7 @@ const Transaction = ({ emptyObj }) => {
               // placeholder="Receivers Name"
               maxLength="50"
               onChange={(e) => {
-                trans.receiverName = e.target.value;
+                trans.receiverName = e.target.value.toUpperCase();
               }}
             ></input>
             <label>Complete Address</label>
@@ -779,7 +779,7 @@ const Transaction = ({ emptyObj }) => {
               // placeholder="Complete Address"
               maxLength="100"
               onChange={(e) => {
-                trans.address = e.target.value;
+                trans.address = e.target.value.toUpperCase();
               }}
             ></input>
             <label>Contact No.</label>
@@ -915,6 +915,20 @@ const Transaction = ({ emptyObj }) => {
                   Forfeit
                 </button>
               </div>
+              <div
+                style={{ display: isCash ? "none" : "block" }}
+                className={styles.buttonContainer}
+              >
+                <button
+                  className={styles.buttonLAP}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setOpenModalLA(true);
+                  }}
+                >
+                  Show Lay-Away Payments
+                </button>
+              </div>
             </div>
             <div style={{ display: isCash ? "none" : "block" }}>
               <div className={styles.cardContainer2}>
@@ -995,17 +1009,19 @@ const Transaction = ({ emptyObj }) => {
                 ></input>
               </div>
             </div>
-            <div
-              style={{ display: isCash ? "none" : "block" }}
-              className={styles.buttonContainer2}
-            >
+            <div className={styles.buttonContainer3}>
+              <button className={styles.save} onClick={(e) => save(e)}>
+                Save Details
+              </button>
               <button
+                className={styles.printForfeited}
+                disabled={isfullyPaid || isCash || !isForfeited}
                 onClick={(e) => {
                   e.preventDefault();
-                  setOpenModalLA(true);
+                  printReceipt();
                 }}
               >
-                Show Lay-Away Payments
+                Print Forfeited
               </button>
             </div>
             <div className={styles.buttonContainer2}>
@@ -1028,21 +1044,7 @@ const Transaction = ({ emptyObj }) => {
                 Print Receipt
               </button>
             </div>
-            <div className={styles.buttonContainer3}>
-              <button className={styles.save} onClick={(e) => save(e)}>
-                Save Details
-              </button>
-              <button
-                className={styles.printForfeited}
-                disabled={isfullyPaid || isCash || !isForfeited}
-                onClick={(e) => {
-                  e.preventDefault();
-                  printReceipt();
-                }}
-              >
-                Print Forfeited
-              </button>
-            </div>
+
             <div className={styles.buttonContainer2}>
               <button
                 onClick={(e) => {
