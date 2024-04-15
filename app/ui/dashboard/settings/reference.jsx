@@ -145,6 +145,29 @@ const Reference = () => {
       });
   };
 
+  const deleteReference = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .delete(baseUrl + "/api/reference/delete/" + reference.id, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setMessage("Reference deleted.");
+          setOpenModal(true);
+          getReference();
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
   const checkSave = (e) => {
     e.preventDefault();
     if (
@@ -156,6 +179,17 @@ const Reference = () => {
       setOpenModal(true);
     } else {
       handleSave();
+    }
+  };
+
+  const handleDelete = (e) => {
+    e.preventDefault();
+    if (reference.id === "" || reference.id === undefined) {
+      setMessage("Please choose a reference.");
+      setOpenModal(true);
+    } else {
+      deleteReference();
+      // alert("cont");
     }
   };
 
@@ -226,6 +260,12 @@ const Reference = () => {
             }}
           >
             Clear
+          </button>
+          <button
+            className={styles.deleteButton}
+            onClick={(e) => handleDelete(e)}
+          >
+            Delete
           </button>
         </div>
         {/* <br> </br> */}

@@ -70,6 +70,9 @@ const DashboardHome = () => {
     if (jwtToken && !isTokenExpired(jwtToken)) {
       // getBalances();
       getAllBalances();
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 1000);
     }
   }, []);
 

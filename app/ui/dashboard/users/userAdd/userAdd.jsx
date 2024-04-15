@@ -11,6 +11,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { Instrument_Sans } from "next/font/google";
 import MessageModal from "../../modal/messageModal";
+import UserEdit from "../userEdit/userEdit";
 
 const UserAdd = () => {
   const [userName, setUserName] = useState("");
@@ -250,6 +251,29 @@ const UserAdd = () => {
       });
   };
 
+  const deleteUser = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .delete(baseUrl + "/api/users/delete/" + appUserEdit.userId, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setMessage("User deleted.");
+          setOpenModal(true);
+          getUsers();
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
   const columnDefs = [
     {
       headerName: "User Id",
@@ -315,6 +339,17 @@ const UserAdd = () => {
     }
   };
 
+  const handleDelete = (e) => {
+    e.preventDefault();
+    if (appUserEdit.userId === "" || appUserEdit.userId === undefined) {
+      setMessage("Please choose a user.");
+      setOpenModal(true);
+    } else {
+      deleteUser();
+      // alert("cont");
+    }
+  };
+
   return (
     <div className={styles.container1}>
       <div className={styles.container}>
@@ -366,8 +401,10 @@ const UserAdd = () => {
               ))}
             </select>
           </div>
-          <div className={styles.buttonDiv}>
-            <button onClick={handleSaveUser}>Save User</button>
+          <div>
+            <button className={styles.saveButton} onClick={handleSaveUser}>
+              Save User
+            </button>
           </div>
           {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
           {successMessage && (
@@ -423,7 +460,18 @@ const UserAdd = () => {
               </select>
             </div>
             <div className={styles.buttonDiv}>
-              <button onClick={(e) => handleSaveEdit(e)}>Save Changes</button>
+              <button
+                className={styles.saveButton}
+                onClick={(e) => handleSaveEdit(e)}
+              >
+                Save Changes
+              </button>
+              <button
+                className={styles.deleteButton}
+                onClick={(e) => handleDelete(e)}
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

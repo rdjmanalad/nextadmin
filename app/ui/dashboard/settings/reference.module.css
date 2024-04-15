@@ -46,8 +46,7 @@
 }
 
 .buttonSave {
-  margin-right: 2px;
-  width: 98%;
+  width: 100%;
   height: 30px;
   border-radius: 5px;
   border: none;
@@ -64,8 +63,18 @@
   background-color: var(--buttonBlue);
 }
 
+.deleteButton {
+  width: 100%;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  background-color: var(--buttonRed);
+}
+
 .divButtons {
   margin-top: 15px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
 }
