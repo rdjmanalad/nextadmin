@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import useLocalState from "../hooks/useLocalState";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -25,8 +27,8 @@ const LoginPage = () => {
       router.push("/dashboard");
     }
 
-    setBaseURL("http://localhost:8080");
-    // setBaseURL("http://52.74.232.36:85");
+    // setBaseURL("http://localhost:8080");
+    setBaseURL("http://52.74.232.36:85");
   }, []);
 
   useEffect(() => {
