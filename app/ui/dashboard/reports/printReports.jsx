@@ -44,6 +44,10 @@ const PrintReports = () => {
   const bankTransferRef2 = useRef();
   const transPoRef1 = useRef();
   const repDateRef = useRef();
+  const ceRef1 = useRef();
+  const ceRef2 = useRef();
+  const cedRef1 = useRef();
+  const cedRef2 = useRef();
 
   useEffect(() => {
     const jwtToken = window.sessionStorage.getItem("jwt");
@@ -296,7 +300,6 @@ const PrintReports = () => {
       .then((response) => response.data)
       .then((data) => {
         setBalances(data);
-        // console.log(balances);
         if (mode === "CASH PALAWAN") {
           begBalRef1.current.value = currencyFormat(data.beginningBal);
           endBalRef1.current.value = currencyFormat(data.endingBal);
@@ -308,6 +311,8 @@ const PrintReports = () => {
           forfeitedRef1.current.value = currencyFormat(data.forfeited);
           bankTransferRef1.current.value = currencyFormat(data.bankTransfer);
           transPoRef1.current.value = currencyFormat(data.transPo);
+          ceRef1.current.value = currencyFormat(data.correctingEntry);
+          cedRef1.current.value = data.ceDetails;
         } else {
           begBalRef2.current.value = currencyFormat(data.beginningBal);
           endBalRef2.current.value = currencyFormat(data.endingBal);
@@ -316,6 +321,8 @@ const PrintReports = () => {
           gamePriceRef2.current.value = currencyFormat(data.gamePrize);
           forfeitedRef2.current.value = currencyFormat(data.forfeited);
           bankTransferRef2.current.value = currencyFormat(data.bankTransfer);
+          ceRef2.current.value = currencyFormat(data.correctingEntry);
+          cedRef2.current.value = data.ceDetails;
         }
         // console.log(data);
       });
@@ -395,6 +402,18 @@ const PrintReports = () => {
     }
   };
 
+  const normalizeCurrency2 = (value) => {
+    if (value !== undefined) {
+      // Allow digits, decimal point, and negative sign
+      return value
+        .replace(/[^\d.-]/g, "")
+        .replace(/(\..*)\./g, "$1") // Remove extra decimal points
+        .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") // Add commas for thousands separator
+        .replace(/(?<=\.\d*),(?=\d+)/g, "") // Remove comma before decimal digits
+        .replace(/(\.\d{2})\d*/g, "$1"); // Limit to two decimal places
+    }
+  };
+
   const currencyFormat = (value) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -402,7 +421,7 @@ const PrintReports = () => {
     }).format(value);
 
   const balanceLess1 = () => {
-    const add = balances.lbcClaimed;
+    const add = Number(balances.lbcClaimed) + Number(balances.correctingEntry);
     const less =
       Number(balances.lbcFees) +
       Number(balances.gamePrize) +
@@ -422,7 +441,9 @@ const PrintReports = () => {
       Number(balances.forfeited) +
       Number(balances.bankTransfer);
     const base = Number(balances.endingBal);
-    endBalRef2.current.value = currencyFormat(Number(base) - Number(less));
+    endBalRef2.current.value = currencyFormat(
+      Number(base) - Number(less) + Number(balances.correctingEntry)
+    );
     balances.lessBal = less;
   };
 
@@ -680,6 +701,40 @@ const PrintReports = () => {
               }}
             />
           </div>
+          <div className={styles.dailyForms}>
+            <label>Correcting Entry(CE):</label>
+            <input
+              ref={ceRef1}
+              style={{ textAlign: "right" }}
+              maxLength="10"
+              onFocus={(event) => event.target.select()}
+              onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeCurrency2(value);
+                balances.correctingEntry = value
+                  .replaceAll(",", "")
+                  .replaceAll("₱", "");
+              }}
+              onBlur={(e) => {
+                const { value } = e.target;
+                balanceLess1(value.replaceAll(",", "").replaceAll("₱", ""));
+                if (!isNaN(value)) {
+                  e.target.value = currencyFormat(value);
+                }
+              }}
+            />
+          </div>
+          <hr style={{ marginBottom: "5px" }}></hr>
+          <div className={styles.dailyForms}>
+            <label>CE Details:</label>
+            <textarea
+              style={{ resize: "vertical" }}
+              ref={cedRef1}
+              onChange={(e) => {
+                balances.ceDetails = e.target.value;
+              }}
+            ></textarea>
+          </div>
           <br></br>
           <div className={styles.dailyForms}>
             <label>Ending Bal:</label>
@@ -811,6 +866,40 @@ const PrintReports = () => {
                 }
               }}
             />
+          </div>
+          <hr style={{ marginBottom: "5px" }}></hr>
+          <div className={styles.dailyForms}>
+            <label>Correcting Entry(CE):</label>
+            <input
+              ref={ceRef2}
+              style={{ textAlign: "right" }}
+              maxLength="10"
+              onFocus={(event) => event.target.select()}
+              onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeCurrency2(value);
+                balances.correctingEntry = value
+                  .replaceAll(",", "")
+                  .replaceAll("₱", "");
+              }}
+              onBlur={(e) => {
+                const { value } = e.target;
+                balanceLess2(value.replaceAll(",", "").replaceAll("₱", ""));
+                if (!isNaN(value)) {
+                  e.target.value = currencyFormat(value);
+                }
+              }}
+            />
+          </div>
+          <div className={styles.dailyForms}>
+            <label>CE Details:</label>
+            <textarea
+              style={{ resize: "vertical" }}
+              ref={cedRef2}
+              onChange={(e) => {
+                balances.ceDetails = e.target.value;
+              }}
+            ></textarea>
           </div>
           <br></br>
           <div className={styles.dailyForms}>

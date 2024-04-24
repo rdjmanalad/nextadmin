@@ -25,6 +25,7 @@ const Transaction = ({ emptyObj }) => {
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [isfullyPaid, setIsfullyPaid] = useState(false);
   const [message, setMessage] = useState("");
+  const [latestBalDate, setLatestBalDate] = useState("");
 
   const [layAway, setLayAway] = useState({
     id: "",
@@ -342,15 +343,24 @@ const Transaction = ({ emptyObj }) => {
 
   const save = (e) => {
     e.preventDefault();
+
     if (validate()) {
-      if (trans.forfeitedAmt > 0) {
-        saveForfeited();
-      } else {
-        if (trans.id === "" || trans.id === undefined) {
-          saveTransaction();
+      if (
+        latestBalDate ===
+        new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
+      ) {
+        if (trans.forfeitedAmt > 0) {
+          saveForfeited();
         } else {
-          saveDetailsOnly();
+          if (trans.id === "" || trans.id === undefined) {
+            saveTransaction();
+          } else {
+            saveDetailsOnly();
+          }
         }
+      } else {
+        setMessage("Payment date and balance date is not equal.");
+        setOpenModal(true);
       }
     } else {
       setMessage("Please fill all fields.");
@@ -562,6 +572,9 @@ const Transaction = ({ emptyObj }) => {
   const onPayTerm = (e) => {
     e.preventDefault();
     var term = e.target.value;
+    cashPaymentRef.current.value = isCash
+      ? 0
+      : discountedPriceRef.current.value;
     setIsCash(term === pt[0].name ? true : false);
     setIsCash(term === pt[1].name ? false : true);
     trans.balance = isCash ? 0 : trans.discountedPrice;
@@ -589,24 +602,49 @@ const Transaction = ({ emptyObj }) => {
       setMessage("Please save the transaction first.");
       setOpenModal(true);
     } else {
-      // alert("iscash:" + isCash);
       if (validPayDetails()) {
         if (!isCash) {
-          if (trans.id === "" || trans.id === undefined) {
-            saveTransaction();
+          if (
+            latestBalDate ===
+            new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
+          ) {
+            if (trans.id === "" || trans.id === undefined) {
+              saveTransaction();
+            }
+            layAway.transactionId = trans.id;
+            layAway.user = user;
+            saveLayAwayPay();
+            saveTranPayment();
+            saveBalance();
+            populate();
+          } else {
+            setMessage("Payment date and balance date is not equal.");
+            setOpenModal(true);
           }
-          layAway.transactionId = trans.id;
-          layAway.user = user;
-          saveLayAwayPay();
-          saveTranPayment();
-          saveBalance();
-          populate();
         }
       } else {
         setMessage("Please fill all payment details");
         setOpenModal(true);
       }
     }
+  };
+
+  const getLastBaldate = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/dashboard/balance/getMaxBalDate", {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setLatestBalDate(new Date(data).toLocaleDateString("en-US"));
+        alert(data);
+      });
   };
 
   const validPayDetails = () => {
@@ -859,6 +897,7 @@ const Transaction = ({ emptyObj }) => {
                 onChange={(e) => {
                   trans.cashPaymentDate = isCash ? e.target.value : "";
                   layAway.paymentDate = !isCash ? e.target.value : "";
+                  getLastBaldate();
                 }}
               ></input>
               <label>Amount Received</label>

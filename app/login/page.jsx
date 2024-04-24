@@ -113,6 +113,7 @@ const LoginPage = () => {
   return (
     <div className={styles.container}>
       <form action="" className={styles.form}>
+        <h4>AURORA JEWELRY COLLECTION</h4>
         <div className={styles.banner}>
           <Image
             className={styles.banner}
