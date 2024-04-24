@@ -643,7 +643,6 @@ const Transaction = ({ emptyObj }) => {
       .then((response) => response.data)
       .then((data) => {
         setLatestBalDate(new Date(data).toLocaleDateString("en-US"));
-        alert(data);
       });
   };
 
