@@ -1,0 +1,139 @@
+.mainContainer {
+  background-color: rgba(20, 21, 26, 0.716);
+  z-index: 1000;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+}
+.modalContainer {
+  width: 670px;
+  height: 400px;
+  gap: 20px;
+  pointer-events: auto;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* align-items: center; */
+  background-color: var(--bgSoft);
+  box-sizing: border-box;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  border: 1px solid gray;
+  border-radius: 8px;
+  outline: 0;
+  padding: 8px 24px;
+  margin: 0 auto;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.modalContainerSent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  width: 670px;
+  height: 400px;
+  gap: 20px;
+  font-weight: 500px;
+}
+.openModalButton {
+  position: fixed;
+  top: 10px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 1px;
+  cursor: pointer;
+  font-weight: 500px;
+  padding: 8px;
+  border-radius: 1px;
+  background-color: var(--gh-blue-2);
+}
+
+.modalImage {
+  height: 100px;
+  width: auto;
+}
+.modalInputLabel {
+  display: flex;
+  flex-direction: column;
+}
+
+.modalInput {
+  width: 350px;
+  height: 35px;
+  font-size: 0.95rem;
+  margin-top: 5px;
+  padding: 10px;
+}
+
+.modalInputText {
+  font-weight: 410;
+}
+
+.modalFooterButton {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  width: 82px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 1px;
+  cursor: pointer;
+  font-weight: 500px;
+  position: relative;
+  outline: none;
+  gap: 8px;
+  user-select: none;
+  height: 40px;
+  padding: 0 16px;
+  text-decoration: none;
+}
+
+.modal-title-image {
+  display: flex;
+  align-items: stretch;
+}
+
+.modalButtonCancel {
+  width: 150px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: var(--buttonBlue);
+  cursor: pointer;
+  gap: 20px;
+}
+
+.modalButtonSend {
+  background-color: var(--gh-blue-9);
+  color: white;
+  margin-right: 40px;
+}
+
+.modalFooter {
+  position: absolute;
+  bottom: 0;
+  width: 94%;
+  padding: 10px;
+  display: inline-flex;
+  justify-content: right;
+  /* text-align: right; */
+}
+
+.aggrid {
+  width: 100%;
+  height: 300px;
+  --ag-grid-size: 10px;
+  --ag-list-item-height: 40px;
+  --ag-selected-row-background-color: rgba(0, 12, 120, 0.26);
+  --ag-odd-row-background-color: rgb(241, 241, 241);
+  --ag-header-background-color: rgb(202, 202, 202);
+}

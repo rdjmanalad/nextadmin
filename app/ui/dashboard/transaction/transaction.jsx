@@ -6,7 +6,9 @@ import styles from "./transaction.module.css";
 import { useRouter } from "next/navigation";
 import ModalLayAway from "../modal/modalLayAway";
 import MessageModal from "../modal/messageModal";
+import JewelryModal from "../modal/jewelryModal";
 import { isTokenExpired } from "@/app/auth";
+import { MdSearch } from "react-icons/md";
 
 const Transaction = ({ emptyObj }) => {
   const [trans, setTrans] = useState({});
@@ -21,11 +23,13 @@ const Transaction = ({ emptyObj }) => {
   const [formattedNumber, setFormattedNumber] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [openModalLA, setOpenModalLA] = useState(false);
+  const [openModalJewel, setOpenModalJewel] = useState(false);
   const isClient = typeof window !== "undefined";
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [isfullyPaid, setIsfullyPaid] = useState(false);
   const [message, setMessage] = useState("");
   const [latestBalDate, setLatestBalDate] = useState("");
+  const [jewelry, setJewelry] = useState({});
 
   const [layAway, setLayAway] = useState({
     id: "",
@@ -63,6 +67,7 @@ const Transaction = ({ emptyObj }) => {
   const senderNameRef = useRef();
   const senderAddressRef = useRef();
   const senderContactNoRef = useRef();
+  const sellingRef = useRef();
 
   const router = useRouter();
 
@@ -94,6 +99,20 @@ const Transaction = ({ emptyObj }) => {
     }
   }, [trans]);
 
+  useEffect(() => {
+    // alert("ss");
+    if (jewelry.length > 0) {
+      inventoryNoRef.current.value = jewelry[0].inventoryNo;
+      descriptionRef.current.value = jewelry[0].description;
+      karatRef.current.value = jewelry[0].karat;
+      weightRef.current.value = jewelry[0].weight;
+      sellingRef.current.value = currencyFormat(jewelry[0].sellingPrice);
+      capitalRef.current.value = currencyFormat(jewelry[0].capital);
+    }
+
+    console.log(jewelry);
+  }, [jewelry]);
+
   const initiate = () => {
     trans.codeNo = "";
     trans.inventoryNo = "";
@@ -112,6 +131,7 @@ const Transaction = ({ emptyObj }) => {
     trans.cashPaymentDate = "";
     trans.cashPayment = "";
     trans.referenceNo = "";
+    trans.selling = "";
   };
 
   useEffect(() => {
@@ -127,6 +147,7 @@ const Transaction = ({ emptyObj }) => {
     descriptionRef.current.value = trans.description;
     karatRef.current.value = trans.karat;
     weightRef.current.value = trans.weight;
+    sellingRef.current.value = currencyFormat(trans.selling);
     capitalRef.current.value = currencyFormat(trans.capital);
     discountedPriceRef.current.value = currencyFormat(trans.discountedPrice);
     customerNameRef.current.value = trans.customerName;
@@ -703,149 +724,178 @@ const Transaction = ({ emptyObj }) => {
     }
   };
 
+  const searchJewelry = (e) => {
+    e.preventDefault();
+    setOpenModalJewel(true);
+  };
+
   return (
     <div className={styles.container}>
       <form>
         <div className={styles.tranMain}>
-          <div className={styles.row1}>
-            <label>Code#</label>
-            <input
-              ref={codeRef}
-              maxLength="15"
-              // placeholder="Code#"
-              onChange={(e) => {
-                trans.codeNo = e.target.value.toUpperCase();
-              }}
-            ></input>
-            <label>Inv#</label>
-            <input
-              ref={inventoryNoRef}
-              // placeholder="Inventory No."
-              maxLength="15"
-              onChange={(e) => {
-                trans.inventoryNo = e.target.value.toUpperCase();
-              }}
-            ></input>
-            <label>Transaction Date</label>
-            <input
-              ref={transactDateRef}
-              type="date"
-              // placeholder="Transaction Date"
-              onChange={(e) => {
-                trans.transactDate = e.target.value;
-              }}
-            ></input>
-            <label>Description</label>
-            <input
-              ref={descriptionRef}
-              // placeholder="Description"
-              maxLength="30"
-              onChange={(e) => {
-                trans.description = e.target.value.toUpperCase();
-              }}
-            ></input>
-            <label>Karat</label>
-            <input
-              ref={karatRef}
-              // placeholder="Karat"
-              maxLength="15"
-              onChange={(e) => {
-                trans.karat = e.target.value.toUpperCase();
-              }}
-            ></input>
-            <label>Weight</label>
-            <input
-              ref={weightRef}
-              // placeholder="Weight"
-              maxLength="15"
-              onChange={(e) => {
-                trans.weight = e.target.value;
-              }}
-            ></input>
-            <label>Capital</label>
-            <input
-              ref={capitalRef}
-              defaultValue="0.00"
-              // placeholder="Capital"
-              maxLength="12"
-              style={{ textAlign: "right" }}
-              onFocus={(event) => event.target.select()}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeCurrency(value);
-                trans.capital = value.replaceAll(",", "").replaceAll("₱", "");
-              }}
-            ></input>
-            <label>Discounted Price</label>
-            <input
-              ref={discountedPriceRef}
-              // placeholder="Discounted Price"
-              maxLength="12"
-              style={{ textAlign: "right" }}
-              defaultValue="0.00"
-              onFocus={(event) => event.target.select()}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeCurrency(value);
-                trans.discountedPrice = value
-                  .replaceAll(",", "")
-                  .replaceAll("₱", "");
-              }}
-            ></input>
-            <label>Customer Name</label>
-            <input
-              ref={customerNameRef}
-              // placeholder="Customer Name"
-              maxLength="50"
-              onChange={(e) => {
-                trans.customerName = e.target.value.toUpperCase();
-              }}
-            ></input>
-            <label>Receivers Name</label>
-            <input
-              ref={receiverNameRef}
-              // placeholder="Receivers Name"
-              maxLength="50"
-              onChange={(e) => {
-                trans.receiverName = e.target.value.toUpperCase();
-              }}
-            ></input>
-            <label>Complete Address</label>
-            <input
-              ref={addressRef}
-              // placeholder="Complete Address"
-              maxLength="100"
-              onChange={(e) => {
-                trans.address = e.target.value.toUpperCase();
-              }}
-            ></input>
-            <label>Contact No.</label>
-            <input
-              ref={contactNoRef}
-              // placeholder="Contact No."
-              maxLength="15"
-              onChange={(e) => {
-                trans.contactNo = e.target.value;
-              }}
-            ></input>
-            <label>Senders Name</label>
-            <input
-              ref={senderNameRef}
-              readOnly
-              value={"Aurora Jewelry Collection"}
-            ></input>
-            <label>Complete Address</label>
-            <input
-              ref={senderAddressRef}
-              readOnly
-              value={"3286 Jervois St. Brgy. Pinagkaisahan, Makati City"}
-            ></input>
-            <label>Contact No.</label>
-            <input
-              ref={senderContactNoRef}
-              readOnly
-              value={"0999-993-1148"}
-            ></input>
+          <div>
+            <div className={styles.inv}>
+              <label>Inventory No</label>
+              <input
+                ref={inventoryNoRef}
+                // placeholder="Inventory No."
+                maxLength="15"
+                onChange={(e) => {
+                  trans.inventoryNo = e.target.value.toUpperCase();
+                }}
+              ></input>
+              <button
+                className={styles.search}
+                onClick={(e) => {
+                  searchJewelry(e);
+                }}
+              >
+                Search <MdSearch />
+              </button>
+            </div>
+
+            <div className={styles.row1}>
+              <label>Code No.</label>
+              <input
+                ref={codeRef}
+                maxLength="15"
+                // placeholder="Code#"
+                onChange={(e) => {
+                  trans.codeNo = e.target.value.toUpperCase();
+                }}
+              ></input>
+              <label>Transaction Date</label>
+              <input
+                ref={transactDateRef}
+                type="date"
+                // placeholder="Transaction Date"
+                onChange={(e) => {
+                  trans.transactDate = e.target.value;
+                }}
+              ></input>
+              <label>Description</label>
+              <input
+                ref={descriptionRef}
+                // placeholder="Description"
+                maxLength="30"
+                onChange={(e) => {
+                  trans.description = e.target.value.toUpperCase();
+                }}
+              ></input>
+              <label>Karat</label>
+              <input
+                ref={karatRef}
+                // placeholder="Karat"
+                maxLength="15"
+                onChange={(e) => {
+                  trans.karat = e.target.value.toUpperCase();
+                }}
+              ></input>
+              <label>Weight</label>
+              <input
+                ref={weightRef}
+                // placeholder="Weight"
+                maxLength="15"
+                onChange={(e) => {
+                  trans.weight = e.target.value;
+                }}
+              ></input>
+              <label>Capital</label>
+              <input
+                ref={capitalRef}
+                defaultValue="0.00"
+                maxLength="12"
+                style={{ textAlign: "right" }}
+                onFocus={(event) => event.target.select()}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeCurrency(value);
+                  trans.capital = value.replaceAll(",", "").replaceAll("₱", "");
+                }}
+              ></input>
+              <label>Selling</label>
+              <input
+                ref={sellingRef}
+                defaultValue="0.00"
+                maxLength="12"
+                style={{ textAlign: "right" }}
+                onFocus={(event) => event.target.select()}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeCurrency(value);
+                  trans.selling = value.replaceAll(",", "").replaceAll("₱", "");
+                }}
+              ></input>
+              <label>Discounted Price</label>
+              <input
+                ref={discountedPriceRef}
+                maxLength="12"
+                style={{ textAlign: "right" }}
+                defaultValue="0.00"
+                onFocus={(event) => event.target.select()}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeCurrency(value);
+                  trans.discountedPrice = value
+                    .replaceAll(",", "")
+                    .replaceAll("₱", "");
+                }}
+              ></input>
+              <label>Customer Name</label>
+              <input
+                ref={customerNameRef}
+                // placeholder="Customer Name"
+                maxLength="50"
+                onChange={(e) => {
+                  trans.customerName = e.target.value.toUpperCase();
+                }}
+              ></input>
+              <label>Receivers Name</label>
+              <input
+                ref={receiverNameRef}
+                // placeholder="Receivers Name"
+                maxLength="50"
+                onChange={(e) => {
+                  trans.receiverName = e.target.value.toUpperCase();
+                }}
+              ></input>
+              <label>Complete Address</label>
+              <input
+                ref={addressRef}
+                // placeholder="Complete Address"
+                maxLength="100"
+                onChange={(e) => {
+                  trans.address = e.target.value.toUpperCase();
+                }}
+              ></input>
+              <label>Contact No.</label>
+              <input
+                ref={contactNoRef}
+                // placeholder="Contact No."
+                maxLength="15"
+                onChange={(e) => {
+                  trans.contactNo = e.target.value;
+                }}
+              ></input>
+              <label>Senders Name</label>
+              <input
+                ref={senderNameRef}
+                readOnly
+                value={"Aurora Jewelry Collection"}
+              ></input>
+              <label>Complete Address</label>
+              <input
+                ref={senderAddressRef}
+                readOnly
+                value={"3286 Jervois St. Brgy. Pinagkaisahan, Makati City"}
+              ></input>
+              <label>Contact No.</label>
+              <input
+                ref={senderContactNoRef}
+                readOnly
+                value={"0999-993-1148"}
+              ></input>
+            </div>
           </div>
           <div className={styles.row2}>
             <div className={styles.cardContainer}>
@@ -1104,6 +1154,12 @@ const Transaction = ({ emptyObj }) => {
       )}
       {openModal && (
         <MessageModal setOpenModal={setOpenModal} message={message} />
+      )}
+      {openModalJewel && (
+        <JewelryModal
+          setOpenModalJewel={setOpenModalJewel}
+          jewelry={setJewelry}
+        />
       )}
     </div>
   );

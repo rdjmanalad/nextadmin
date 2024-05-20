@@ -15,6 +15,7 @@ import {
   MdPostAdd,
   MdList,
   MdKeyboardArrowDown,
+  MdPlaylistAddCheck,
 } from "react-icons/md";
 import { LuUserCog, LuUserPlus } from "react-icons/lu";
 import { GiMoneyStack } from "react-icons/gi";
@@ -44,6 +45,11 @@ const menuItems = [
             title: "Add Transactions",
             path: "/dashboard/transactions",
             icon: <MdPostAdd />,
+          },
+          {
+            title: "Correcting Entry",
+            path: "/dashboard/correctingEntry",
+            icon: <MdPlaylistAddCheck />,
           },
           // Add more sub-menu items as needed
         ],

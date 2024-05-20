@@ -165,6 +165,12 @@ const TransactionList = () => {
     // console.log("rowSelected updated:", rowSelected);
   }, [rowSelected]);
 
+  const corrDateFormatter = (params) => {
+    const timestamp = params.data.correctingDate;
+    const formatedDate = new Date(timestamp).toLocaleDateString("us-CA");
+    return formatedDate;
+  };
+
   const dateFormatter = (params) => {
     const timestamp = params.data.transactDate;
     const formatedDate = new Date(timestamp).toLocaleDateString("us-CA");
@@ -183,6 +189,11 @@ const TransactionList = () => {
 
   const discountedFormatter = (params) => {
     const amount = currencyFormat(params.data.discountedPrice);
+    return amount;
+  };
+
+  const corrAmtFormatter = (params) => {
+    const amount = currencyFormat(params.data.correctingAmt);
     return amount;
   };
 
@@ -245,8 +256,20 @@ const TransactionList = () => {
     // { headerName: "Receivers Name", field: "receiverName" },
     // { headerName: "Address", field: "address" },
     // { headerName: "Contact No", field: "contactNo" },
-    { headerName: "Payment Term", field: "paymentTerm", width: "120" },
-    { headerName: "Payment Mode", field: "paymentMode", width: "120" },
+    { headerName: "Term", field: "paymentTerm", width: "120" },
+    { headerName: "Mode", field: "paymentMode", width: "120" },
+    {
+      headerName: "Correcting Amt",
+      field: "correctingAmt",
+      width: "120",
+      valueFormatter: corrAmtFormatter,
+    },
+    {
+      headerName: "Correcting Date",
+      field: "correctingDate",
+      width: "120",
+      valueFormatter: corrDateFormatter,
+    },
   ];
 
   return (

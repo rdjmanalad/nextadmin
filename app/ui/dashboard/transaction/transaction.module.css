@@ -200,3 +200,37 @@
 .buttonLAP {
   background-color: var(--buttonBlue);
 }
+
+.search {
+  margin-left: 5px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 6px;
+  background-color: var(--buttonYellow);
+}
+
+.inv {
+  display: grid;
+  grid-template-columns: 2fr 4fr 1fr;
+}
+
+.inv label {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.inv input {
+  background-color: var(--inputBg);
+  border: 1px solid black;
+  height: 30px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  padding-left: 5px;
+  color: black;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  padding-right: 20px;
+}
