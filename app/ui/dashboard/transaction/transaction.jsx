@@ -782,7 +782,29 @@ const Transaction = ({ emptyObj }) => {
                   trans.description = e.target.value.toUpperCase();
                 }}
               ></input>
+            </div>
+            <div className={styles.row3}>
               <label>Karat</label>
+              <input
+                ref={karatRef}
+                // placeholder="Karat"
+                maxLength="15"
+                onChange={(e) => {
+                  trans.karat = e.target.value.toUpperCase();
+                }}
+              ></input>
+              <label style={{ marginLeft: "10px" }}>Weight</label>
+              <input
+                ref={weightRef}
+                // placeholder="Weight"
+                maxLength="15"
+                onChange={(e) => {
+                  trans.weight = e.target.value;
+                }}
+              ></input>
+            </div>
+            <div className={styles.row1}>
+              {/* <label>Karat</label>
               <input
                 ref={karatRef}
                 // placeholder="Karat"
@@ -799,7 +821,7 @@ const Transaction = ({ emptyObj }) => {
                 onChange={(e) => {
                   trans.weight = e.target.value;
                 }}
-              ></input>
+              ></input> */}
               <label>Capital</label>
               <input
                 ref={capitalRef}

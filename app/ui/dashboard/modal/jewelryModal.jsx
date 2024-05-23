@@ -12,6 +12,7 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
   const gridRef = useRef();
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [rowSelected, setRowSelected] = useState([]);
+  const [quickFilterText, setQuickFilterText] = useState("");
 
   const onGridReady = useCallback((params) => {
     getAll();
@@ -58,8 +59,14 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
   };
 
   const sellingFormatter = (params) => {
-    const amount = params;
+    // const amount = params;
     // const amount = currencyFormat(params.data.sellingPrice);
+    let amount = 0;
+    if (params.data === !null) {
+      amount = 0;
+    } else {
+      amount = currencyFormat(params.data.sellingPrice);
+    }
     return amount;
   };
 
@@ -88,11 +95,6 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
     ],
   };
 
-  //   getQuickFilterText: (params: GetQuickFilterTextParams) => {
-  //     // Return empty string to ignore filter string
-  //     return params.colDef.hide ? "" : params.value;
-  //   };
-
   const columnDefs = [
     {
       headerName: "Inventory No",
@@ -117,12 +119,33 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
     { headerName: "Weight", field: "weight", width: "120" },
   ];
 
+  const onQuickFilterChange = (event) => {
+    setQuickFilterText(event.target.value);
+    gridRef.current.api.setQuickFilter(event.target.value);
+  };
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.modalContainer}>
-        <h3>Jewelry Inventory</h3>
         <div style={{ width: "620px" }}>
-          <div className={`ag-theme-quartz ${styles.aggrid}`}>
+          <h3>Jewelry Inventory</h3>
+          <br></br>
+          <div className={styles.quickSearch}>
+            <label>Quick Filter: </label>
+            <input
+              type="text"
+              value={quickFilterText}
+              onChange={onQuickFilterChange}
+              placeholder="Type Here to filter..."
+            />
+          </div>
+          <div
+            className={`ag-theme-quartz ${styles.aggrid}`}
+            style={{
+              "--ag-header-background-color": "rgb(202, 202, 202)",
+              "--ag-odd-row-background-color": "rgb(241, 241, 241)",
+            }}
+          >
             <AgGridReact
               rowData={rowData}
               columnDefs={columnDefs}
@@ -134,6 +157,7 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
               ref={gridRef}
               onGridReady={onGridReady}
               alwaysShowHorizontalScroll={true}
+              quickFilterText={quickFilterText}
             />
           </div>
         </div>

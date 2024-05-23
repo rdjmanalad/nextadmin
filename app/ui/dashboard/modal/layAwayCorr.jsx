@@ -87,7 +87,15 @@ const LayAwayTableCorr = ({ transactionId, setOpenModalLayAway, layAway }) => {
     <div className={styles.mainContainer}>
       <div className={styles.modalContainer}>
         <div style={{ width: "620px" }}>
-          <div className={`ag-theme-quartz ${styles.aggrid}`}>
+          <h3>Lay Away Payment</h3>
+          <br></br>
+          <div
+            className={`ag-theme-quartz ${styles.aggrid}`}
+            style={{
+              "--ag-header-background-color": "rgb(202, 202, 202)",
+              "--ag-odd-row-background-color": "rgb(241, 241, 241)",
+            }}
+          >
             <AgGridReact
               rowData={rowData}
               columnDefs={columnDefs}

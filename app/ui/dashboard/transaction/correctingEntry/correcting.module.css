@@ -7,11 +7,11 @@
 
 .aggrid {
   height: 250px;
-  --ag-grid-size: 10px;
-  --ag-list-item-height: 40px;
+  /* --ag-grid-size: 10px;
+  --ag-list-item-height: 40px; */
   --ag-selected-row-background-color: rgba(0, 12, 120, 0.26);
-  --ag-odd-row-background-color: rgb(241, 241, 241);
-  --ag-header-background-color: rgb(202, 202, 202);
+  --ag-odd-row-background-color: rgb(241, 241, 241) !important;
+  --ag-header-background-color: rgb(202, 202, 202) !important;
 }
 
 .details button {

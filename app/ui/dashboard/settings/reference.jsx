@@ -197,7 +197,13 @@ const Reference = () => {
     <div className={styles.container}>
       <div className={styles.container2}>
         <h2>Reference</h2>
-        <div className={`ag-theme-quartz ${styles.aggrid}`}>
+        <div
+          className={`ag-theme-quartz ${styles.aggrid}`}
+          style={{
+            "--ag-header-background-color": "rgb(202, 202, 202)",
+            "--ag-odd-row-background-color": "rgb(241, 241, 241)",
+          }}
+        >
           <AgGridReact
             rowData={references}
             columnDefs={columnDefs}

@@ -12,6 +12,7 @@ const TransactionModal = ({ setOpenModalTran, setTrans }) => {
   const gridRef = useRef();
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [rowSelected, setRowSelected] = useState([]);
+  const [quickFilterText, setQuickFilterText] = useState("");
 
   const onGridReady = useCallback((params) => {
     getAll();
@@ -93,11 +94,33 @@ const TransactionModal = ({ setOpenModalTran, setTrans }) => {
     { headerName: "Payment Mode", field: "paymentMode", width: "120" },
   ];
 
+  const onQuickFilterChange = (event) => {
+    setQuickFilterText(event.target.value);
+    gridRef.current.api.setQuickFilter(event.target.value);
+  };
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.modalContainer}>
         <div style={{ width: "620px" }}>
-          <div className={`ag-theme-quartz ${styles.aggrid}`}>
+          <h3>Transaction List</h3>
+          <br></br>
+          <div className={styles.quickSearch}>
+            <label>Quick Filter: </label>
+            <input
+              type="text"
+              value={quickFilterText}
+              onChange={onQuickFilterChange}
+              placeholder="Type Here to filter..."
+            />
+          </div>
+          <div
+            className={`ag-theme-quartz ${styles.aggrid}`}
+            style={{
+              "--ag-header-background-color": "rgb(202, 202, 202)",
+              "--ag-odd-row-background-color": "rgb(241, 241, 241)",
+            }}
+          >
             <AgGridReact
               rowData={rowData}
               columnDefs={columnDefs}
@@ -109,6 +132,7 @@ const TransactionModal = ({ setOpenModalTran, setTrans }) => {
               ref={gridRef}
               onGridReady={onGridReady}
               alwaysShowHorizontalScroll={true}
+              quickFilterText={quickFilterText}
             />
           </div>
         </div>

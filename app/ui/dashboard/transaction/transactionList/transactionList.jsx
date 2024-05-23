@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
 import styles from "./transactionList.module.css";
+import { useState, useEffect, useCallback, useRef } from "react";
 import useLocalState from "@/app/hooks/useLocalState";
 import axios from "axios";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
+import "ag-grid-community/styles/ag-theme-material.css";
 import Transaction from "../transaction";
 import { useRouter } from "next/navigation";
 import { isTokenExpired } from "@/app/auth";
@@ -22,6 +23,7 @@ const TransactionList = () => {
   const [editMode, setEditMode] = useState(false);
   const [buttonDis, setButtonDis] = useState(true);
   const [filters, setFilters] = useState({});
+  const [quickFilterText, setQuickFilterText] = useState("");
   const gridRef = useRef();
   const router = useRouter();
   const filtersInit = {
@@ -32,19 +34,20 @@ const TransactionList = () => {
   };
 
   useEffect(() => {
-    // setJwt(window.sessionStorage.getItem("jwt"));
-    const jwtToken = window.sessionStorage.getItem("jwt");
-    if (window.sessionStorage.getItem("jwt") === null) {
-      router.push("/login");
-    }
-    if (jwtToken && isTokenExpired(jwtToken)) {
-      router.push("/login");
-      window.sessionStorage.clear();
-    }
-    if (jwtToken && !isTokenExpired(jwtToken)) {
-      setEditMode(false);
-      setFilters(filtersInit);
-      getReference();
+    if (typeof window !== "undefined") {
+      const jwtToken = window.sessionStorage.getItem("jwt");
+      if (window.sessionStorage.getItem("jwt") === null) {
+        router.push("/login");
+      }
+      if (jwtToken && isTokenExpired(jwtToken)) {
+        router.push("/login");
+        window.sessionStorage.clear();
+      }
+      if (jwtToken && !isTokenExpired(jwtToken)) {
+        setEditMode(false);
+        setFilters(filtersInit);
+        getReference();
+      }
     }
   }, []);
 
@@ -228,7 +231,8 @@ const TransactionList = () => {
       headerName: "Code No.",
       field: "codeNo",
       filter: "agTextColumnFilter",
-      width: "110",
+      width: "150",
+      // floatingFilter: true,
     },
     { headerName: "Inventory No", field: "inventoryNo", width: "120" },
     {
@@ -271,6 +275,11 @@ const TransactionList = () => {
       valueFormatter: corrDateFormatter,
     },
   ];
+
+  const onQuickFilterChange = (event) => {
+    setQuickFilterText(event.target.value);
+    gridRef.current.api.setQuickFilter(event.target.value);
+  };
 
   return (
     <div>
@@ -332,9 +341,27 @@ const TransactionList = () => {
             Search
           </button>
         </div>
+        <hr></hr>
         <br></br>
+        <div className={styles.quickSearch}>
+          <label>Quick Filter: </label>
+          <input
+            type="text"
+            value={quickFilterText}
+            onChange={onQuickFilterChange}
+            placeholder="Type Here to filter..."
+          />
+        </div>
         {/* <div className="ag-theme-quartz" style={{ height: 400, width: "100%" }}> */}
-        <div className={`ag-theme-quartz ${styles.aggrid}`}>
+
+        <div
+          className={`ag-theme-quartz ${styles.aggrid}`}
+          style={{
+            "--ag-header-background-color": "rgb(202, 202, 202)",
+            "--ag-odd-row-background-color": "rgb(241, 241, 241)",
+          }}
+          id="ag-theme-id"
+        >
           <AgGridReact
             rowData={rowData}
             columnDefs={columnDefs}
@@ -346,6 +373,7 @@ const TransactionList = () => {
             ref={gridRef}
             onGridReady={onGridReady}
             alwaysShowHorizontalScroll={true}
+            quickFilterText={quickFilterText}
           />
         </div>
         <div className={styles.viewEdit}>
@@ -370,7 +398,7 @@ const TransactionList = () => {
                 setEditMode(false);
               }}
             >
-              Back to List
+              Back to Lists
             </button>
           </div>
         </div>

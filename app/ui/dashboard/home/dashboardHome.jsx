@@ -207,7 +207,13 @@ const DashboardHome = () => {
         <div className={styles.container2}>
           <h2 className={styles.header}>Balances</h2>
           <div className={styles.balTable}>
-            <div className={`ag-theme-quartz ${styles.aggrid}`}>
+            <div
+              className={`ag-theme-quartz ${styles.aggrid}`}
+              style={{
+                "--ag-header-background-color": "rgb(202, 202, 202)",
+                "--ag-odd-row-background-color": "rgb(241, 241, 241)",
+              }}
+            >
               <AgGridReact
                 rowData={balances}
                 columnDefs={columnDefs}

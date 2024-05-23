@@ -336,7 +336,13 @@ const CorrectingEntry = () => {
       <div className={styles.container}>
         <h3>Correcting Entry</h3>
         <br></br>
-        <div className={`ag-theme-quartz ${styles.aggrid}`}>
+        <div
+          className={`ag-theme-quartz ${styles.aggrid}`}
+          // style={{
+          //   "--ag-header-background-color": "rgb(202, 202, 202)",
+          //   "--ag-odd-row-background-color": "rgb(241, 241, 241)",
+          // }}
+        >
           <AgGridReact
             rowData={rowData}
             // defaultColDef={{ flex: 1 }}
