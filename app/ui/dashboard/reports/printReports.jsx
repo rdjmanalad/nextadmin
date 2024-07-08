@@ -8,6 +8,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import MessageModal from "../modal/messageModal";
 import ConfirmmModal from "../modal/confirmModal";
+import { getRequestMeta } from "next/dist/server/request-meta";
 
 const PrintReports = () => {
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
@@ -25,6 +26,8 @@ const PrintReports = () => {
   const [message, setMessage] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [openModalConf, setOpenModalConf] = useState(false);
+  const [transDate, setTransDate] = useState("");
+  const [sumTrans, setSumTrans] = useState(0);
 
   const startDateRef = useRef();
   const endDateRef = useRef();
@@ -46,8 +49,6 @@ const PrintReports = () => {
   const repDateRef = useRef();
   const ceRef1 = useRef();
   const ceRef2 = useRef();
-  const cedRef1 = useRef();
-  const cedRef2 = useRef();
 
   useEffect(() => {
     const jwtToken = window.sessionStorage.getItem("jwt");
@@ -69,6 +70,14 @@ const PrintReports = () => {
       getBalances();
     }
   }, [mode]);
+
+  useEffect(() => {
+    if (transDate !== "") {
+      if (mode !== "") {
+        getBalances();
+      }
+    }
+  }, [transDate]);
 
   function getTodayDate() {
     const today = new Date();
@@ -107,6 +116,24 @@ const PrintReports = () => {
     if (e.target.value === "") {
       setIsCashPal(false);
       setIsOther(false);
+    }
+  };
+
+  const showFormCal = (e) => {
+    e.preventDefault();
+    if (mode === "") {
+    } else {
+      if (mode === "CASH PALAWAN") {
+        setIsCashPal(true);
+        setIsOther(false);
+      } else {
+        setIsCashPal(false);
+        setIsOther(true);
+      }
+      if (mode === "") {
+        setIsCashPal(false);
+        setIsOther(false);
+      }
     }
   };
 
@@ -312,7 +339,6 @@ const PrintReports = () => {
           bankTransferRef1.current.value = currencyFormat(data.bankTransfer);
           transPoRef1.current.value = currencyFormat(data.transPo);
           ceRef1.current.value = currencyFormat(data.correctingEntry);
-          cedRef1.current.value = data.ceDetails;
         } else {
           begBalRef2.current.value = currencyFormat(data.beginningBal);
           endBalRef2.current.value = currencyFormat(data.endingBal);
@@ -322,10 +348,47 @@ const PrintReports = () => {
           forfeitedRef2.current.value = currencyFormat(data.forfeited);
           bankTransferRef2.current.value = currencyFormat(data.bankTransfer);
           ceRef2.current.value = currencyFormat(data.correctingEntry);
-          cedRef2.current.value = data.ceDetails;
         }
         // console.log(data);
       });
+    getSum();
+  };
+
+  const getSum = () => {
+    const date = repDateRef.current.value;
+    let sumCash = 0;
+    let sumLay = 0;
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/transactions/getSum/" + date + "/" + mode, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        // alert(data);
+        sumCash = data;
+      });
+
+    axios
+      .get(baseUrl + "/api/layAwayPay/getSum/" + date + "/" + mode, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        // alert(data);
+        sumLay = data;
+      });
+    setSumTrans(sumCash + sumLay);
+    // alert(sumCash);
+    // alert(sumLay);
   };
 
   const saveBalance = () => {
@@ -459,7 +522,14 @@ const PrintReports = () => {
           <h3>Daily Transaction</h3>
           <div className={styles.inputDate}>
             <label>Date</label>
-            <input type="Date" ref={repDateRef}></input>
+            <input
+              type="Date"
+              ref={repDateRef}
+              onChange={(e) => {
+                setTransDate(e.target.value);
+                showFormCal(e);
+              }}
+            ></input>
           </div>
           <div className={styles.row}>
             <label>Payment Mode:</label>
@@ -701,6 +771,7 @@ const PrintReports = () => {
               }}
             />
           </div>
+          <hr style={{ marginBottom: "5px" }}></hr>
           <div className={styles.dailyForms}>
             <label>Correcting Entry(CE):</label>
             <input
@@ -724,17 +795,7 @@ const PrintReports = () => {
               }}
             />
           </div>
-          <hr style={{ marginBottom: "5px" }}></hr>
-          <div className={styles.dailyForms}>
-            <label>CE Details:</label>
-            <textarea
-              style={{ resize: "vertical" }}
-              ref={cedRef1}
-              onChange={(e) => {
-                balances.ceDetails = e.target.value;
-              }}
-            ></textarea>
-          </div>
+
           <br></br>
           <div className={styles.dailyForms}>
             <label>Ending Bal:</label>
@@ -891,16 +952,7 @@ const PrintReports = () => {
               }}
             />
           </div>
-          <div className={styles.dailyForms}>
-            <label>CE Details:</label>
-            <textarea
-              style={{ resize: "vertical" }}
-              ref={cedRef2}
-              onChange={(e) => {
-                balances.ceDetails = e.target.value;
-              }}
-            ></textarea>
-          </div>
+
           <br></br>
           <div className={styles.dailyForms}>
             <label>Ending Bal:</label>

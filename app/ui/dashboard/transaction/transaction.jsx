@@ -12,8 +12,10 @@ import { MdSearch } from "react-icons/md";
 
 const Transaction = ({ emptyObj }) => {
   const [trans, setTrans] = useState({});
+  const [transOrg, setTransOrg] = useState({});
   const [pt, setPt] = useState([]);
   const [pm, setPm] = useState([]);
+  const [sd, setSd] = useState([]);
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [isCash, setIsCash] = useState(false);
   const [pTerm, setPTerm] = useState("TERM");
@@ -30,6 +32,9 @@ const Transaction = ({ emptyObj }) => {
   const [message, setMessage] = useState("");
   const [latestBalDate, setLatestBalDate] = useState("");
   const [jewelry, setJewelry] = useState({});
+  const [balDate, setBalDate] = isClient
+    ? useLocalState("balDate", "")
+    : ["", () => {}];
 
   const [layAway, setLayAway] = useState({
     id: "",
@@ -87,6 +92,12 @@ const Transaction = ({ emptyObj }) => {
       if (window.sessionStorage.getItem("jwt") != null) {
         if (emptyObj.id != "") {
           setTrans(emptyObj);
+          setTransOrg({
+            referenceNo: emptyObj.referenceNo,
+            cashPaymentDate: emptyObj.cashPaymentDate,
+            cashPayment: emptyObj.cashPayment,
+            cashPaymentDate: emptyObj.cashPaymentDate,
+          });
           populate();
         }
       }
@@ -108,6 +119,13 @@ const Transaction = ({ emptyObj }) => {
       weightRef.current.value = jewelry[0].weight;
       sellingRef.current.value = currencyFormat(jewelry[0].sellingPrice);
       capitalRef.current.value = currencyFormat(jewelry[0].capital);
+
+      trans.inventoryNo = jewelry[0].inventoryNo;
+      trans.description = jewelry[0].description;
+      trans.karat = jewelry[0].karat;
+      trans.weight = jewelry[0].weight;
+      trans.capital = jewelry[0].capital;
+      trans.selling = jewelry[0].sellingPrice;
     }
 
     console.log(jewelry);
@@ -131,7 +149,7 @@ const Transaction = ({ emptyObj }) => {
     trans.cashPaymentDate = "";
     trans.cashPayment = "";
     trans.referenceNo = "";
-    trans.selling = "";
+    trans.sellingPrice = "";
   };
 
   useEffect(() => {
@@ -140,7 +158,6 @@ const Transaction = ({ emptyObj }) => {
   }, [isForfeited]);
 
   const populate = () => {
-    // alert("populate");
     codeRef.current.value = trans.codeNo;
     inventoryNoRef.current.value = trans.inventoryNo;
     transactDateRef.current.value = formatDate(trans.transactDate);
@@ -166,6 +183,7 @@ const Transaction = ({ emptyObj }) => {
     );
     fullPaymentDateRef.current.value = formatDate(trans.fullPaymentDate);
     forfeitedDateRef.current.value = formatDate(trans.forfeitedDate);
+    sellingRef.current.value = currencyFormat(trans.sellingPrice);
     // forfeitedAmtRef.current.value = currencyFormat(trans.forfeitedAmt);
     setIsCash(trans.paymentTerm === "CASH" ? true : false);
     setPTerm(trans.paymentTerm);
@@ -224,6 +242,24 @@ const Transaction = ({ emptyObj }) => {
       .then((response) => response.data)
       .then((data) => {
         setPm(data);
+      });
+
+    pcode = "SD";
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/reference/byparent/" + pcode, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setSd(data);
+        senderNameRef.current.value = data[0].name;
+        senderAddressRef.current.value = data[1].name;
+        senderContactNoRef.current.value = data[2].name;
       });
   };
 
@@ -367,8 +403,9 @@ const Transaction = ({ emptyObj }) => {
 
     if (validate()) {
       if (
-        latestBalDate ===
-        new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
+        balDate ===
+        new Date(cashPaymentDateRef.current.value).toLocaleDateString("en-US")
+        // new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
       ) {
         if (trans.forfeitedAmt > 0) {
           saveForfeited();
@@ -486,7 +523,40 @@ const Transaction = ({ emptyObj }) => {
     return isvalid;
   };
 
-  const test = (e) => {};
+  const validateDetails = () => {
+    if (
+      trans.codeNo === "" ||
+      trans.inventoryNo === "" ||
+      trans.transactDate === "" ||
+      trans.description === "" ||
+      trans.karat === "" ||
+      trans.weight === "" ||
+      trans.capital === "" ||
+      trans.discountedPrice === "" ||
+      trans.customerName === "" ||
+      trans.receiverName === "" ||
+      trans.address === "" ||
+      trans.contactNo === ""
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const saveDetails = (e) => {
+    e.preventDefault();
+    if (validateDetails()) {
+      trans.cashPayment = transOrg.cashPayment;
+      trans.paymentMode = transOrg.paymentMode;
+      trans.cashPaymentDate = transOrg.cashPaymentDate;
+      trans.referenceNo = transOrg.referenceNo;
+      saveDetailsOnly();
+    } else {
+      setMessage("Please fill all fields.");
+      setOpenModal(true);
+    }
+  };
 
   const printLbc = () => {
     if (trans.id === undefined) {
@@ -627,7 +697,7 @@ const Transaction = ({ emptyObj }) => {
         if (!isCash) {
           if (
             latestBalDate ===
-            new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
+            new Date(layAway.paymentDate).toLocaleDateString("en-US")
           ) {
             if (trans.id === "" || trans.id === undefined) {
               saveTransaction();
@@ -729,6 +799,10 @@ const Transaction = ({ emptyObj }) => {
     setOpenModalJewel(true);
   };
 
+  const none = (e) => {
+    e.preventDefault();
+  };
+
   return (
     <div className={styles.container}>
       <form>
@@ -793,13 +867,43 @@ const Transaction = ({ emptyObj }) => {
                   trans.karat = e.target.value.toUpperCase();
                 }}
               ></input>
-              <label style={{ marginLeft: "10px" }}>Weight</label>
+              <label style={{ marginLeft: "15px" }}>Weight</label>
               <input
                 ref={weightRef}
                 // placeholder="Weight"
                 maxLength="15"
                 onChange={(e) => {
                   trans.weight = e.target.value;
+                }}
+              ></input>
+            </div>
+            <div className={styles.row3}>
+              <label>Capital</label>
+              <input
+                ref={capitalRef}
+                defaultValue="0.00"
+                maxLength="12"
+                style={{ textAlign: "right" }}
+                onFocus={(event) => event.target.select()}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeCurrency(value);
+                  trans.capital = value.replaceAll(",", "").replaceAll("₱", "");
+                }}
+              ></input>
+              <label style={{ marginLeft: "15px" }}>Selling</label>
+              <input
+                ref={sellingRef}
+                defaultValue="0.00"
+                maxLength="12"
+                style={{ textAlign: "right" }}
+                onFocus={(event) => event.target.select()}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeCurrency(value);
+                  trans.sellingPrice = value
+                    .replaceAll(",", "")
+                    .replaceAll("₱", "");
                 }}
               ></input>
             </div>
@@ -822,7 +926,7 @@ const Transaction = ({ emptyObj }) => {
                   trans.weight = e.target.value;
                 }}
               ></input> */}
-              <label>Capital</label>
+              {/* <label>Capital</label>
               <input
                 ref={capitalRef}
                 defaultValue="0.00"
@@ -845,9 +949,11 @@ const Transaction = ({ emptyObj }) => {
                 onChange={(e) => {
                   const { value } = e.target;
                   e.target.value = normalizeCurrency(value);
-                  trans.selling = value.replaceAll(",", "").replaceAll("₱", "");
+                  trans.sellingPrice = value
+                    .replaceAll(",", "")
+                    .replaceAll("₱", "");
                 }}
-              ></input>
+              ></input> */}
               <label>Discounted Price</label>
               <input
                 ref={discountedPriceRef}
@@ -858,6 +964,9 @@ const Transaction = ({ emptyObj }) => {
                 onChange={(e) => {
                   const { value } = e.target;
                   e.target.value = normalizeCurrency(value);
+                  trans.cashPayment = value
+                    .replaceAll(",", "")
+                    .replaceAll("₱", "");
                   trans.discountedPrice = value
                     .replaceAll(",", "")
                     .replaceAll("₱", "");
@@ -900,23 +1009,16 @@ const Transaction = ({ emptyObj }) => {
                 }}
               ></input>
               <label>Senders Name</label>
-              <input
-                ref={senderNameRef}
-                readOnly
-                value={"Aurora Jewelry Collection"}
-              ></input>
+              <input ref={senderNameRef} readOnly></input>
               <label>Complete Address</label>
-              <input
-                ref={senderAddressRef}
-                readOnly
-                value={"3286 Jervois St. Brgy. Pinagkaisahan, Makati City"}
-              ></input>
+              <input ref={senderAddressRef} readOnly></input>
               <label>Contact No.</label>
-              <input
-                ref={senderContactNoRef}
-                readOnly
-                value={"0999-993-1148"}
-              ></input>
+              <input ref={senderContactNoRef} readOnly></input>
+            </div>
+            <div className={styles.buttonContainer4}>
+              <button className={styles.save} onClick={(e) => saveDetails(e)}>
+                Save Details
+              </button>
             </div>
           </div>
           <div className={styles.row2}>
@@ -1120,9 +1222,18 @@ const Transaction = ({ emptyObj }) => {
               </div>
             </div>
             <div className={styles.buttonContainer3}>
-              <button className={styles.save} onClick={(e) => save(e)}>
-                Save Details
-              </button>
+              {isCash && (
+                <button className={styles.save} onClick={(e) => save(e)}>
+                  Save Payment
+                </button>
+              )}
+              {!isCash && (
+                <button
+                  disabled
+                  className={styles.save}
+                  onClick={(e) => none(e)}
+                ></button>
+              )}
               <button
                 className={styles.printForfeited}
                 disabled={isfullyPaid || isCash || !isForfeited}

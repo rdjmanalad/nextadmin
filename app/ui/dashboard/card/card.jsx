@@ -23,9 +23,12 @@ const Card = ({ details }) => {
         <span className={styles.title}>{details.title}</span>
         {/* <input ref={amountRef}></input> */}
         <span className={styles.number}>{currencyFormat(details.amount)}</span>
-        {/* <span className={styles.detail}>
-          <span className={styles.positive}>12%</span>Compare
-        </span> */}
+        <span>Cash In</span>
+        <span className={styles.detail}>
+          <span className={styles.positive}>
+            {currencyFormat(details.currentTransaction)}
+          </span>
+        </span>
         <br></br>
       </div>
     </div>

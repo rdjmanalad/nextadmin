@@ -9,8 +9,9 @@
   transform: translate(-50%, -50%);
 }
 .modalContainer {
-  width: 670px;
-  height: 400px;
+  /* width: 670px; */
+  width: 750px;
+  height: 430px;
   gap: 20px;
   pointer-events: auto;
   position: fixed;
@@ -119,11 +120,39 @@
 }
 
 .modalFooter {
+  gap: 10px;
   position: absolute;
   bottom: 0;
-  width: 94%;
+  width: 95%;
   padding: 10px;
   display: inline-flex;
   justify-content: right;
   /* text-align: right; */
+}
+
+.inputs {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 2fr;
+  gap: 10px;
+}
+
+.inputs input {
+  width: 100%;
+  background-color: var(--inputBg);
+  border: 1px solid black;
+  height: 30px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  padding-left: 5px;
+  color: black;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  padding-right: 20px;
+}
+
+.inputs label {
+  margin-top: 10px;
+  font-size: 13px;
 }

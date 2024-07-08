@@ -68,3 +68,11 @@
   align-items: center;
   padding: 30px;
 }
+
+.title {
+  width: 100%;
+  background-color: var(--bgSoft);
+  margin-top: 20px;
+  padding: 10px 10px;
+  border-radius: 5px;
+}

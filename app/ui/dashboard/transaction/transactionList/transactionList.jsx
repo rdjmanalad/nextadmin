@@ -44,9 +44,9 @@ const TransactionList = () => {
         window.sessionStorage.clear();
       }
       if (jwtToken && !isTokenExpired(jwtToken)) {
+        getReference();
         setEditMode(false);
         setFilters(filtersInit);
-        getReference();
       }
     }
   }, []);
@@ -154,6 +154,7 @@ const TransactionList = () => {
   const onGridReady = useCallback((params) => {
     const jwtToken = window.sessionStorage.getItem("jwt");
     if (jwtToken && !isTokenExpired(jwtToken)) {
+      getReference();
       getAll();
     }
   }, []);

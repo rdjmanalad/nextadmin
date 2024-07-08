@@ -29,7 +29,13 @@ const DashboardHome = () => {
   const [bal, setBal] = useState([]);
   const [isCash, setIsCash] = useState(false);
   const [toDisplay, setToDisplay] = useState(false);
+  const [toDisplayTable, setToDisplayTable] = useState(false);
   const [balances, setBalances] = useState([]);
+  const [cashPalawan, setCashPalawan] = useState("");
+  const [displayRight, setDisplayRight] = useState(false);
+  const [balDate, setBalDate] = isClient
+    ? useLocalState("balDate", "")
+    : ["", () => {}];
 
   const onGridReady = useCallback((params) => {
     getAllBalances();
@@ -90,6 +96,21 @@ const DashboardHome = () => {
     return `${year}-${month}-${day}`;
   }
 
+  const convertDateString = (dateStr) => {
+    const parts = dateStr.split("/");
+    let month = parts[0];
+    let day = parts[1];
+    const year = parts[2];
+    if (month.length === 1) {
+      month = "0" + month;
+    }
+    if (day.length === 1) {
+      day = "0" + day;
+    }
+    const formattedDate = `${year}-${month}-${day}`;
+    return formattedDate;
+  };
+
   const getBalances = () => {
     setToDisplay(false);
     const date = getTodayDate();
@@ -116,8 +137,9 @@ const DashboardHome = () => {
       });
   };
 
-  const getAllBalances = () => {
-    const date = getTodayDate();
+  const getAllBalances = async () => {
+    // const date = getTodayDate();
+    const date = convertDateString(balDate);
     var jwt = window.sessionStorage.getItem("jwt");
     axios.defaults.headers.common["Authorization"] =
       "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
@@ -193,41 +215,63 @@ const DashboardHome = () => {
     },
   ];
 
+  const tiles = (bal) => {
+    // alert(bal.id);
+    let det = {
+      amount: bal.beginningBal,
+      title: bal.accountName,
+      currentTransaction: bal.addBal,
+    };
+    return <Card details={det} />;
+  };
+
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.main}>
-        {toDisplay && (
-          <div className={styles.cards}>
-            <Card details={startingBal} />
+    <div>
+      <div className={styles.title}>
+        <h2>Beginning Balance</h2>
+      </div>
+      <div className={styles.wrapper}>
+        <div className={styles.main}>
+          {balances.length > 0 && (
+            <div className={styles.cards}>
+              {balances.map((balance) => tiles(balance))}
+
+              {/* <Card details={startingBal} />
             <Card details={addBalance} />
             <Card details={lessBalance} />
-            <Card details={endingBal} />
+            <Card details={endingBal} /> */}
+              {/* {tiles()} */}
+            </div>
+          )}
+          {toDisplayTable && (
+            <div className={styles.container2}>
+              <h2 className={styles.header}>Balances</h2>
+              <div className={styles.balTable}>
+                <div
+                  className={`ag-theme-quartz ${styles.aggrid}`}
+                  style={{
+                    "--ag-header-background-color": "rgb(202, 202, 202)",
+                    "--ag-odd-row-background-color": "rgb(241, 241, 241)",
+                  }}
+                >
+                  <AgGridReact
+                    rowData={balances}
+                    columnDefs={columnDefs}
+                    rowSelection={"single"}
+                    // ref={gridRef}
+                    onGridReady={onGridReady}
+                    alwaysShowHorizontalScroll={true}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        {displayRight && (
+          <div className={styles.side}>
+            <Rightbar />
           </div>
         )}
-        <div className={styles.container2}>
-          <h2 className={styles.header}>Balances</h2>
-          <div className={styles.balTable}>
-            <div
-              className={`ag-theme-quartz ${styles.aggrid}`}
-              style={{
-                "--ag-header-background-color": "rgb(202, 202, 202)",
-                "--ag-odd-row-background-color": "rgb(241, 241, 241)",
-              }}
-            >
-              <AgGridReact
-                rowData={balances}
-                columnDefs={columnDefs}
-                rowSelection={"single"}
-                // ref={gridRef}
-                onGridReady={onGridReady}
-                alwaysShowHorizontalScroll={true}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className={styles.side}>
-        <Rightbar />
       </div>
     </div>
   );

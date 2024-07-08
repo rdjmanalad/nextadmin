@@ -13,7 +13,14 @@ const ModalLayAway = ({ openModalLA, setOpenModalLA, transactionId }) => {
             <div>
               <LayAwayTable transactionId={transactionId} />
             </div>
+            {/* <div className={styles.inputs}>
+              <label>Amount</label>
+              <input></input>
+              <label>Reference No.</label>
+              <input></input>
+            </div> */}
           </div>
+
           <div className={styles.modalFooter}>
             <button
               className={styles.modalButtonCancel}

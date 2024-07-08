@@ -12,6 +12,7 @@ const Navbar = () => {
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const isClient = typeof window !== "undefined";
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
+  const [balDate, setBalDate] = useLocalState("balDate", "");
   const [userRole, setUserRole] = isClient
     ? useLocalState("userRole", "")
     : ["", () => {}];
@@ -43,6 +44,7 @@ const Navbar = () => {
       setIsUpdated(false);
       setBalStatus("Balance is outdated (" + latestDate + ")");
     }
+    // setBalDate(latestDate);
   }, [latestDate]);
 
   const getMaxBalanceDate = () => {
@@ -59,6 +61,8 @@ const Navbar = () => {
       })
       .then((response) => response.data)
       .then((data) => {
+        // alert(data);
+        setBalDate(new Date(data).toLocaleDateString("en-US"));
         setLatestDate(
           new Date(data).toLocaleDateString("en-US", {
             year: "numeric",

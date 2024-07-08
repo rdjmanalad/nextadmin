@@ -29,6 +29,7 @@ const CorrectingEntry = () => {
   const [reload, setReload] = useState(false);
   const [corrEntry, setCorrEntry] = useState({
     id: "",
+    transactionId: "",
     code: "",
     discounted: "",
     term: "",
@@ -79,6 +80,7 @@ const CorrectingEntry = () => {
     // console.log(rowSelected[0]);
     if (rowSelected.length > 0) {
       setTranId(rowSelected[0].id);
+      corrEntry.transactionId = rowSelected[0].id;
       corrEntry.code = rowSelected[0].codeNo;
       corrEntry.discounted = rowSelected[0].discountedPrice;
       corrEntry.term = rowSelected[0].paymentTerm;
@@ -160,7 +162,9 @@ const CorrectingEntry = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          saveTransaction();
+          // saveTransaction();
+          setMessage("Correction saved.");
+          setOpenModal(true);
         }
       })
       .catch((message) => {

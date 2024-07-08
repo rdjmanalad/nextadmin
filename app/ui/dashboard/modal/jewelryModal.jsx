@@ -2,6 +2,7 @@
 import { AgGridReact } from "ag-grid-react";
 import { useState, useCallback, useRef } from "react";
 import styles from "./transactionModal.module.css";
+import styles2 from "./jewelryModal.module.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import axios from "axios";
@@ -13,6 +14,8 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [rowSelected, setRowSelected] = useState([]);
   const [quickFilterText, setQuickFilterText] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const onGridReady = useCallback((params) => {
     getAll();
@@ -29,6 +32,27 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
           "Content-Type": "application/json",
         },
       })
+      .then((response) => response.data)
+      .then((data) => {
+        console.log(data);
+        setRowData(data);
+      });
+  };
+
+  const searchFiltered = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(
+        baseUrl + "/api/masjewelry/getByDates/" + startDate + "/" + endDate,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((response) => response.data)
       .then((data) => {
         console.log(data);
@@ -130,6 +154,30 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
         <div style={{ width: "620px" }}>
           <h3>Jewelry Inventory</h3>
           <br></br>
+          <div className={styles2.search}>
+            <label>Delivery Date from</label>
+            <input
+              type="date"
+              onChange={(e) => {
+                setStartDate(e.target.value);
+              }}
+            ></input>
+            <label>&nbsp;&nbsp;&nbsp;&nbsp;to</label>
+            <input
+              type="date"
+              onChange={(e) => {
+                setEndDate(e.target.value);
+              }}
+            ></input>
+            <button
+              onClick={(e) => {
+                searchFiltered(e);
+              }}
+            >
+              Search
+            </button>
+          </div>
+          <hr></hr>
           <div className={styles.quickSearch}>
             <label>Quick Filter: </label>
             <input
