@@ -18,7 +18,7 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
   const [endDate, setEndDate] = useState("");
 
   const onGridReady = useCallback((params) => {
-    getAll();
+    // getAll();
   }, []);
 
   const getAll = () => {
@@ -34,7 +34,7 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
       })
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
+        // console.log(data);
         setRowData(data);
       });
   };
@@ -55,7 +55,7 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
       )
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
+        // console.log(data);
         setRowData(data);
       });
   };

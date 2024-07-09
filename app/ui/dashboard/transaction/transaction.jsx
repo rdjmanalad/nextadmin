@@ -125,10 +125,10 @@ const Transaction = ({ emptyObj }) => {
       trans.karat = jewelry[0].karat;
       trans.weight = jewelry[0].weight;
       trans.capital = jewelry[0].capital;
-      trans.selling = jewelry[0].sellingPrice;
+      trans.sellingPrice = jewelry[0].sellingPrice;
     }
 
-    console.log(jewelry);
+    // console.log(jewelry);
   }, [jewelry]);
 
   const initiate = () => {
@@ -164,7 +164,7 @@ const Transaction = ({ emptyObj }) => {
     descriptionRef.current.value = trans.description;
     karatRef.current.value = trans.karat;
     weightRef.current.value = trans.weight;
-    sellingRef.current.value = currencyFormat(trans.selling);
+    sellingRef.current.value = currencyFormat(trans.sellingPrice);
     capitalRef.current.value = currencyFormat(trans.capital);
     discountedPriceRef.current.value = currencyFormat(trans.discountedPrice);
     customerNameRef.current.value = trans.customerName;
@@ -204,6 +204,11 @@ const Transaction = ({ emptyObj }) => {
     }
     return "";
   };
+
+  function removeCommaAndPesoSign(str) {
+    const regex = /[₱,]/g; // g flag for global search and replace
+    return str.replace(regex, "");
+  }
 
   function removeCommas(inputString) {
     // Use the replace() method with a regular expression to remove all commas
@@ -270,6 +275,9 @@ const Transaction = ({ emptyObj }) => {
       trans.balance =
         trans.balance - removeCommas(cashPaymentRef.current.value);
     }
+    trans.cashPayment = !isCash
+      ? 0
+      : removeCommaAndPesoSign(discountedPriceRef.current.value);
     var jwt = window.sessionStorage.getItem("jwt");
     // alert(trans.totalPayment);
     axios
@@ -292,7 +300,7 @@ const Transaction = ({ emptyObj }) => {
           if (pTerm === "LAY-AWAY") {
             saveLayAwayPay();
           }
-          saveBalance();
+          // saveBalance();
           populate();
         }
       })
@@ -410,11 +418,12 @@ const Transaction = ({ emptyObj }) => {
         if (trans.forfeitedAmt > 0) {
           saveForfeited();
         } else {
-          if (trans.id === "" || trans.id === undefined) {
-            saveTransaction();
-          } else {
-            saveDetailsOnly();
-          }
+          saveTransaction();
+          // if (trans.id === "" || trans.id === undefined) {
+          //   saveTransaction();
+          // } else {
+          //   saveDetailsOnly();
+          // }
         }
       } else {
         setMessage("Payment date and balance date is not equal.");
@@ -551,6 +560,9 @@ const Transaction = ({ emptyObj }) => {
       trans.paymentMode = transOrg.paymentMode;
       trans.cashPaymentDate = transOrg.cashPaymentDate;
       trans.referenceNo = transOrg.referenceNo;
+      if (trans.id === "" || trans.id === undefined) {
+        trans.cashPayment = 0;
+      }
       saveDetailsOnly();
     } else {
       setMessage("Please fill all fields.");
@@ -663,6 +675,7 @@ const Transaction = ({ emptyObj }) => {
   const onPayTerm = (e) => {
     e.preventDefault();
     var term = e.target.value;
+
     cashPaymentRef.current.value = isCash
       ? 0
       : discountedPriceRef.current.value;
@@ -799,8 +812,9 @@ const Transaction = ({ emptyObj }) => {
     setOpenModalJewel(true);
   };
 
-  const none = (e) => {
+  const forfeit = (e) => {
     e.preventDefault();
+    saveForfeited();
   };
 
   return (
@@ -1229,10 +1243,12 @@ const Transaction = ({ emptyObj }) => {
               )}
               {!isCash && (
                 <button
-                  disabled
+                  disabled={!allowForfeit}
                   className={styles.save}
-                  onClick={(e) => none(e)}
-                ></button>
+                  onClick={(e) => forfeit(e)}
+                >
+                  Save Forfeited
+                </button>
               )}
               <button
                 className={styles.printForfeited}
