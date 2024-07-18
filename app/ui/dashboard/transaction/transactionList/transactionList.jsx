@@ -155,7 +155,7 @@ const TransactionList = () => {
     const jwtToken = window.sessionStorage.getItem("jwt");
     if (jwtToken && !isTokenExpired(jwtToken)) {
       getReference();
-      // getAll();
+      getAll();
     }
   }, []);
 

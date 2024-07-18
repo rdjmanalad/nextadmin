@@ -2,15 +2,16 @@
 import useLocalState from "@/app/hooks/useLocalState";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import styles from "./transaction.module.css";
+import styles from "./existingLayaway.module.css";
 import { useRouter } from "next/navigation";
-import ModalLayAway from "../modal/modalLayAway";
-import MessageModal from "../modal/messageModal";
-import JewelryModal from "../modal/jewelryModal";
+import ModalLayAway from "../../modal/modalLayAway";
+import MessageModal from "../../modal/messageModal";
+import JewelryModal from "../../modal/jewelryModal";
+import TransactionModal from "../../modal/transactionModal";
 import { isTokenExpired } from "@/app/auth";
 import { MdSearch } from "react-icons/md";
 
-const Transaction = ({ emptyObj }) => {
+const ExistingLayaway = ({ emptyObj }) => {
   const [trans, setTrans] = useState({});
   const [transOrg, setTransOrg] = useState({});
   const [pt, setPt] = useState([]);
@@ -26,6 +27,8 @@ const Transaction = ({ emptyObj }) => {
   const [openModal, setOpenModal] = useState(false);
   const [openModalLA, setOpenModalLA] = useState(false);
   const [openModalJewel, setOpenModalJewel] = useState(false);
+  const [openModalTran, setOpenModalTran] = useState(false);
+  const [rowSelected, setRowSelected] = useState([]);
   const isClient = typeof window !== "undefined";
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [isfullyPaid, setIsfullyPaid] = useState(false);
@@ -73,7 +76,6 @@ const Transaction = ({ emptyObj }) => {
   const senderAddressRef = useRef();
   const senderContactNoRef = useRef();
   const sellingRef = useRef();
-  const volumeRef = useRef();
 
   const router = useRouter();
 
@@ -90,26 +92,19 @@ const Transaction = ({ emptyObj }) => {
     if (jwtToken && !isTokenExpired(jwtToken)) {
       getReference();
       initiate();
-      if (window.sessionStorage.getItem("jwt") != null) {
-        if (emptyObj.id != "") {
-          setTrans(emptyObj);
-          setTransOrg({
-            referenceNo: emptyObj.referenceNo,
-            cashPaymentDate: emptyObj.cashPaymentDate,
-            cashPayment: emptyObj.cashPayment,
-            cashPaymentDate: emptyObj.cashPaymentDate,
-          });
-          populate();
-        }
-      }
     }
   }, []);
 
   useEffect(() => {
-    if (emptyObj.id != "") {
-      populate();
-    }
+    // console.log(trans);
+    populate();
   }, [trans]);
+
+  useEffect(() => {
+    if (rowSelected.length > 0) {
+      setTrans(rowSelected[0]);
+    }
+  }, [rowSelected]);
 
   useEffect(() => {
     // alert("ss");
@@ -120,7 +115,6 @@ const Transaction = ({ emptyObj }) => {
       weightRef.current.value = jewelry[0].weight;
       sellingRef.current.value = currencyFormat(jewelry[0].sellingPrice);
       capitalRef.current.value = currencyFormat(jewelry[0].capital);
-      volumeRef.current.value = jewelry[0].volumeNo;
 
       trans.inventoryNo = jewelry[0].inventoryNo;
       trans.description = jewelry[0].description;
@@ -128,7 +122,6 @@ const Transaction = ({ emptyObj }) => {
       trans.weight = jewelry[0].weight;
       trans.capital = jewelry[0].capital;
       trans.sellingPrice = jewelry[0].sellingPrice;
-      trans.volumeNo = jewelry[0].volumeNo;
     }
 
     // console.log(jewelry);
@@ -153,7 +146,6 @@ const Transaction = ({ emptyObj }) => {
     trans.cashPayment = "";
     trans.referenceNo = "";
     trans.sellingPrice = "";
-    trans.volumeNo = "";
   };
 
   useEffect(() => {
@@ -188,7 +180,6 @@ const Transaction = ({ emptyObj }) => {
     fullPaymentDateRef.current.value = formatDate(trans.fullPaymentDate);
     forfeitedDateRef.current.value = formatDate(trans.forfeitedDate);
     sellingRef.current.value = currencyFormat(trans.sellingPrice);
-    volumeRef.current.value = trans.volumeNo;
     // forfeitedAmtRef.current.value = currencyFormat(trans.forfeitedAmt);
     setIsCash(trans.paymentTerm === "CASH" ? true : false);
     setPTerm(trans.paymentTerm);
@@ -285,33 +276,38 @@ const Transaction = ({ emptyObj }) => {
       : removeCommaAndPesoSign(discountedPriceRef.current.value);
     var jwt = window.sessionStorage.getItem("jwt");
     // alert(trans.totalPayment);
-    axios
-      .post(baseUrl + "/api/transactions/save", trans, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
-        },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          // console.log(response.data);
-          setTrans(response.data);
-          // alert("success" + response.data.id);
-          setMessage("Transaction saved.");
-          setOpenModal(true);
-          layAway.transactionId = response.data.id;
-          layAway.user = user;
-          if (pTerm === "LAY-AWAY") {
-            saveLayAwayPay();
+    if (pTerm === "LAY-AWAY") {
+      axios
+        .post(baseUrl + "/api/transactions/save", trans, {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+          },
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            // console.log(response.data);
+            setTrans(response.data);
+            // alert("success" + response.data.id);
+            setMessage("Transaction saved.");
+            setOpenModal(true);
+            layAway.transactionId = response.data.id;
+            layAway.user = user;
+            if (pTerm === "LAY-AWAY") {
+              saveLayAwayPay();
+            }
+            // saveBalance();
+            populate();
           }
-          // saveBalance();
-          populate();
-        }
-      })
-      .catch((message) => {
-        alert(message);
-      });
+        })
+        .catch((message) => {
+          alert(message);
+        });
+    } else {
+      setMessage("This Module is for existing layaway only");
+      setOpenModal(true);
+    }
   };
 
   const saveForfeited = () => {
@@ -416,22 +412,14 @@ const Transaction = ({ emptyObj }) => {
 
     if (validate()) {
       if (
-        balDate ===
-        new Date(cashPaymentDateRef.current.value).toLocaleDateString("en-US")
+        new Date(cashPaymentDateRef.current.value).toLocaleDateString(
+          "en-US"
+        ) <= balDate
         // new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
       ) {
-        if (trans.forfeitedAmt > 0) {
-          saveForfeited();
-        } else {
-          saveTransaction();
-          // if (trans.id === "" || trans.id === undefined) {
-          //   saveTransaction();
-          // } else {
-          //   saveDetailsOnly();
-          // }
-        }
+        saveTransaction();
       } else {
-        setMessage("Payment date and balance date is not equal.");
+        setMessage("Payment date must be less than current balance date");
         setOpenModal(true);
       }
     } else {
@@ -714,8 +702,9 @@ const Transaction = ({ emptyObj }) => {
       if (validPayDetails()) {
         if (!isCash) {
           if (
-            latestBalDate ===
-            new Date(layAway.paymentDate).toLocaleDateString("en-US")
+            // latestBalDate ===
+            new Date(layAway.paymentDate).toLocaleDateString("en-US") <
+            latestBalDate
           ) {
             if (trans.id === "" || trans.id === undefined) {
               saveTransaction();
@@ -724,10 +713,10 @@ const Transaction = ({ emptyObj }) => {
             layAway.user = user;
             saveLayAwayPay();
             saveTranPayment();
-            saveBalance();
+            // saveBalance();
             populate();
           } else {
-            setMessage("Payment date and balance date is not equal.");
+            setMessage("Payment date must be less than current balance date");
             setOpenModal(true);
           }
         }
@@ -752,30 +741,6 @@ const Transaction = ({ emptyObj }) => {
       .then((response) => response.data)
       .then((data) => {
         setLatestBalDate(new Date(data).toLocaleDateString("en-US"));
-      });
-  };
-
-  const inventorySearch = () => {
-    let invNo = inventoryNoRef.current.value;
-    var jwt = window.sessionStorage.getItem("jwt");
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-    axios
-      .get(baseUrl + "/api/transactions/getByInvNo/" + invNo, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => response.data)
-      .then((data) => {
-        // alert(data);
-        if (data === "") {
-          setOpenModalJewel(true);
-        } else {
-          setTrans(data);
-          populate();
-        }
       });
   };
 
@@ -838,14 +803,7 @@ const Transaction = ({ emptyObj }) => {
 
   const searchJewelry = (e) => {
     e.preventDefault();
-    if (
-      inventoryNoRef.current.value === null ||
-      inventoryNoRef.current.value === ""
-    ) {
-      setOpenModalJewel(true);
-    } else {
-      inventorySearch();
-    }
+    setOpenModalJewel(true);
   };
 
   const forfeit = (e) => {
@@ -876,29 +834,19 @@ const Transaction = ({ emptyObj }) => {
               >
                 Search <MdSearch />
               </button>
-            </div>
-            <div className={styles.row3}>
-              <label>Volume No.</label>
-              <input
-                ref={volumeRef}
-                maxLength="10"
-                onChange={(e) => {
-                  trans.volumeNo = e.target.value.toUpperCase();
+              <button
+                className={styles.search}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpenModalTran(true);
                 }}
-              ></input>
-              <label style={{ marginLeft: "15px" }}>Code No.</label>
-              <input
-                ref={codeRef}
-                maxLength="15"
-                // placeholder="Code#"
-                onChange={(e) => {
-                  trans.codeNo = e.target.value.toUpperCase();
-                }}
-              ></input>
+              >
+                Existing <MdSearch />
+              </button>
             </div>
 
             <div className={styles.row1}>
-              {/* <label>Code No.</label>
+              <label>Code No.</label>
               <input
                 ref={codeRef}
                 maxLength="15"
@@ -906,7 +854,7 @@ const Transaction = ({ emptyObj }) => {
                 onChange={(e) => {
                   trans.codeNo = e.target.value.toUpperCase();
                 }}
-              ></input> */}
+              ></input>
               <label>Transaction Date</label>
               <input
                 ref={transactDateRef}
@@ -1365,7 +1313,17 @@ const Transaction = ({ emptyObj }) => {
           jewelry={setJewelry}
         />
       )}
+      <div>
+        {openModalTran && (
+          <TransactionModal
+            openModalTran={openModalTran}
+            setOpenModalTran={setOpenModalTran}
+            setTrans={setRowSelected}
+            // setTrans={setRowSelected}
+          />
+        )}
+      </div>
     </div>
   );
 };
-export default Transaction;
+export default ExistingLayaway;

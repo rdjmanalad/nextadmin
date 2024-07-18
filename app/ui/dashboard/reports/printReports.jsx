@@ -28,6 +28,9 @@ const PrintReports = () => {
   const [openModalConf, setOpenModalConf] = useState(false);
   const [transDate, setTransDate] = useState("");
   const [sumTrans, setSumTrans] = useState(0);
+  const [balDate, setBalDate] = useState(
+    window.sessionStorage.getItem("balDate")
+  );
 
   const startDateRef = useRef();
   const endDateRef = useRef();
@@ -989,13 +992,13 @@ const PrintReports = () => {
             className={styles.buttonsOra}
             onClick={(e) => {
               e.preventDefault();
-              setMessage("Generate new beginning balance?");
+              setMessage("Posting Balance for " + balDate + "?");
               setOpenModalConf(true);
 
               // generateBalance(e);
             }}
           >
-            Generate new beginning balance
+            Post Balance
           </button>
         </div>
         {openModal && (

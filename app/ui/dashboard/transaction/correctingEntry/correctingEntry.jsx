@@ -51,6 +51,7 @@ const CorrectingEntry = () => {
   const paymentAmtRef = useRef();
   const correctingAmtRef = useRef();
   const corrDateRef = useRef();
+  const correctedAmtRef = useRef();
 
   useEffect(() => {
     // setJwt(window.sessionStorage.getItem("jwt"));
@@ -269,6 +270,11 @@ const CorrectingEntry = () => {
       currency: "PHP",
     }).format(value);
 
+  const computeCorrected = (amt) => {
+    // alert("j" + corrEntry.paymentAmt);
+    correctedAmtRef.current.value = Number(corrEntry.paymentAmt) + Number(amt);
+  };
+
   const autoSizeStrategy = {
     type: "fitGridWidth",
     defaultMinWidth: 50,
@@ -403,19 +409,23 @@ const CorrectingEntry = () => {
               style={{ textAlign: "right" }}
               disabled
             ></input>
-            <label>Correcting Amt</label>
+            <label>Adjustment Amt</label>
             <input
               ref={correctingAmtRef}
               style={{ textAlign: "right" }}
               maxLength="12"
+              // defaultValue={0}
               onChange={(e) => {
                 const { value } = e.target;
                 e.target.value = normalizeCurrency(value);
+                computeCorrected(value);
                 corrEntry.correctingAmt = value
                   .replaceAll(",", "")
                   .replaceAll("₱", "");
               }}
             ></input>
+            <label>Corrected Amt</label>
+            <input ref={correctedAmtRef}></input>
             <label>Correction Date</label>
             <input
               ref={corrDateRef}

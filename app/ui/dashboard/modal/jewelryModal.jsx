@@ -18,7 +18,7 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
   const [endDate, setEndDate] = useState("");
 
   const onGridReady = useCallback((params) => {
-    // getAll();
+    getAll();
   }, []);
 
   const getAll = () => {

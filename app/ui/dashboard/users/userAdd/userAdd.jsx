@@ -80,53 +80,88 @@ const UserAdd = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (count > 0) {
-      if (
-        userNameRef.current.value !== "" ||
-        userNameRef.current.value !== null
-      ) {
-        if (!validUser) {
-          // setErrorMessage("Username already exist.");
-          setMessage("Username already exist.");
-          setOpenModal(true);
-        }
-        // setMessage("");
-        if (validUser) {
-          // setErrorMessage("");
-          setMessage("");
-          if (newPassword === "" || newPassword === null) {
-            // setErrorMessage("Password must not be empty");
-            setMessage("Password must not be empty");
+  // useEffect(() => {
+  //   if (count > 0) {
+  //     if (
+  //       userNameRef.current.value !== "" ||
+  //       userNameRef.current.value !== null
+  //     ) {
+  //       if (!validUser) {
+  //         // setErrorMessage("Username already exist.");
+  //         setMessage("Username already exist.");
+  //         setOpenModal(true);
+  //       }
+  //       // setMessage("");
+  //       if (validUser) {
+  //         // setErrorMessage("");
+  //         setMessage("");
+  //         if (newPassword === "" || newPassword === null) {
+  //           // setErrorMessage("Password must not be empty");
+  //           setMessage("Password must not be empty");
+  //           setOpenModal(true);
+  //         } else {
+  //           if (newPassword === confirmPassword) {
+  //             if (userRole === "") {
+  //               setMessage("Choose a Role.");
+  //               setOpenModal(true);
+  //             } else {
+  //               saveNewUser();
+  //             }
+  //           } else {
+  //             // setErrorMessage("New password and confirmation do not match.");
+  //             setMessage("New password and confirmation do not match.");
+  //             setOpenModal(true);
+  //           }
+  //         }
+  //       }
+  //       // else {
+  //       //   // setErrorMessage("Username already exist.");
+  //       //   setMessage("Username already exist.");
+  //       //   setOpenModal(true);
+  //       // }
+  //     } else {
+  //       // setErrorMessage("Please fill in Username..");
+  //       setMessage("Please fill in Username.");
+  //       setOpenModal(true);
+  //     }
+  //   }
+  //   setCount(count + 1);
+  // }, [validUser]);
+
+  const testPassword = (valid) => {
+    if (valid) {
+      if (!validateString(newPassword)) {
+        setMessage(
+          "Password must have at least 8 characters, with a combination of lower and upper case letters, special characters, and numbers."
+        );
+        setOpenModal(true);
+        // setErrorMessage("Password must not be empty");
+      } else {
+        if (newPassword === confirmPassword) {
+          if (userRole === "") {
+            setMessage("Choose a Role.");
             setOpenModal(true);
           } else {
-            if (newPassword === confirmPassword) {
-              if (userRole === "") {
-                setMessage("Choose a Role.");
-                setOpenModal(true);
-              } else {
-                saveNewUser();
-              }
-            } else {
-              // setErrorMessage("New password and confirmation do not match.");
-              setMessage("New password and confirmation do not match.");
-              setOpenModal(true);
-            }
+            saveNewUser();
           }
+        } else {
+          // setErrorMessage("New password and confirmation do not match.");
+          setMessage("New password and confirmation do not match.");
+          setOpenModal(true);
         }
-        // else {
-        //   // setErrorMessage("Username already exist.");
-        //   setMessage("Username already exist.");
-        //   setOpenModal(true);
-        // }
-      } else {
-        // setErrorMessage("Please fill in Username..");
-        setMessage("Please fill in Username.");
-        setOpenModal(true);
       }
+    } else {
+      // setErrorMessage("Invalid current password. Please try again.");
+      setMessage("User already exist!");
+      setOpenModal(true);
     }
-    setCount(count + 1);
-  }, [validUser]);
+  };
+
+  function validateString(str) {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(str);
+  }
 
   const getUsers = () => {
     const jwt = window.sessionStorage.getItem("jwt");
@@ -145,17 +180,18 @@ const UserAdd = () => {
   };
 
   const handleSaveUser = () => {
-    setMessage("");
-    if (
-      userNameRef.current.value === "" ||
-      userNameRef.current.value === null
-    ) {
-      // setErrorMessage("Please fill in Username.");
-      setMessage("Please fill in Username.");
-      setOpenModal(true);
-    } else {
-      validateUser();
-    }
+    validateUser();
+    // setMessage("");
+    // if (
+    //   userNameRef.current.value === "" ||
+    //   userNameRef.current.value === null
+    // ) {
+    //   // setErrorMessage("Please fill in Username.");
+    //   setMessage("Please fill in Username.");
+    //   setOpenModal(true);
+    // } else {
+    //   validateUser();
+    // }
   };
 
   const validateUser = () => {
@@ -171,7 +207,8 @@ const UserAdd = () => {
         },
       })
       .then((response) => {
-        setValidUser(response.data);
+        testPassword(response.data);
+        // setValidUser(response.data);
       });
   };
 

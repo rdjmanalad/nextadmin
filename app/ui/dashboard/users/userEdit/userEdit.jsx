@@ -21,31 +21,35 @@ const UserEdit = () => {
   const [openModal, setOpenModal] = useState(false);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    if (count > 0) {
-      if (validPass) {
-        // Check if the new password and confirmation match
-        if (newPassword === "" || newPassword === null) {
-          setMessage("Password must not be empty.");
-          setOpenModal(true);
-          // setErrorMessage("Password must not be empty");
-        } else {
-          if (newPassword === confirmPassword) {
-            saveNewPass();
-          } else {
-            // setErrorMessage("New password and confirmation do not match.");
-            setMessage("New password and confirmation do not match.");
-            setOpenModal(true);
-          }
-        }
-      } else {
-        // setErrorMessage("Invalid current password. Please try again.");
-        setMessage("Invalid current password. Please try again.");
+  const testPassword = (valid) => {
+    if (valid) {
+      if (!validateString(newPassword)) {
+        setMessage(
+          "Password must have at least 8 characters, with a combination of lower and upper case letters, special characters, and numbers."
+        );
         setOpenModal(true);
+        // setErrorMessage("Password must not be empty");
+      } else {
+        if (newPassword === confirmPassword) {
+          saveNewPass();
+        } else {
+          // setErrorMessage("New password and confirmation do not match.");
+          setMessage("New password and confirmation do not match.");
+          setOpenModal(true);
+        }
       }
+    } else {
+      // setErrorMessage("Invalid current password. Please try again.");
+      setMessage("Invalid current password. Please try again.");
+      setOpenModal(true);
     }
-    setCount(count + 1);
-  }, [validPass]);
+  };
+
+  function validateString(str) {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(str);
+  }
 
   const handlePasswordChange = () => {
     validatePassword();
@@ -55,21 +59,24 @@ const UserEdit = () => {
     const jwt = window.sessionStorage.getItem("jwt");
     // alert(user + " / " + currentPassword);
     setValidPass(false);
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-    axios
-      .get(
-        baseUrl + "/api/users/validatePass/" + user + "/" + currentPassword,
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
-        setValidPass(response.data);
-      });
+    if (currentPassword) {
+      axios.defaults.headers.common["Authorization"] =
+        "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+      axios
+        .get(
+          baseUrl + "/api/users/validatePass/" + user + "/" + currentPassword,
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          testPassword(response.data);
+          // setValidPass(response.data);
+        });
+    }
   };
 
   const saveNewPass = () => {

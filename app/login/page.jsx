@@ -20,6 +20,8 @@ const LoginPage = () => {
   const [logi, setLogi] = useState(false);
   const [invalid, setInvalid] = useState(false);
   const router = useRouter();
+  const [message, setMessage] = useState("");
+  const [initial, setInitial] = useLocalState("initial", 0);
   // const baseURL = localStorage.getItem("baseURL");
 
   useEffect(() => {
@@ -53,7 +55,6 @@ const LoginPage = () => {
     };
     var jw = "";
     setUser(username);
-
     fetch(baseURL + "/api/login", {
       headers: {
         "Content-Type": "application-json",
@@ -63,15 +64,19 @@ const LoginPage = () => {
       body: JSON.stringify(reqBody),
     })
       .then((response) => {
+        // alert(response.status);
         if (response.status === 200) {
           return Promise.all([response.json(), response.data]);
-        } else {
+        } else if (response.status === 401) {
           return Promise.reject("Invalid Login Credentials");
+        } else if (response.status === 403) {
+          return Promise.reject("Locked Account");
+        } else {
+          return Promise.reject("Unknown Error");
         }
       })
 
       .then(([data, headers, json]) => {
-        // console.log(data);
         setInvalid(false);
         setLogi(true);
         setJwt(data["accessToken"]);
@@ -79,17 +84,15 @@ const LoginPage = () => {
         setUserId(0);
         getId();
         setUser(username);
+        window.sessionStorage.setItem("initial", 1);
         jw = data["accessToken"].split(".")[1];
         setUserRole(JSON.parse(window.atob(jw)).roles);
-        // console.log(localStorage.getItem("user"));
         setTimeout(() => {
           router.push("/dashboard");
         }, 1500);
-
-        // window.location.reload();
       })
       .catch((message) => {
-        // alert("mensahe " + message);
+        setMessage(message);
         setInvalid(true);
       });
   }
@@ -143,9 +146,7 @@ const LoginPage = () => {
         >
           Login
         </button>
-        <label style={{ display: invalid ? "block" : "none" }}>
-          Invalid Login Credentials
-        </label>
+        <label style={{ display: invalid ? "block" : "none" }}>{message}</label>
         <label style={{ display: logi ? "block" : "none" }}>Loging In...</label>
         <br></br>
       </form>

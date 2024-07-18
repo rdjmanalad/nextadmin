@@ -17,7 +17,7 @@ const TransactionModal = ({ setOpenModalTran, setTrans }) => {
   const [endDate, setEndDate] = useState("");
 
   const onGridReady = useCallback((params) => {
-    // getAll();
+    getAll();
   }, []);
 
   const getAll = () => {
