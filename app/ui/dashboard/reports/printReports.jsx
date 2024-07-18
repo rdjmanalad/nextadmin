@@ -28,9 +28,7 @@ const PrintReports = () => {
   const [openModalConf, setOpenModalConf] = useState(false);
   const [transDate, setTransDate] = useState("");
   const [sumTrans, setSumTrans] = useState(0);
-  const [balDate, setBalDate] = useState(
-    window.sessionStorage.getItem("balDate")
-  );
+  const [balDate, setBalDate] = useState(0);
 
   const startDateRef = useRef();
   const endDateRef = useRef();
@@ -55,6 +53,7 @@ const PrintReports = () => {
 
   useEffect(() => {
     const jwtToken = window.sessionStorage.getItem("jwt");
+    setBalDate(window.sessionStorage.getItem("balDate"));
     if (window.sessionStorage.getItem("jwt") === null) {
       router.push("/login");
     }
