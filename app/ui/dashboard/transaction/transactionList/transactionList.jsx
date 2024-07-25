@@ -318,7 +318,7 @@ const TransactionList = () => {
               </option>
             ))}
           </select>
-          <label>Payment Mode</label>
+          {/* <label>Payment Mode</label>
           <select
             placeholder="Payment Mode"
             onChange={(e) => {
@@ -332,7 +332,11 @@ const TransactionList = () => {
                 {pm[i].name}
               </option>
             ))}
-          </select>
+          </select> */}
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
           <button
             className={styles.search}
             onClick={(e) => {

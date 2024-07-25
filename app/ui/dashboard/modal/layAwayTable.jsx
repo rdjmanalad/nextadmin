@@ -27,6 +27,9 @@ const LayAwayTable = ({ transactionId }) => {
   const onGridReady = useCallback((params) => {
     getLayAway();
     getReference();
+    pmRef.current.disabled = true;
+    refNoRef.current.disabled = true;
+    amountRef.current.disabled = true;
     // alert(balDate);
   }, []);
 
@@ -36,6 +39,13 @@ const LayAwayTable = ({ transactionId }) => {
     amountRef.current.value = selectedRows[0].amount;
     refNoRef.current.value = selectedRows[0].referenceNo;
     pmRef.current.value = selectedRows[0].paymentMode;
+
+    if (
+      new Date(selectedRows[0].paymentDate).toLocaleDateString("en-US") ===
+      balDate
+    ) {
+      amountRef.current.disabled = false;
+    }
   }, []);
 
   const getReference = () => {
@@ -94,9 +104,6 @@ const LayAwayTable = ({ transactionId }) => {
   };
 
   const save = (e) => {
-    // alert(rowSelected[0].paymentDate);
-    // alert(balDate);
-    // alert(new Date(rowSelected[0].paymentDate).toLocaleDateString("en-US"));
     if (
       balDate ===
       new Date(rowSelected[0].paymentDate).toLocaleDateString("en-US")

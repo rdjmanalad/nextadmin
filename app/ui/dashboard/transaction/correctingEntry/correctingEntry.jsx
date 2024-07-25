@@ -27,6 +27,10 @@ const CorrectingEntry = () => {
   const [layAway, setLayAway] = useState([]);
   const [tranId, setTranId] = useState("");
   const [reload, setReload] = useState(false);
+  const [balDate, setBalDate] = isClient
+    ? useState(window.sessionStorage.getItem("balDate"))
+    : ["", () => {}];
+
   const [corrEntry, setCorrEntry] = useState({
     id: "",
     transactionId: "",
@@ -146,8 +150,17 @@ const CorrectingEntry = () => {
   };
 
   const handleSave = (e) => {
-    console.log(corrEntry);
-    saveCorrection();
+    // console.log(corrEntry);
+    if (
+      corrEntry.correctingAmt === "" ||
+      corrEntry.correctingAmt === undefined
+    ) {
+      setMessage("Adjustment amount is empty.");
+      setOpenModal(true);
+    } else {
+      saveCorrection();
+    }
+
     // saveTransaction();
   };
 
@@ -414,7 +427,6 @@ const CorrectingEntry = () => {
               ref={correctingAmtRef}
               style={{ textAlign: "right" }}
               maxLength="12"
-              // defaultValue={0}
               onChange={(e) => {
                 const { value } = e.target;
                 e.target.value = normalizeCurrency(value);
@@ -425,12 +437,14 @@ const CorrectingEntry = () => {
               }}
             ></input>
             <label>Corrected Amt</label>
-            <input ref={correctedAmtRef}></input>
+            <input ref={correctedAmtRef} disabled></input>
             <label>Correction Date</label>
             <input
               ref={corrDateRef}
               type="Date"
-              defaultValue={new Date().toLocaleDateString("en-CA")}
+              disabled
+              // defaultValue={new Date().toLocaleDateString("en-CA")}
+              value={new Date(balDate).toLocaleDateString("en-CA")}
             ></input>
           </div>
           <br></br>

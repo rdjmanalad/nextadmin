@@ -10,6 +10,8 @@
   --buttonBlue: #0d6efd;
   --buttonPurple: #a10dfd;
   --bgModal: rgb(47, 47, 47);
+  --inputDisabled: rgb(179, 179, 179);
+  --disabledText: rgb(68, 68, 68);
 }
 
 * {
@@ -35,6 +37,20 @@ a {
   --ag-selected-row-background-color: rgba(0, 12, 120, 0.26);
   --ag-odd-row-background-color: rgb(241, 241, 241);
   --ag-header-background-color: rgb(202, 202, 202);
+}
+
+body input:disabled {
+  background-color: var(--inputDisabled);
+  /* background-color: gray; */
+  /* color: var(--disabledText); */
+  color: rgb(77, 77, 77);
+  border-style: solid;
+}
+
+body select:disabled {
+  /* background-color: var(--inputDisabled); */
+  color: rgb(77, 77, 77);
+  border-style: solid;
 }
 
 /* input {

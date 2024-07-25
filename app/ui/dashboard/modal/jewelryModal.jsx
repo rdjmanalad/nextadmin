@@ -148,6 +148,10 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
     gridRef.current.api.setQuickFilter(event.target.value);
   };
 
+  const editRowSelect = () => {
+    setOpenModalJewel(false);
+  };
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.modalContainer}>
@@ -200,7 +204,7 @@ const JewelryModal = ({ setOpenModalJewel, jewelry }) => {
               // domLayout="autoHeight"
               autoSizeStrategy={autoSizeStrategy}
               rowSelection={"single"}
-              //   onRowDoubleClicked={() => editRowSelect()}
+              onRowDoubleClicked={() => editRowSelect()}
               onSelectionChanged={onSelectionChanged}
               ref={gridRef}
               onGridReady={onGridReady}

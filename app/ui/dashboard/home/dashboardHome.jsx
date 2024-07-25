@@ -217,10 +217,22 @@ const DashboardHome = () => {
 
   const tiles = (bal) => {
     // alert(bal.id);
+    let cashout =
+      Number(bal.lbcFees) +
+      Number(bal.gamePrize) +
+      Number(bal.forfeited) +
+      Number(bal.bankTransfer) +
+      Number(bal.transPo);
+
+    let cashin = Number(bal.addBal) + Number(bal.lbcClaimed);
+
     let det = {
       amount: bal.beginningBal,
       title: bal.accountName,
       currentTransaction: bal.addBal,
+      cashOut: cashout,
+      corrAmt: bal.correctingEntry,
+      cashIn: cashin,
     };
     return <Card details={det} />;
   };
@@ -228,7 +240,7 @@ const DashboardHome = () => {
   return (
     <div>
       <div className={styles.title}>
-        <h2>Beginning Balance</h2>
+        <h2>Balance</h2>
       </div>
       <div className={styles.wrapper}>
         <div className={styles.main}>

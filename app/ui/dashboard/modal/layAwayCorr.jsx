@@ -83,6 +83,10 @@ const LayAwayTableCorr = ({ transactionId, setOpenModalLayAway, layAway }) => {
     },
   ];
 
+  const editRowSelect = () => {
+    setOpenModalLayAway(false);
+  };
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.modalContainer}>
@@ -102,6 +106,7 @@ const LayAwayTableCorr = ({ transactionId, setOpenModalLayAway, layAway }) => {
               //   autoSizeStrategy={autoSizeStrategy}
               rowSelection={"single"}
               onSelectionChanged={onSelectionChanged}
+              onRowDoubleClicked={() => editRowSelect()}
               ref={gridRef}
               onGridReady={onGridReady}
               alwaysShowHorizontalScroll={true}

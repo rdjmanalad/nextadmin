@@ -32,6 +32,7 @@ const Transaction = ({ emptyObj }) => {
   const [message, setMessage] = useState("");
   const [latestBalDate, setLatestBalDate] = useState("");
   const [jewelry, setJewelry] = useState({});
+  const [disableSavePay, setDisableSavePay] = useState(true);
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -74,6 +75,8 @@ const Transaction = ({ emptyObj }) => {
   const senderContactNoRef = useRef();
   const sellingRef = useRef();
   const volumeRef = useRef();
+  const savePayMentRef = useRef();
+  const forfeitRef = useRef();
 
   const router = useRouter();
 
@@ -106,13 +109,17 @@ const Transaction = ({ emptyObj }) => {
   }, []);
 
   useEffect(() => {
+    if (trans) {
+      populate();
+      disablePayment();
+    }
     if (emptyObj.id != "") {
       populate();
+      disablePayment();
     }
   }, [trans]);
 
   useEffect(() => {
-    // alert("ss");
     if (jewelry.length > 0) {
       inventoryNoRef.current.value = jewelry[0].inventoryNo;
       descriptionRef.current.value = jewelry[0].description;
@@ -130,8 +137,6 @@ const Transaction = ({ emptyObj }) => {
       trans.sellingPrice = jewelry[0].sellingPrice;
       trans.volumeNo = jewelry[0].volumeNo;
     }
-
-    // console.log(jewelry);
   }, [jewelry]);
 
   const initiate = () => {
@@ -157,8 +162,14 @@ const Transaction = ({ emptyObj }) => {
   };
 
   useEffect(() => {
-    // alert("all");
     forfeitedAmtRef.current.value = currencyFormat(trans.forfeitedAmt);
+    if (trans.forfeitedDate != null) {
+      forfeitRef.current.disabled = true;
+    }
+    if (isForfeited) {
+      disableCashSet();
+      forfeitedDateRef.current.disabled = true;
+    }
   }, [isForfeited]);
 
   const populate = () => {
@@ -561,13 +572,13 @@ const Transaction = ({ emptyObj }) => {
   const saveDetails = (e) => {
     e.preventDefault();
     if (validateDetails()) {
-      trans.cashPayment = transOrg.cashPayment;
-      trans.paymentMode = transOrg.paymentMode;
-      trans.cashPaymentDate = transOrg.cashPaymentDate;
-      trans.referenceNo = transOrg.referenceNo;
-      if (trans.id === "" || trans.id === undefined) {
-        trans.cashPayment = 0;
-      }
+      // trans.cashPayment = transOrg.cashPayment;
+      // trans.paymentMode = transOrg.paymentMode;
+      // trans.cashPaymentDate = transOrg.cashPaymentDate;
+      // trans.referenceNo = transOrg.referenceNo;
+      // if (trans.id === "" || trans.id === undefined) {
+      //   trans.cashPayment = 0;
+      // }
       saveDetailsOnly();
     } else {
       setMessage("Please fill all fields.");
@@ -769,12 +780,35 @@ const Transaction = ({ emptyObj }) => {
       })
       .then((response) => response.data)
       .then((data) => {
-        // alert(data);
+        if (data === "") {
+          // setOpenModalJewel(true);
+          getJewelryInv();
+        } else {
+          setTrans(data);
+          // populate();
+        }
+      });
+  };
+
+  const getJewelryInv = () => {
+    let invNo = inventoryNoRef.current.value;
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/masjewelry/getByInv/" + invNo, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
         if (data === "") {
           setOpenModalJewel(true);
         } else {
-          setTrans(data);
-          populate();
+          let arr = [data];
+          setJewelry(arr);
         }
       });
   };
@@ -814,9 +848,17 @@ const Transaction = ({ emptyObj }) => {
   const forfeitItem = (e) => {
     e.preventDefault();
     setIsForfeited(true);
+    // setAllowForfeit(false);
+    forfeitRef.current.disabled = true;
     var forfeitAmount = trans.totalPayment - trans.totalPayment * 0.5;
     forfeitedAmtRef.current.value = forfeitAmount;
     trans.forfeitedAmt = forfeitAmount;
+    // alert(trans.forfeitedDate);
+    setTimeout(() => {
+      forfeitedDateRef.current.value = new Date(balDate).toLocaleDateString(
+        "en-CA"
+      );
+    }, 500);
   };
 
   const currencyFormat = (value) =>
@@ -852,6 +894,62 @@ const Transaction = ({ emptyObj }) => {
     e.preventDefault();
     saveForfeited();
   };
+
+  const disablePayment = () => {
+    if (trans.id === "" || trans.id === undefined) {
+      paymentTermRef.current.disabled = true;
+      disableCashSet();
+    } else {
+      // alert(trans.paymentTerm);
+      let cashTerm = trans.paymentTerm === "CASH" ? true : false;
+      // alert(cashPaymentDateRef.current.value);
+      if (cashTerm && cashPaymentDateRef.current.value === balDate) {
+        enableCashSet();
+        // alert("1");
+      } else {
+        disableCashSet();
+        // alert("2");
+      }
+      // alert(cashTerm);
+      if (!cashTerm) {
+        // alert("3");
+        if (isForfeited) {
+          disableCashSet();
+          forfeitedDateRef.current.disabled = true;
+        } else {
+          enableCashSet();
+        }
+      }
+    }
+    // alert(savePayMentRef.current.disabled);
+  };
+
+  const disableCashSet = () => {
+    paymentTermRef.current.disabled = true;
+    paymentModeRef.current.disabled = true;
+    cashPaymentRef.current.disabled = true;
+    cashPaymentDateRef.current.disabled = true;
+    referenceNoRef.current.disabled = true;
+    // if (savePayMentRef.current != undefined) {
+    //   savePayMentRef.current.disabled = true;
+    // }
+    savePayMentRef.current.disabled = true;
+    setDisableSavePay(true);
+  };
+
+  const enableCashSet = () => {
+    paymentTermRef.current.disabled = false;
+    paymentModeRef.current.disabled = false;
+    cashPaymentRef.current.disabled = false;
+    cashPaymentDateRef.current.disabled = false;
+    referenceNoRef.current.disabled = false;
+    savePayMentRef.current.disabled = false;
+    setDisableSavePay(false);
+  };
+
+  // const checkValidTransDate =()=>{
+  //   if(balDate)
+  // }
 
   return (
     <div className={styles.container}>
@@ -1110,9 +1208,9 @@ const Transaction = ({ emptyObj }) => {
                 ))}
               </select>
             </div>
-            <div className={styles.layContainer}>
+            {/* <div className={styles.layContainer}>
               <label>{pTerm}</label>
-            </div>
+            </div> */}
             <div className={styles.cardContainer}>
               <label>Payment Mode</label>
               <select
@@ -1179,15 +1277,17 @@ const Transaction = ({ emptyObj }) => {
               <div className={styles.buttonContainer}>
                 <button
                   className={styles.add}
-                  disabled={isfullyPaid}
+                  // disabled={isfullyPaid}
+                  ref={savePayMentRef}
                   onClick={(e) => {
                     addPayment(e);
                   }}
                 >
-                  Add Payment
+                  Save Payment
                 </button>
                 <button
                   className={styles.forfeit}
+                  ref={forfeitRef}
                   disabled={!allowForfeit}
                   onClick={(e) => {
                     forfeitItem(e);
@@ -1268,7 +1368,7 @@ const Transaction = ({ emptyObj }) => {
                 <label>Total Refund(50%)</label>
                 <input
                   ref={forfeitedAmtRef}
-                  disabled={isCash}
+                  disabled={true}
                   maxLength="12"
                   style={{ textAlign: "right" }}
                   onChange={(e) => {
@@ -1292,7 +1392,11 @@ const Transaction = ({ emptyObj }) => {
             </div>
             <div className={styles.buttonContainer3}>
               {isCash && (
-                <button className={styles.save} onClick={(e) => save(e)}>
+                <button
+                  className={styles.save}
+                  disabled={disableSavePay}
+                  onClick={(e) => save(e)}
+                >
                   Save Payment
                 </button>
               )}

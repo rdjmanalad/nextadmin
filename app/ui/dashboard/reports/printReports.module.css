@@ -2,7 +2,7 @@
   background-color: var(--bgSoft);
   padding: 10px;
   border-radius: 10px;
-  margin-top: 20px;
+  margin-top: 10px;
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
@@ -13,10 +13,10 @@
 }
 
 .form {
-  margin-top: 30px;
+  margin-top: 10px;
   display: grid;
   align-items: left;
-  gap: 10px;
+  gap: 5px;
   width: 400px;
   margin-left: 40px;
   background-color: var(--bg);
@@ -54,7 +54,7 @@
   border: 1px solid black;
   height: 30px;
   border-radius: 5px;
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */
   padding-left: 5px;
   color: black;
   font-weight: 800;

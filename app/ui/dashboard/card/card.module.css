@@ -2,9 +2,11 @@
   background-color: var(--bgSoft);
   padding: 20px;
   border-radius: 10px;
-  display: flex;
-  gap: 20px;
+  display: grid;
+  gap: 10px;
   cursor: pointer;
+  grid-template-columns: 1fr;
+  border: 1px solid rgb(41, 41, 41);
 }
 
 .text {
@@ -14,8 +16,9 @@
 }
 
 .number {
-  font-size: 22px;
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 450;
+  text-align: center;
 }
 
 .detail {
@@ -24,9 +27,29 @@
 }
 
 .positive {
-  color: lime;
+  display: grid;
+  color: rgba(0, 255, 0, 0.522);
+  text-align: right;
+  font-size: 16px;
 }
 
 .negative {
-  color: red;
+  display: grid;
+  color: rgba(255, 0, 0, 0.64);
+  text-align: right;
+  font-size: 16px;
+}
+
+.sub {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.title {
+  display: grid;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.372);
 }

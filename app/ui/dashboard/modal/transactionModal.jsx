@@ -130,6 +130,10 @@ const TransactionModal = ({ setOpenModalTran, setTrans }) => {
     gridRef.current.api.setQuickFilter(event.target.value);
   };
 
+  const editRowSelect = () => {
+    setOpenModalTran(false);
+  };
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.modalContainer}>
@@ -182,7 +186,7 @@ const TransactionModal = ({ setOpenModalTran, setTrans }) => {
               // domLayout="autoHeight"
               autoSizeStrategy={autoSizeStrategy}
               rowSelection={"single"}
-              //   onRowDoubleClicked={() => editRowSelect()}
+              onRowDoubleClicked={() => editRowSelect()}
               onSelectionChanged={onSelectionChanged}
               ref={gridRef}
               onGridReady={onGridReady}

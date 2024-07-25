@@ -157,6 +157,24 @@ const PrintReports = () => {
       });
   };
 
+  const printForfeited = (e) => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/reports/forfeited", {
+        headers: {
+          contentType: "application/json",
+          accept: "application/pdf",
+        },
+        responseType: "blob",
+      })
+      .then((response) => {
+        const file = new Blob([response.data], { type: "application/pdf" });
+        var w = window.open(window.URL.createObjectURL(file));
+      });
+  };
+
   const printSold = (e) => {
     var dateFrom = startDateRef.current.value;
     var dateTo = endDateRef.current.value;
@@ -520,6 +538,20 @@ const PrintReports = () => {
   return (
     <div className={styles.container1}>
       <div className={styles.container}>
+        {/* <div className={styles.form}>
+          <button
+            className={styles.buttonsOra}
+            onClick={(e) => {
+              e.preventDefault();
+              setMessage("Posting Balance for " + balDate + "?");
+              setOpenModalConf(true);
+
+              // generateBalance(e);
+            }}
+          >
+            Post Balance
+          </button>
+        </div> */}
         <div className={styles.form}>
           <h3>Daily Transaction</h3>
           <div className={styles.inputDate}>
@@ -561,7 +593,20 @@ const PrintReports = () => {
           >
             Print Summary
           </button>
+          <button
+            className={styles.buttonsOra}
+            onClick={(e) => {
+              e.preventDefault();
+              setMessage("Posting Balance for " + balDate + "?");
+              setOpenModalConf(true);
+
+              // generateBalance(e);
+            }}
+          >
+            Post Balance
+          </button>
         </div>
+
         <div className={styles.form}>
           <h3>Sold Monthly Reports</h3>
           <div className={styles.inputDate}>
@@ -579,7 +624,7 @@ const PrintReports = () => {
               printSold(e);
             }}
           >
-            Print Reports
+            Print Report
           </button>
         </div>
         <div className={styles.form}>
@@ -591,7 +636,18 @@ const PrintReports = () => {
               printLayaway(e);
             }}
           >
-            Print Reports
+            Print Report
+          </button>
+          <br></br>
+          <h3>Forfeited Lay-away</h3>
+          <button
+            className={styles.buttons}
+            onClick={(e) => {
+              e.preventDefault();
+              printForfeited(e);
+            }}
+          >
+            Print Report
           </button>
         </div>
       </div>
@@ -986,20 +1042,7 @@ const PrintReports = () => {
             </button>
           </div>
         </div>
-        <div className={styles.form}>
-          <button
-            className={styles.buttonsOra}
-            onClick={(e) => {
-              e.preventDefault();
-              setMessage("Posting Balance for " + balDate + "?");
-              setOpenModalConf(true);
 
-              // generateBalance(e);
-            }}
-          >
-            Post Balance
-          </button>
-        </div>
         {openModal && (
           <MessageModal setOpenModal={setOpenModal} message={message} />
         )}
