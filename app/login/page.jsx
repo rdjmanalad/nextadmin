@@ -29,8 +29,8 @@ const LoginPage = () => {
       router.push("/dashboard");
     }
 
-    // setBaseURL("http://localhost:8080");
-    setBaseURL("http://52.74.232.36:85");
+    setBaseURL("http://localhost:8080");
+    // setBaseURL("http://52.74.232.36:85");
   }, []);
 
   useEffect(() => {
@@ -147,7 +147,9 @@ const LoginPage = () => {
           Login
         </button>
         <label style={{ display: invalid ? "block" : "none" }}>{message}</label>
-        <label style={{ display: logi ? "block" : "none" }}>Loging In...</label>
+        <label style={{ display: logi ? "block" : "none" }}>
+          Logging In...
+        </label>
         <br></br>
       </form>
     </div>

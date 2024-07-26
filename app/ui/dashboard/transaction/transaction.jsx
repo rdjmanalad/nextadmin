@@ -81,7 +81,6 @@ const Transaction = ({ emptyObj }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // setJwt(window.sessionStorage.getItem("jwt"));
     const jwtToken = window.sessionStorage.getItem("jwt");
     if (window.sessionStorage.getItem("jwt") === null) {
       router.push("/login");
@@ -192,7 +191,9 @@ const Transaction = ({ emptyObj }) => {
     cashPaymentDateRef.current.value = formatDate(trans.cashPaymentDate);
     cashPaymentRef.current.value = currencyFormat(trans.cashPayment);
     referenceNoRef.current.value = trans.referenceNo;
-    totalPaymentRef.current.value = currencyFormat(trans.totalPayment);
+    totalPaymentRef.current.value = currencyFormat(
+      isNaN(trans.totalPayment) ? 0 : trans.totalPayment
+    );
     balanceRef.current.value = currencyFormat(
       isNaN(trans.balance) ? 0 : trans.balance
     );
@@ -211,6 +212,14 @@ const Transaction = ({ emptyObj }) => {
     if (trans.paymentTerm === "LAY-AWAY" && trans.balance === 0) {
       setIsfullyPaid(true);
       setAllowForfeit(false);
+    }
+  };
+
+  const clearTrans = () => {
+    for (let key in trans) {
+      if (trans.hasOwnProperty(key)) {
+        trans[key] = "";
+      }
     }
   };
 
@@ -285,8 +294,13 @@ const Transaction = ({ emptyObj }) => {
   };
 
   const saveTransaction = () => {
-    // alert(trans.id);
     if (pTerm === "LAY-AWAY") {
+      // let transBal = trans.balance===null
+      if (trans.id === "" || trans.id === undefined) {
+        // trans.totalPayment = 0;
+        trans.balance = 0;
+      }
+
       trans.totalPayment = removeCommas(cashPaymentRef.current.value);
       trans.balance =
         trans.balance - removeCommas(cashPaymentRef.current.value);
@@ -295,7 +309,6 @@ const Transaction = ({ emptyObj }) => {
       ? 0
       : removeCommaAndPesoSign(discountedPriceRef.current.value);
     var jwt = window.sessionStorage.getItem("jwt");
-    // alert(trans.totalPayment);
     axios
       .post(baseUrl + "/api/transactions/save", trans, {
         headers: {
@@ -308,7 +321,6 @@ const Transaction = ({ emptyObj }) => {
         if (response.status === 200) {
           // console.log(response.data);
           setTrans(response.data);
-          // alert("success" + response.data.id);
           setMessage("Transaction saved.");
           setOpenModal(true);
           layAway.transactionId = response.data.id;
@@ -372,7 +384,6 @@ const Transaction = ({ emptyObj }) => {
   };
 
   const saveLayAwayPay = () => {
-    // alert("lay awayid:" + layAway.id);
     layAway.id = null;
     var jwt = window.sessionStorage.getItem("jwt");
     axios
@@ -387,7 +398,11 @@ const Transaction = ({ emptyObj }) => {
         if (response.status === 200) {
           // console.log(response.data);
           setLayAway(response.data);
-          // alert("success");
+          setMessage("Saved");
+          setOpenModal(true);
+          setTimeout(() => {
+            inventorySearch();
+          }, 1500);
         }
       })
       .catch((message) => {
@@ -396,10 +411,7 @@ const Transaction = ({ emptyObj }) => {
   };
 
   const saveTransaction2 = () => {
-    // alert(trans.id);
-
     var jwt = window.sessionStorage.getItem("jwt");
-    // alert(trans.totalPayment);
     axios
       .post(baseUrl + "/api/transactions/save", trans, {
         headers: {
@@ -424,7 +436,6 @@ const Transaction = ({ emptyObj }) => {
 
   const save = (e) => {
     e.preventDefault();
-
     if (validate()) {
       if (
         balDate ===
@@ -576,9 +587,9 @@ const Transaction = ({ emptyObj }) => {
       // trans.paymentMode = transOrg.paymentMode;
       // trans.cashPaymentDate = transOrg.cashPaymentDate;
       // trans.referenceNo = transOrg.referenceNo;
-      // if (trans.id === "" || trans.id === undefined) {
-      //   trans.cashPayment = 0;
-      // }
+      if (trans.id === "" || trans.id === undefined) {
+        trans.cashPayment = 0;
+      }
       saveDetailsOnly();
     } else {
       setMessage("Please fill all fields.");
@@ -691,16 +702,15 @@ const Transaction = ({ emptyObj }) => {
   const onPayTerm = (e) => {
     e.preventDefault();
     var term = e.target.value;
-
     cashPaymentRef.current.value = isCash
       ? 0
       : discountedPriceRef.current.value;
     setIsCash(term === pt[0].name ? true : false);
     setIsCash(term === pt[1].name ? false : true);
-    trans.balance = isCash ? 0 : trans.discountedPrice;
-    trans.totalPayment = isCash ? trans.discountedPrice : 0;
-    balanceRef.current.value = currencyFormat(trans.balance);
-    totalPaymentRef.current.value = currencyFormat(trans.totalPayment);
+    // trans.balance = isCash ? 0 : trans.discountedPrice;
+    // trans.totalPayment = isCash ? trans.discountedPrice : 0;
+    // balanceRef.current.value = currencyFormat(trans.balance);
+    // totalPaymentRef.current.value = currencyFormat(trans.totalPayment);
 
     setPTerm(term);
     setIsForfeited(false);
@@ -725,18 +735,20 @@ const Transaction = ({ emptyObj }) => {
       if (validPayDetails()) {
         if (!isCash) {
           if (
-            latestBalDate ===
+            // latestBalDate ===
+            balDate ===
             new Date(layAway.paymentDate).toLocaleDateString("en-US")
           ) {
+            // alert(trans.id);
             if (trans.id === "" || trans.id === undefined) {
               saveTransaction();
             }
+            // saveTransaction();
             layAway.transactionId = trans.id;
             layAway.user = user;
             saveLayAwayPay();
-            saveTranPayment();
+            // saveTranPayment();
             saveBalance();
-            populate();
           } else {
             setMessage("Payment date and balance date is not equal.");
             setOpenModal(true);
@@ -880,6 +892,7 @@ const Transaction = ({ emptyObj }) => {
 
   const searchJewelry = (e) => {
     e.preventDefault();
+    clearTrans();
     if (
       inventoryNoRef.current.value === null ||
       inventoryNoRef.current.value === ""
@@ -892,6 +905,8 @@ const Transaction = ({ emptyObj }) => {
 
   const forfeit = (e) => {
     e.preventDefault();
+    // alert(trans.forfeitedDate);
+    trans.forfeitedDate = forfeitedDateRef.current.value;
     saveForfeited();
   };
 
@@ -900,28 +915,29 @@ const Transaction = ({ emptyObj }) => {
       paymentTermRef.current.disabled = true;
       disableCashSet();
     } else {
-      // alert(trans.paymentTerm);
       let cashTerm = trans.paymentTerm === "CASH" ? true : false;
-      // alert(cashPaymentDateRef.current.value);
-      if (cashTerm && cashPaymentDateRef.current.value === balDate) {
+      if (
+        cashTerm &&
+        new Date(cashPaymentDateRef.current.value).toLocaleDateString(
+          "en-US"
+        ) === balDate
+      ) {
         enableCashSet();
-        // alert("1");
       } else {
         disableCashSet();
-        // alert("2");
       }
-      // alert(cashTerm);
       if (!cashTerm) {
-        // alert("3");
         if (isForfeited) {
           disableCashSet();
           forfeitedDateRef.current.disabled = true;
         } else {
           enableCashSet();
         }
+        if (trans.fullPaymentDate) {
+          disableCashSet();
+        }
       }
     }
-    // alert(savePayMentRef.current.disabled);
   };
 
   const disableCashSet = () => {
@@ -930,9 +946,6 @@ const Transaction = ({ emptyObj }) => {
     cashPaymentRef.current.disabled = true;
     cashPaymentDateRef.current.disabled = true;
     referenceNoRef.current.disabled = true;
-    // if (savePayMentRef.current != undefined) {
-    //   savePayMentRef.current.disabled = true;
-    // }
     savePayMentRef.current.disabled = true;
     setDisableSavePay(true);
   };
@@ -946,10 +959,6 @@ const Transaction = ({ emptyObj }) => {
     savePayMentRef.current.disabled = false;
     setDisableSavePay(false);
   };
-
-  // const checkValidTransDate =()=>{
-  //   if(balDate)
-  // }
 
   return (
     <div className={styles.container}>
