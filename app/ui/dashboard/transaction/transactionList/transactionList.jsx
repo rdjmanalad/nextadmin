@@ -269,12 +269,12 @@ const TransactionList = () => {
       width: "120",
       valueFormatter: corrAmtFormatter,
     },
-    {
-      headerName: "Correcting Date",
-      field: "correctingDate",
-      width: "120",
-      valueFormatter: corrDateFormatter,
-    },
+    // {
+    //   headerName: "Correcting Date",
+    //   field: "correctingDate",
+    //   width: "120",
+    //   valueFormatter: corrDateFormatter,
+    // },
   ];
 
   const onQuickFilterChange = (event) => {

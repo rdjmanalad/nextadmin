@@ -77,6 +77,7 @@ const Transaction = ({ emptyObj }) => {
   const volumeRef = useRef();
   const savePayMentRef = useRef();
   const forfeitRef = useRef();
+  const divRef = useRef();
 
   const router = useRouter();
 
@@ -106,6 +107,32 @@ const Transaction = ({ emptyObj }) => {
       }
     }
   }, []);
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      moveToNextFocusableElement(event.target);
+      // const tabEvent = new KeyboardEvent("keydown", {
+      //   key: "Tab",
+      //   keyCode: 9,
+      //   which: 9,
+      //   bubbles: true,
+      //   cancelable: true,
+      // });
+      // event.target.dispatchEvent(tabEvent);
+      // alert("d");
+    }
+  };
+
+  const moveToNextFocusableElement = (currentElement) => {
+    const focusableElements = divRef.current.querySelectorAll(
+      'input, button, a, select, [tabindex]:not([tabindex="-1"])'
+    );
+    const focusableArray = Array.prototype.slice.call(focusableElements);
+    const currentIndex = focusableArray.indexOf(currentElement);
+    const nextIndex = (currentIndex + 1) % focusableArray.length;
+    focusableArray[nextIndex].focus();
+  };
 
   useEffect(() => {
     if (trans) {
@@ -305,9 +332,9 @@ const Transaction = ({ emptyObj }) => {
       trans.balance =
         trans.balance - removeCommas(cashPaymentRef.current.value);
     }
-    trans.cashPayment = !isCash
-      ? 0
-      : removeCommaAndPesoSign(discountedPriceRef.current.value);
+    // trans.cashPayment = !isCash
+    //   ? 0
+    //   : removeCommaAndPesoSign(discountedPriceRef.current.value);
     var jwt = window.sessionStorage.getItem("jwt");
     axios
       .post(baseUrl + "/api/transactions/save", trans, {
@@ -702,9 +729,7 @@ const Transaction = ({ emptyObj }) => {
   const onPayTerm = (e) => {
     e.preventDefault();
     var term = e.target.value;
-    cashPaymentRef.current.value = isCash
-      ? 0
-      : discountedPriceRef.current.value;
+
     setIsCash(term === pt[0].name ? true : false);
     setIsCash(term === pt[1].name ? false : true);
     // trans.balance = isCash ? 0 : trans.discountedPrice;
@@ -714,8 +739,15 @@ const Transaction = ({ emptyObj }) => {
 
     setPTerm(term);
     setIsForfeited(false);
-
     trans.paymentTerm = e.target.value;
+
+    setTimeout(() => {
+      if (term === "CASH") {
+        cashPaymentRef.current.value = discountedPriceRef.current.value;
+      } else {
+        cashPaymentRef.current.value = 0;
+      }
+    }, 1000);
   };
 
   const onPayMode = (e) => {
@@ -961,7 +993,12 @@ const Transaction = ({ emptyObj }) => {
   };
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      ref={divRef}
+    >
       <form>
         <div className={styles.tranMain}>
           <div>

@@ -233,6 +233,7 @@ const DashboardHome = () => {
       cashOut: cashout,
       corrAmt: bal.correctingEntry,
       cashIn: cashin,
+      runningBal: bal.endingBal,
     };
     return <Card details={det} />;
   };

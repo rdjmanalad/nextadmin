@@ -24,7 +24,6 @@ const Card = ({ details }) => {
           {details.title}
         </span>
         <span className={styles.number}>{currencyFormat(details.amount)}</span>
-        <br></br>
       </div>
       <div className={styles.text}>
         <span className={styles.sub}>
@@ -40,6 +39,14 @@ const Card = ({ details }) => {
           <span className={styles.detail}>
             <span className={styles.negative}>
               {currencyFormat(details.cashOut)}
+            </span>
+          </span>
+        </span>
+        <span className={styles.sub}>
+          <label>Running Bal.</label>
+          <span className={styles.detail}>
+            <span className={styles.neutral}>
+              {currencyFormat(details.runningBal)}
             </span>
           </span>
         </span>
