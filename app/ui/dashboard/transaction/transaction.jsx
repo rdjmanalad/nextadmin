@@ -112,15 +112,6 @@ const Transaction = ({ emptyObj }) => {
     if (event.key === "Enter") {
       event.preventDefault();
       moveToNextFocusableElement(event.target);
-      // const tabEvent = new KeyboardEvent("keydown", {
-      //   key: "Tab",
-      //   keyCode: 9,
-      //   which: 9,
-      //   bubbles: true,
-      //   cancelable: true,
-      // });
-      // event.target.dispatchEvent(tabEvent);
-      // alert("d");
     }
   };
 
@@ -742,7 +733,9 @@ const Transaction = ({ emptyObj }) => {
     trans.paymentTerm = e.target.value;
 
     setTimeout(() => {
-      if (term === "CASH") {
+      // if (term === "CASH") {
+      if (isCash === 0) {
+        alert(discountedPriceRef.current.value);
         cashPaymentRef.current.value = discountedPriceRef.current.value;
       } else {
         cashPaymentRef.current.value = 0;
@@ -1177,9 +1170,9 @@ const Transaction = ({ emptyObj }) => {
                 onChange={(e) => {
                   const { value } = e.target;
                   e.target.value = normalizeCurrency(value);
-                  trans.cashPayment = value
-                    .replaceAll(",", "")
-                    .replaceAll("₱", "");
+                  // trans.cashPayment = value
+                  //   .replaceAll(",", "")
+                  //   .replaceAll("₱", "");
                   trans.discountedPrice = value
                     .replaceAll(",", "")
                     .replaceAll("₱", "");

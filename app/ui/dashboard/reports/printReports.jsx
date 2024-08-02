@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import MessageModal from "../modal/messageModal";
 import ConfirmmModal from "../modal/confirmModal";
 import { getRequestMeta } from "next/dist/server/request-meta";
+import CashCountModal from "../modal/cashCountModal";
 
 const PrintReports = () => {
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
@@ -26,6 +27,7 @@ const PrintReports = () => {
   const [message, setMessage] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [openModalConf, setOpenModalConf] = useState(false);
+  const [openCashCount, setOpenCashCount] = useState(false);
   const [transDate, setTransDate] = useState("");
   const [sumTrans, setSumTrans] = useState(0);
   const [balDate, setBalDate] = useState(0);
@@ -163,6 +165,24 @@ const PrintReports = () => {
       "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
     axios
       .get(baseUrl + "/api/reports/forfeited", {
+        headers: {
+          contentType: "application/json",
+          accept: "application/pdf",
+        },
+        responseType: "blob",
+      })
+      .then((response) => {
+        const file = new Blob([response.data], { type: "application/pdf" });
+        var w = window.open(window.URL.createObjectURL(file));
+      });
+  };
+
+  const printAvailable = (e) => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/reports/availableOnHand", {
         headers: {
           contentType: "application/json",
           accept: "application/pdf",
@@ -535,23 +555,83 @@ const PrintReports = () => {
     generateBalance();
   };
 
+  const showCashCount = () => {
+    // alert("cashcount");
+    setOpenCashCount(true);
+  };
+
   return (
     <div className={styles.container1}>
       <div className={styles.container}>
-        {/* <div className={styles.form}>
+        <div className={styles.form}>
+          <h3>Sold Monthly Reports</h3>
+          <div className={styles.inputDate}>
+            <label>Starting Date</label>
+            <input type="Date" ref={startDateRef}></input>
+          </div>
+          <div className={styles.inputDate}>
+            <label>End Date</label>
+            <input type="Date" ref={endDateRef}></input>
+          </div>
+          <button
+            className={styles.buttons}
+            onClick={(e) => {
+              e.preventDefault();
+              printSold(e);
+            }}
+          >
+            Print Report
+          </button>
+        </div>
+        <div className={styles.form}>
+          <h3>Existing Lay-away</h3>
+          <button
+            className={styles.buttons}
+            onClick={(e) => {
+              e.preventDefault();
+              printLayaway(e);
+            }}
+          >
+            Print Report
+          </button>
+          <br></br>
+          <h3>Forfeited Lay-away</h3>
+          <button
+            className={styles.buttons}
+            onClick={(e) => {
+              e.preventDefault();
+              printForfeited(e);
+            }}
+          >
+            Print Report
+          </button>
+        </div>
+        <div className={styles.form}>
+          <h3>Available on Hand Items</h3>
+          <button
+            className={styles.buttons}
+            onClick={(e) => {
+              e.preventDefault();
+              printAvailable(e);
+            }}
+          >
+            Print Report
+          </button>
+        </div>
+        <div className={styles.form}>
           <button
             className={styles.buttonsOra}
             onClick={(e) => {
               e.preventDefault();
-              setMessage("Posting Balance for " + balDate + "?");
-              setOpenModalConf(true);
-
-              // generateBalance(e);
+              showCashCount(e);
             }}
           >
-            Post Balance
+            Show Cash Count
           </button>
-        </div> */}
+        </div>
+      </div>
+      <div className={styles.container}>
+        {/* for cash palawan transactions */}
         <div className={styles.form}>
           <h3>Daily Transaction</h3>
           <div className={styles.inputDate}>
@@ -606,53 +686,6 @@ const PrintReports = () => {
             Post Balance
           </button>
         </div>
-
-        <div className={styles.form}>
-          <h3>Sold Monthly Reports</h3>
-          <div className={styles.inputDate}>
-            <label>Starting Date</label>
-            <input type="Date" ref={startDateRef}></input>
-          </div>
-          <div className={styles.inputDate}>
-            <label>End Date</label>
-            <input type="Date" ref={endDateRef}></input>
-          </div>
-          <button
-            className={styles.buttons}
-            onClick={(e) => {
-              e.preventDefault();
-              printSold(e);
-            }}
-          >
-            Print Report
-          </button>
-        </div>
-        <div className={styles.form}>
-          <h3>Existing Lay-away</h3>
-          <button
-            className={styles.buttons}
-            onClick={(e) => {
-              e.preventDefault();
-              printLayaway(e);
-            }}
-          >
-            Print Report
-          </button>
-          <br></br>
-          <h3>Forfeited Lay-away</h3>
-          <button
-            className={styles.buttons}
-            onClick={(e) => {
-              e.preventDefault();
-              printForfeited(e);
-            }}
-          >
-            Print Report
-          </button>
-        </div>
-      </div>
-      <div className={styles.container}>
-        {/* for cash palawan transactions */}
         <div
           className={styles.form}
           style={{ display: isCashPal ? "block" : "none" }}
@@ -1052,6 +1085,9 @@ const PrintReports = () => {
             message={message}
             confirmOk={confirmOk}
           />
+        )}
+        {openCashCount && (
+          <CashCountModal setOpenCashCount={setOpenCashCount} />
         )}
       </div>
       <br></br>
