@@ -28,21 +28,29 @@
 
 .positive {
   display: grid;
-  color: rgba(0, 255, 0, 0.522);
+  color: rgba(0, 255, 0, 0.773);
   text-align: right;
   font-size: 16px;
 }
 
 .negative {
   display: grid;
-  color: rgba(255, 0, 0, 0.64);
+  color: rgba(255, 0, 0, 0.893);
   text-align: right;
+  font-weight: 450;
   font-size: 16px;
 }
 
 .neutral {
   display: grid;
   color: yellow;
+  text-align: right;
+  font-size: 16px;
+}
+
+.plain {
+  display: grid;
+  color: cyan;
   text-align: right;
   font-size: 16px;
 }

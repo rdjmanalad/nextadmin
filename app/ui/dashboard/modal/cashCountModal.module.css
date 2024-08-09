@@ -51,7 +51,8 @@
 }
 
 .modalButtonCancel {
-  width: 150px;
+  margin-left: 5px;
+  width: 100px;
   height: 30px;
   border-radius: 5px;
   border: none;
@@ -103,6 +104,16 @@
 }
 
 .total {
-  background-color: yellow;
+  background-color: yellow !important;
   font-weight: 600;
+}
+
+.modalButtonSave {
+  width: 100px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: var(--buttonGreen);
+  cursor: pointer;
+  gap: 20px;
 }

@@ -43,6 +43,14 @@ const Card = ({ details }) => {
           </span>
         </span>
         <span className={styles.sub}>
+          <label>Adjustment</label>
+          <span className={styles.detail}>
+            <span className={styles.plain}>
+              {currencyFormat(details.corrAmt)}
+            </span>
+          </span>
+        </span>
+        <span className={styles.sub}>
           <label>Running Bal.</label>
           <span className={styles.detail}>
             <span className={styles.neutral}>

@@ -731,16 +731,15 @@ const Transaction = ({ emptyObj }) => {
     setPTerm(term);
     setIsForfeited(false);
     trans.paymentTerm = e.target.value;
-
     setTimeout(() => {
-      // if (term === "CASH") {
-      if (isCash === 0) {
-        alert(discountedPriceRef.current.value);
+      if (term === "CASH") {
+        // if (isCash) {
         cashPaymentRef.current.value = discountedPriceRef.current.value;
+        trans.cashPayment = trans.discountedPrice;
       } else {
         cashPaymentRef.current.value = 0;
       }
-    }, 1000);
+    }, 500);
   };
 
   const onPayMode = (e) => {

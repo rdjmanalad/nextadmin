@@ -564,6 +564,60 @@ const PrintReports = () => {
     <div className={styles.container1}>
       <div className={styles.container}>
         <div className={styles.form}>
+          <h3>Daily Transaction</h3>
+          <div className={styles.inputDate}>
+            <label>Date</label>
+            <input
+              type="Date"
+              ref={repDateRef}
+              onChange={(e) => {
+                setTransDate(e.target.value);
+                showFormCal(e);
+              }}
+            ></input>
+          </div>
+          <div className={styles.row}>
+            <label>Payment Mode:</label>
+            <select
+              placeholder="Payment Mode"
+              onChange={(e) => {
+                setMode(e.target.value);
+                // getBalances();
+                showForm(e);
+              }}
+            >
+              <option></option>
+              {pm.map((o, i) => (
+                <option value={pm[i].name} key={pm[i].id}>
+                  {pm[i].name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <hr></hr>
+          <button
+            className={styles.buttons}
+            onClick={(e) => {
+              e.preventDefault();
+              printDailySummary(e);
+            }}
+          >
+            Print Summary
+          </button>
+          <button
+            className={styles.buttonsOra}
+            onClick={(e) => {
+              e.preventDefault();
+              setMessage("Posting Balance for " + balDate + "?");
+              setOpenModalConf(true);
+
+              // generateBalance(e);
+            }}
+          >
+            Post Balance
+          </button>
+        </div>
+        <div className={styles.form}>
           <h3>Sold Monthly Reports</h3>
           <div className={styles.inputDate}>
             <label>Starting Date</label>
@@ -618,74 +672,10 @@ const PrintReports = () => {
             Print Report
           </button>
         </div>
-        <div className={styles.form}>
-          <button
-            className={styles.buttonsOra}
-            onClick={(e) => {
-              e.preventDefault();
-              showCashCount(e);
-            }}
-          >
-            Show Cash Count
-          </button>
-        </div>
       </div>
       <div className={styles.container}>
         {/* for cash palawan transactions */}
-        <div className={styles.form}>
-          <h3>Daily Transaction</h3>
-          <div className={styles.inputDate}>
-            <label>Date</label>
-            <input
-              type="Date"
-              ref={repDateRef}
-              onChange={(e) => {
-                setTransDate(e.target.value);
-                showFormCal(e);
-              }}
-            ></input>
-          </div>
-          <div className={styles.row}>
-            <label>Payment Mode:</label>
-            <select
-              placeholder="Payment Mode"
-              onChange={(e) => {
-                setMode(e.target.value);
-                // getBalances();
-                showForm(e);
-              }}
-            >
-              <option></option>
-              {pm.map((o, i) => (
-                <option value={pm[i].name} key={pm[i].id}>
-                  {pm[i].name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <hr></hr>
-          <button
-            className={styles.buttons}
-            onClick={(e) => {
-              e.preventDefault();
-              printDailySummary(e);
-            }}
-          >
-            Print Summary
-          </button>
-          <button
-            className={styles.buttonsOra}
-            onClick={(e) => {
-              e.preventDefault();
-              setMessage("Posting Balance for " + balDate + "?");
-              setOpenModalConf(true);
 
-              // generateBalance(e);
-            }}
-          >
-            Post Balance
-          </button>
-        </div>
         <div
           className={styles.form}
           style={{ display: isCashPal ? "block" : "none" }}
@@ -694,6 +684,18 @@ const PrintReports = () => {
             <label>Date:</label>
             <input ref={dateRef1} type="Date" />
           </div> */}
+          <div>
+            <button
+              className={styles.buttonsOra}
+              onClick={(e) => {
+                e.preventDefault();
+                showCashCount(e);
+              }}
+            >
+              Show Cash Count
+            </button>
+          </div>
+          <br></br>
           <div className={styles.dailyForms}>
             <label>Beggining Bal:</label>
             <input
