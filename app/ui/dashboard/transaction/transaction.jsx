@@ -33,6 +33,7 @@ const Transaction = ({ emptyObj }) => {
   const [latestBalDate, setLatestBalDate] = useState("");
   const [jewelry, setJewelry] = useState({});
   const [disableSavePay, setDisableSavePay] = useState(true);
+  const [disableCancel, setDisableCancel] = useState(true);
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -392,7 +393,7 @@ const Transaction = ({ emptyObj }) => {
         if (response.status === 200) {
           // console.log(response.data);
           setTrans(response.data);
-          setMessage("Saved");
+          setMessage("Details Saved");
           setOpenModal(true);
         }
       })
@@ -463,12 +464,12 @@ const Transaction = ({ emptyObj }) => {
         if (trans.forfeitedAmt > 0) {
           saveForfeited();
         } else {
-          saveTransaction();
-          // if (trans.id === "" || trans.id === undefined) {
-          //   saveTransaction();
-          // } else {
-          //   saveDetailsOnly();
-          // }
+          if (trans.cashPayment < trans.discountedPrice) {
+            setMessage("Payment amount is less than discounted price");
+            setOpenModal(true);
+          } else {
+            saveTransaction();
+          }
         }
       } else {
         setMessage("Payment date and balance date is not equal.");
@@ -1221,6 +1222,13 @@ const Transaction = ({ emptyObj }) => {
               <input ref={senderContactNoRef} readOnly></input>
             </div>
             <div className={styles.buttonContainer4}>
+              <button
+                className={styles.cancel}
+                disabled={disableCancel}
+                onClick={(e) => cancelTrans(e)}
+              >
+                Cancel Transaction
+              </button>
               <button className={styles.save} onClick={(e) => saveDetails(e)}>
                 Save Details
               </button>
@@ -1368,6 +1376,8 @@ const Transaction = ({ emptyObj }) => {
                       .replaceAll("₱", "");
                   }}
                 />
+                <label>Adjustment</label>
+                <input disabled value={trans.correctingAmt} />
                 <label>Total Balance</label>
                 <input
                   ref={balanceRef}

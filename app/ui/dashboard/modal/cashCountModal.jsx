@@ -42,6 +42,17 @@ const CashCountModal = ({ setOpenCashCount }) => {
     totalAmt: "",
   });
 
+  const b1000ref = useRef();
+  const b500ref = useRef();
+  const b200ref = useRef();
+  const b100ref = useRef();
+  const b50ref = useRef();
+  const b20ref = useRef();
+  const b10ref = useRef();
+  const b5ref = useRef();
+  const b1ref = useRef();
+  const bdeciref = useRef();
+
   let emptyArr = {
     id: "",
     cashCountDate: "",
@@ -69,6 +80,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
     if (cashCount.cashCountDate != "") {
       //   alert(new Date(cashCount.cashCountDate).toLocaleDateString("en-CA"));
       //   alert(new Date(balDate).toLocaleDateString("en-CA"));
+      populate();
       if (
         new Date(cashCount.cashCountDate).toLocaleDateString("en-CA") !=
         new Date(balDate).toLocaleDateString("en-CA")
@@ -145,63 +157,73 @@ const CashCountModal = ({ setOpenCashCount }) => {
       });
   };
 
-  //   const search = (e) => {
-  //     cashCount.cashCountDate = ccdate;
-  //     setDisableAll(false);
-  //     var jwt = window.sessionStorage.getItem("jwt");
-  //     // var inDate = ccdate;
-  //     var inDate = e.target.value;
-  //     axios.defaults.headers.common["Authorization"] =
-  //       "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-  //     axios
-  //       .get(baseUrl + "/api/cashCount/getByDate/" + inDate, {
-  //         headers: {
-  //           Accept: "application/json",
-  //           "Content-Type": "application/json",
-  //         },
-  //       })
-  //       .then((response) => {
-  //         if (response.status === 403) {
-  //           router.push("/login");
-  //         }
-  //         setCashCount(response.data);
-  //       });
-  //   };
+  const normalizeNumber = (value) => {
+    if (value != undefined) {
+      return value.replace(/[^0-9]/g, "");
+    }
+  };
 
   const recomputed = (bill, count) => {
     let totalBill = 0;
     if (cashCount.b1000 != "") {
+      b1000ref.current.value = 1000 * cashCount.b1000;
       totalBill = totalBill + 1000 * cashCount.b1000;
     }
     if (cashCount.b500 != "") {
+      b500ref.current.value = 500 * cashCount.b500;
       totalBill = totalBill + 500 * cashCount.b500;
     }
     if (cashCount.b200 != "") {
+      b200ref.current.value = 200 * cashCount.b200;
       totalBill = totalBill + 200 * cashCount.b200;
     }
     if (cashCount.b100 != "") {
+      b100ref.current.value = 100 * cashCount.b100;
       totalBill = totalBill + 100 * cashCount.b100;
     }
     if (cashCount.b50 != "") {
+      b50ref.current.value = 50 * cashCount.b50;
       totalBill = totalBill + 50 * cashCount.b50;
     }
     if (cashCount.b20 != "") {
+      b20ref.current.value = 20 * cashCount.b20;
       totalBill = totalBill + 20 * cashCount.b20;
     }
     if (cashCount.b10 != "") {
+      b10ref.current.value = 10 * cashCount.b10;
       totalBill = totalBill + 10 * cashCount.b10;
     }
     if (cashCount.b5 != "") {
+      b5ref.current.value = 5 * cashCount.b5;
       totalBill = totalBill + 5 * cashCount.b5;
     }
     if (cashCount.b1 != "") {
+      b1ref.current.value = 1 * cashCount.b1;
       totalBill = totalBill + 1 * cashCount.b1;
     }
     if (cashCount.bdecimal != "") {
+      bdeciref.current.value = cashCount.bdecimal;
       totalBill = totalBill + Number(cashCount.bdecimal);
     }
     setTotal(totalBill);
     cashCount.totalAmt = totalBill;
+  };
+
+  const populate = () => {
+    b1000ref.current.value = 1000 * cashCount.b1000;
+    b500ref.current.value = 500 * cashCount.b500;
+    b200ref.current.value = 200 * cashCount.b200;
+    b100ref.current.value = 100 * cashCount.b100;
+    b50ref.current.value = 50 * cashCount.b50;
+    b20ref.current.value = 20 * cashCount.b20;
+    b10ref.current.value = 10 * cashCount.b10;
+    b5ref.current.value = 5 * cashCount.b5;
+    b1ref.current.value = 1 * cashCount.b1;
+    bdeciref.current.value = cashCount.bdecimal;
+  };
+
+  const print = () => {
+    alert("ongoing development");
   };
 
   const normalizeDecimal = (value) => {
@@ -248,6 +270,9 @@ const CashCountModal = ({ setOpenCashCount }) => {
         </div>
         <div className={styles.form}>
           <div className={styles.details}>
+            <label>Denomination</label>
+            <label>No. of piece</label>
+            <label>Total</label>
             <label>1000 </label>
             <input
               maxLength={10}
@@ -255,10 +280,13 @@ const CashCountModal = ({ setOpenCashCount }) => {
               value={cashCount.b1000}
               disabled={disableAll}
               onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeNumber(value);
                 setB1000(e.target.value);
                 cashCount.b1000 = e.target.value;
               }}
             ></input>
+            <input disabled ref={b1000ref}></input>
             <label>500 </label>
             <input
               maxLength={10}
@@ -270,6 +298,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
                 cashCount.b500 = e.target.value;
               }}
             ></input>
+            <input disabled ref={b500ref}></input>
             <label>200 </label>
             <input
               maxLength={10}
@@ -281,6 +310,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
                 cashCount.b200 = e.target.value;
               }}
             ></input>
+            <input disabled ref={b200ref}></input>
             <label>100 </label>
             <input
               maxLength={10}
@@ -292,6 +322,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
                 cashCount.b100 = e.target.value;
               }}
             ></input>
+            <input disabled ref={b100ref}></input>
             <label>50 </label>
             <input
               maxLength={10}
@@ -303,6 +334,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
                 cashCount.b50 = e.target.value;
               }}
             ></input>
+            <input disabled ref={b50ref}></input>
             <label>20 </label>
             <input
               maxLength={10}
@@ -314,6 +346,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
                 cashCount.b20 = e.target.value;
               }}
             ></input>
+            <input disabled ref={b20ref}></input>
             <label>10 </label>
             <input
               maxLength={10}
@@ -325,6 +358,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
                 cashCount.b10 = e.target.value;
               }}
             ></input>
+            <input disabled ref={b10ref}></input>
             <label>5 </label>
             <input
               maxLength={10}
@@ -336,6 +370,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
                 cashCount.b5 = e.target.value;
               }}
             ></input>
+            <input disabled ref={b5ref}></input>
             <label>1 </label>
             <input
               maxLength={10}
@@ -347,6 +382,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
                 cashCount.b1 = e.target.value;
               }}
             ></input>
+            <input disabled ref={b1ref}></input>
             <label>Decimal </label>
             <input
               maxLength={10}
@@ -355,24 +391,40 @@ const CashCountModal = ({ setOpenCashCount }) => {
               disabled={disableAll}
               onChange={(e) => {
                 const { value } = e.target;
-                // e.target.value = normalizeDecimal(value);
                 e.target.value = normalizeDecimal(value);
                 setBDeci(e.target.value);
                 cashCount.bdecimal = e.target.value;
               }}
             ></input>
+            <input disabled ref={bdeciref}></input>
+          </div>
+          <hr className={styles.line}></hr>
+        </div>
+
+        <div className={styles.form}>
+          <div className={styles.divTotal}>
+            <a></a>
             <label>Total Amount</label>
             <input
               className={styles.total}
               maxLength={10}
               disabled={disableAll}
-              //   value={total}
               value={cashCount.totalAmt}
             ></input>
           </div>
-          <div></div>
         </div>
         <div className={styles.modalFooter}>
+          <button
+            className={styles.modalButtonCancel}
+            style={{ marginRight: "5px" }}
+            disabled={disableAll}
+            onClick={(e) => {
+              e.preventDefault();
+              print();
+            }}
+          >
+            Print
+          </button>
           <button
             className={styles.modalButtonSave}
             disabled={disableAll}

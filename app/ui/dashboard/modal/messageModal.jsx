@@ -19,7 +19,7 @@ const MessageModal = ({ setOpenModal, message }) => {
                 setOpenModal(false);
               }}
             >
-              Close
+              Ok
             </button>
           </div>
         </div>

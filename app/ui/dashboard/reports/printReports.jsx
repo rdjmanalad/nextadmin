@@ -20,6 +20,7 @@ const PrintReports = () => {
     : ["", () => {}];
   const router = useRouter();
   const [pm, setPm] = useState([]);
+  const [pr, setPr] = useState([]);
   const [mode, setMode] = useState("");
   const [isCashPal, setIsCashPal] = useState(false);
   const [isOther, setIsOther] = useState(false);
@@ -31,6 +32,7 @@ const PrintReports = () => {
   const [transDate, setTransDate] = useState("");
   const [sumTrans, setSumTrans] = useState(0);
   const [balDate, setBalDate] = useState(0);
+  const [report, setReport] = useState("");
 
   const startDateRef = useRef();
   const endDateRef = useRef();
@@ -106,6 +108,22 @@ const PrintReports = () => {
       .then((response) => response.data)
       .then((data) => {
         setPm(data);
+      });
+
+    pcode = "PR";
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/reference/byparent/" + pcode, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setPr(data);
+        console.log(data);
       });
   };
 
@@ -193,6 +211,40 @@ const PrintReports = () => {
         const file = new Blob([response.data], { type: "application/pdf" });
         var w = window.open(window.URL.createObjectURL(file));
       });
+  };
+
+  const printReport = (e) => {
+    if (startDateRef.current.value === "" || endDateRef.current.value === "") {
+      setMessage("Please select starting and end date");
+      setOpenModal(true);
+    } else if (report === "") {
+      setMessage("Please select a report to print");
+      setOpenModal(true);
+    } else {
+      var dateFrom = startDateRef.current.value;
+      var dateTo = endDateRef.current.value;
+      axios
+        .get(
+          baseUrl +
+            "/api/reports/print/" +
+            dateFrom +
+            "/" +
+            dateTo +
+            "/" +
+            report,
+          {
+            headers: {
+              contentType: "application/json",
+              accept: "application/pdf",
+            },
+            responseType: "blob",
+          }
+        )
+        .then((response) => {
+          const file = new Blob([response.data], { type: "application/pdf" });
+          var w = window.open(window.URL.createObjectURL(file));
+        });
+    }
   };
 
   const printSold = (e) => {
@@ -618,6 +670,38 @@ const PrintReports = () => {
           </button>
         </div>
         <div className={styles.form}>
+          <h3>Choose a Report</h3>
+          <select
+            onChange={(e) => {
+              setReport(e.target.value);
+            }}
+          >
+            <option></option>
+            {pr.map((o, i) => (
+              <option value={pr[i].description} key={pr[i].id}>
+                {pr[i].name}
+              </option>
+            ))}
+          </select>
+          <div className={styles.inputDate}>
+            <label>Starting Date</label>
+            <input type="Date" ref={startDateRef}></input>
+          </div>
+          <div className={styles.inputDate}>
+            <label>End Date</label>
+            <input type="Date" ref={endDateRef}></input>
+          </div>
+          <button
+            className={styles.buttons}
+            onClick={(e) => {
+              e.preventDefault();
+              printReport(e);
+            }}
+          >
+            Print Report
+          </button>
+        </div>
+        {/* <div className={styles.form}>
           <h3>Sold Monthly Reports</h3>
           <div className={styles.inputDate}>
             <label>Starting Date</label>
@@ -636,7 +720,7 @@ const PrintReports = () => {
           >
             Print Report
           </button>
-        </div>
+        </div> */}
         <div className={styles.form}>
           <h3>Existing Lay-away</h3>
           <button
