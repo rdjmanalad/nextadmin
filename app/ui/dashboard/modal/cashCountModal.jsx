@@ -118,7 +118,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
 
   const validate = () => {
     if (ccdate === undefined) {
-      setMessage("Please Select a Date");
+      setMessage("Please enter cancelation date.");
       setOpenModal(true);
     } else {
       if (
@@ -134,27 +134,32 @@ const CashCountModal = ({ setOpenCashCount }) => {
   };
 
   const search = (e) => {
-    setCashCount(emptyArr);
-    cashCount.cashCountDate = ccdate;
-    setDisableAll(false);
-    var jwt = window.sessionStorage.getItem("jwt");
-    var inDate = ccdate;
-    // var inDate = e.target.value;
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-    axios
-      .get(baseUrl + "/api/cashCount/getByDate/" + inDate, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => {
-        if (response.status === 403) {
-          router.push("/login");
-        }
-        setCashCount(response.data);
-      });
+    if (ccdate === undefined) {
+      setMessage("Please enter cancelation date.");
+      setOpenModal(true);
+    } else {
+      setCashCount(emptyArr);
+      cashCount.cashCountDate = ccdate;
+      setDisableAll(false);
+      var jwt = window.sessionStorage.getItem("jwt");
+      var inDate = ccdate;
+      // var inDate = e.target.value;
+      axios.defaults.headers.common["Authorization"] =
+        "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+      axios
+        .get(baseUrl + "/api/cashCount/getByDate/" + inDate, {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          if (response.status === 403) {
+            router.push("/login");
+          }
+          setCashCount(response.data);
+        });
+    }
   };
 
   const normalizeNumber = (value) => {
@@ -210,20 +215,36 @@ const CashCountModal = ({ setOpenCashCount }) => {
   };
 
   const populate = () => {
-    b1000ref.current.value = 1000 * cashCount.b1000;
-    b500ref.current.value = 500 * cashCount.b500;
-    b200ref.current.value = 200 * cashCount.b200;
-    b100ref.current.value = 100 * cashCount.b100;
-    b50ref.current.value = 50 * cashCount.b50;
-    b20ref.current.value = 20 * cashCount.b20;
-    b10ref.current.value = 10 * cashCount.b10;
-    b5ref.current.value = 5 * cashCount.b5;
-    b1ref.current.value = 1 * cashCount.b1;
+    b1000ref.current.value = normalizeCurrency(1000 * cashCount.b1000);
+    b500ref.current.value = normalizeCurrency(500 * cashCount.b500);
+    b200ref.current.value = normalizeCurrency(200 * cashCount.b200);
+    b100ref.current.value = normalizeCurrency(100 * cashCount.b100);
+    b50ref.current.value = normalizeCurrency(50 * cashCount.b50);
+    b20ref.current.value = normalizeCurrency(20 * cashCount.b20);
+    b10ref.current.value = normalizeCurrency(10 * cashCount.b10);
+    b5ref.current.value = normalizeCurrency(5 * cashCount.b5);
+    b1ref.current.value = normalizeCurrency(1 * cashCount.b1);
     bdeciref.current.value = cashCount.bdecimal;
   };
 
   const print = () => {
-    alert("ongoing development");
+    if (ccdate === undefined) {
+      setMessage("Please enter cancelation date.");
+      setOpenModal(true);
+    } else {
+      axios
+        .get(baseUrl + "/api/reports/cashcount/" + ccdate, {
+          headers: {
+            contentType: "application/json",
+            accept: "application/pdf",
+          },
+          responseType: "blob",
+        })
+        .then((response) => {
+          const file = new Blob([response.data], { type: "application/pdf" });
+          var w = window.open(window.URL.createObjectURL(file));
+        });
+    }
   };
 
   const normalizeDecimal = (value) => {
@@ -245,11 +266,24 @@ const CashCountModal = ({ setOpenCashCount }) => {
     }
   };
 
+  const normalizeCurrency = (value) => {
+    let strValue = String(value);
+
+    if (strValue === "" || strValue === "undefined" || strValue === "NaN") {
+      return ""; // Handle empty string, undefined, or NaN cases
+    }
+    let out = strValue.replace(/[^0-9.]/g, "");
+    out = out.replace(/(\..*)\./g, "$1");
+    out = out.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    out = out.replace(/(\.\d{2})\d*/g, "$1");
+    return out;
+  };
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.modalContainer}>
         <div className={styles.search}>
-          <h3>CASH COUNT</h3>
+          <h3>DAILY CASH COUNT</h3>
           <br></br>
           <label>Cash count date</label>
           <input
@@ -286,7 +320,14 @@ const CashCountModal = ({ setOpenCashCount }) => {
                 cashCount.b1000 = e.target.value;
               }}
             ></input>
-            <input disabled ref={b1000ref}></input>
+            <input
+              disabled
+              ref={b1000ref}
+              onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeCurrency(value);
+              }}
+            ></input>
             <label>500 </label>
             <input
               maxLength={10}
@@ -294,6 +335,8 @@ const CashCountModal = ({ setOpenCashCount }) => {
               value={cashCount.b500}
               disabled={disableAll}
               onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeNumber(value);
                 setB500(e.target.value);
                 cashCount.b500 = e.target.value;
               }}
@@ -306,6 +349,8 @@ const CashCountModal = ({ setOpenCashCount }) => {
               value={cashCount.b200}
               disabled={disableAll}
               onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeNumber(value);
                 setB200(e.target.value);
                 cashCount.b200 = e.target.value;
               }}
@@ -318,6 +363,8 @@ const CashCountModal = ({ setOpenCashCount }) => {
               value={cashCount.b100}
               disabled={disableAll}
               onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeNumber(value);
                 setB100(e.target.value);
                 cashCount.b100 = e.target.value;
               }}
@@ -330,6 +377,8 @@ const CashCountModal = ({ setOpenCashCount }) => {
               value={cashCount.b50}
               disabled={disableAll}
               onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeNumber(value);
                 setB50(e.target.value);
                 cashCount.b50 = e.target.value;
               }}
@@ -342,6 +391,8 @@ const CashCountModal = ({ setOpenCashCount }) => {
               value={cashCount.b20}
               disabled={disableAll}
               onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeNumber(value);
                 setB20(e.target.value);
                 cashCount.b20 = e.target.value;
               }}
@@ -354,6 +405,8 @@ const CashCountModal = ({ setOpenCashCount }) => {
               value={cashCount.b10}
               disabled={disableAll}
               onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeNumber(value);
                 setB10(e.target.value);
                 cashCount.b10 = e.target.value;
               }}
@@ -366,6 +419,8 @@ const CashCountModal = ({ setOpenCashCount }) => {
               value={cashCount.b5}
               disabled={disableAll}
               onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeNumber(value);
                 setB5(e.target.value);
                 cashCount.b5 = e.target.value;
               }}
@@ -378,6 +433,8 @@ const CashCountModal = ({ setOpenCashCount }) => {
               value={cashCount.b1}
               disabled={disableAll}
               onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeNumber(value);
                 setB1(e.target.value);
                 cashCount.b1 = e.target.value;
               }}
@@ -408,7 +465,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
             <input
               className={styles.total}
               maxLength={10}
-              disabled={disableAll}
+              disabled
               value={cashCount.totalAmt}
             ></input>
           </div>

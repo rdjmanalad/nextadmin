@@ -6,6 +6,13 @@ const ConfirmmModal = ({ setOpenModalConf, message, confirmOk }) => {
     <>
       <div className={styles.mainContainer}>
         <div className={styles.modalContainer}>
+          {/* Add X Button */}
+          <button
+            className={styles.closeButton}
+            onClick={() => setOpenModalConf(false)}
+          >
+            &times;
+          </button>
           <h3>Message</h3>
           <div>
             <div className={styles.message}>
@@ -14,22 +21,21 @@ const ConfirmmModal = ({ setOpenModalConf, message, confirmOk }) => {
           </div>
           <div className={styles.modalFooter}>
             <button
-              className={styles.modalButtonCancel}
-              onClick={() => {
-                setOpenModalConf(false);
-              }}
-            >
-              Close
-            </button>
-            <div></div>
-            <button
               className={styles.modalButtonOk}
               onClick={() => {
                 confirmOk();
                 setOpenModalConf(false);
               }}
             >
-              Ok
+              Yes
+            </button>
+            <button
+              className={styles.modalButtonCancel}
+              onClick={() => {
+                setOpenModalConf(false);
+              }}
+            >
+              No
             </button>
           </div>
         </div>
@@ -37,4 +43,5 @@ const ConfirmmModal = ({ setOpenModalConf, message, confirmOk }) => {
     </>
   );
 };
+
 export default ConfirmmModal;

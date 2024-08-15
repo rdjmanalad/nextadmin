@@ -31,6 +31,7 @@
 }
 
 .modalButtonCancel {
+  margin-left: 10px;
   width: 75px;
   height: 30px;
   border-radius: 5px;
@@ -64,4 +65,19 @@
 .message {
   display: flex;
   justify-content: center;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+}
+
+.closeButton :hover {
+  border: none !important;
 }

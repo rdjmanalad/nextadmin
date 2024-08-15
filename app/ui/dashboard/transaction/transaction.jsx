@@ -9,6 +9,7 @@ import MessageModal from "../modal/messageModal";
 import JewelryModal from "../modal/jewelryModal";
 import { isTokenExpired } from "@/app/auth";
 import { MdSearch } from "react-icons/md";
+import ConfirmmModal from "../modal/confirmModal";
 
 const Transaction = ({ emptyObj }) => {
   const [trans, setTrans] = useState({});
@@ -26,6 +27,7 @@ const Transaction = ({ emptyObj }) => {
   const [openModal, setOpenModal] = useState(false);
   const [openModalLA, setOpenModalLA] = useState(false);
   const [openModalJewel, setOpenModalJewel] = useState(false);
+  const [openModalConf, setOpenModalConf] = useState(false);
   const isClient = typeof window !== "undefined";
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [isfullyPaid, setIsfullyPaid] = useState(false);
@@ -79,6 +81,7 @@ const Transaction = ({ emptyObj }) => {
   const savePayMentRef = useRef();
   const forfeitRef = useRef();
   const divRef = useRef();
+  const cancelDateRef = useRef();
 
   const router = useRouter();
 
@@ -130,6 +133,14 @@ const Transaction = ({ emptyObj }) => {
     if (trans) {
       populate();
       disablePayment();
+      enableCancel();
+      // alert(trans.correctingAmt);
+      if (trans.canceledDate != undefined) {
+        setTimeout(() => {
+          disableCashSet();
+          setDisableCancel(true);
+        }, 300);
+      }
     }
     if (emptyObj.id != "") {
       populate();
@@ -220,6 +231,7 @@ const Transaction = ({ emptyObj }) => {
     forfeitedDateRef.current.value = formatDate(trans.forfeitedDate);
     sellingRef.current.value = currencyFormat(trans.sellingPrice);
     volumeRef.current.value = trans.volumeNo;
+    cancelDateRef.current.value = formatDate(trans.canceledDate);
     // forfeitedAmtRef.current.value = currencyFormat(trans.forfeitedAmt);
     setIsCash(trans.paymentTerm === "CASH" ? true : false);
     setPTerm(trans.paymentTerm);
@@ -780,7 +792,7 @@ const Transaction = ({ emptyObj }) => {
           }
         }
       } else {
-        setMessage("Please fill all payment details");
+        setMessage("Please fill all payment details.");
         setOpenModal(true);
       }
     }
@@ -965,6 +977,39 @@ const Transaction = ({ emptyObj }) => {
     }
   };
 
+  const enableCancel = () => {
+    if (trans.id != "" || trans.id != undefined) {
+      let hasPaymentCash = false;
+      let hasPaymentLay = false;
+      console.log("trans.cashPayment:" + trans.cashPayment);
+      if (
+        trans.cashPayment === 0 ||
+        trans.cashPayment === "" ||
+        trans.cashPayment === undefined ||
+        trans.cashPayment === null
+      ) {
+        hasPaymentCash = false;
+      } else {
+        hasPaymentCash = true;
+      }
+      if (
+        trans.totalPayment === 0 ||
+        trans.totalPayment === "" ||
+        trans.totalPayment === undefined ||
+        trans.totalPayment === null
+      ) {
+        hasPaymentLay = false;
+      } else {
+        hasPaymentLay = true;
+      }
+      if (hasPaymentCash || hasPaymentLay) {
+        setDisableCancel(true);
+      } else {
+        setDisableCancel(false);
+      }
+    }
+  };
+
   const disableCashSet = () => {
     paymentTermRef.current.disabled = true;
     paymentModeRef.current.disabled = true;
@@ -983,6 +1028,41 @@ const Transaction = ({ emptyObj }) => {
     referenceNoRef.current.disabled = false;
     savePayMentRef.current.disabled = false;
     setDisableSavePay(false);
+  };
+
+  const cancelTrans = (e) => {
+    e.preventDefault();
+    if (cancelDateRef.current.value === "") {
+      setMessage("Please enter cancelation date.");
+      setOpenModal(true);
+    } else {
+      setMessage("Confirm cancelation of transaction.");
+      setOpenModalConf(true);
+    }
+  };
+
+  const confirmOk = () => {
+    trans.canceledDate = cancelDateRef.current.value;
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/transactions/save", trans, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          // console.log(response.data);
+          setTrans(response.data);
+          setMessage("Transaction canceled.");
+          setOpenModal(true);
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
   };
 
   return (
@@ -1220,6 +1300,8 @@ const Transaction = ({ emptyObj }) => {
               <input ref={senderAddressRef} readOnly></input>
               <label>Contact No.</label>
               <input ref={senderContactNoRef} readOnly></input>
+              <label>Cancel Date</label>
+              <input type="date" ref={cancelDateRef}></input>
             </div>
             <div className={styles.buttonContainer4}>
               <button
@@ -1316,6 +1398,16 @@ const Transaction = ({ emptyObj }) => {
                 }}
               ></input>
             </div>
+            {trans.correctingAmt != null && isCash && (
+              <div className={styles.cardContainer2}>
+                <label>Adjustment</label>
+                <input
+                  disabled
+                  value={currencyFormat(trans.correctingAmt)}
+                  style={{ textAlign: "right" }}
+                />
+              </div>
+            )}
             {/* <div className={styles.layContainer}>
               <label>Lay-Away</label>
             </div> */}
@@ -1376,8 +1468,19 @@ const Transaction = ({ emptyObj }) => {
                       .replaceAll("₱", "");
                   }}
                 />
-                <label>Adjustment</label>
-                <input disabled value={trans.correctingAmt} />
+              </div>
+
+              {trans.correctingAmt != null && (
+                <div className={styles.cardContainer2}>
+                  <label>Adjustment</label>
+                  <input
+                    disabled
+                    value={currencyFormat(trans.correctingAmt)}
+                    style={{ textAlign: "right" }}
+                  />
+                </div>
+              )}
+              <div className={styles.cardContainer2}>
                 <label>Total Balance</label>
                 <input
                   ref={balanceRef}
@@ -1515,6 +1618,13 @@ const Transaction = ({ emptyObj }) => {
         <JewelryModal
           setOpenModalJewel={setOpenModalJewel}
           jewelry={setJewelry}
+        />
+      )}
+      {openModalConf && (
+        <ConfirmmModal
+          setOpenModalConf={setOpenModalConf}
+          message={message}
+          confirmOk={confirmOk}
         />
       )}
     </div>

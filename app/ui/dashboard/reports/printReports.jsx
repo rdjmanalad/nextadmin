@@ -721,7 +721,7 @@ const PrintReports = () => {
             Print Report
           </button>
         </div> */}
-        <div className={styles.form}>
+        {/* <div className={styles.form}>
           <h3>Existing Lay-away</h3>
           <button
             className={styles.buttons}
@@ -755,7 +755,7 @@ const PrintReports = () => {
           >
             Print Report
           </button>
-        </div>
+        </div> */}
       </div>
       <div className={styles.container}>
         {/* for cash palawan transactions */}
@@ -781,7 +781,7 @@ const PrintReports = () => {
           </div>
           <br></br>
           <div className={styles.dailyForms}>
-            <label>Beggining Bal:</label>
+            <label>Beginning Bal:</label>
             <input
               ref={begBalRef1}
               style={{ textAlign: "right" }}

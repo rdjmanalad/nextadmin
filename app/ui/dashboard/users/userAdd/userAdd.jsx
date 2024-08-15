@@ -312,11 +312,11 @@ const UserAdd = () => {
   };
 
   const columnDefs = [
-    {
-      headerName: "User Id",
-      field: "userId",
-      width: "80",
-    },
+    // {
+    //   headerName: "User Id",
+    //   field: "userId",
+    //   width: "80",
+    // },
     {
       headerName: "Username",
       field: "username",
