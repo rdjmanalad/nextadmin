@@ -760,19 +760,18 @@ const ExistingLayaway = ({ emptyObj }) => {
     } else {
       if (validPayDetails()) {
         if (!isCash) {
-          if (
-            // latestBalDate ===
-            new Date(layAway.paymentDate).toLocaleDateString("en-US") <
-            latestBalDate
-          ) {
+          // if (
+          //   // latestBalDate ===
+          //   new Date(layAway.paymentDate).toLocaleDateString("en-US") <
+          //   latestBalDate
+          // ) {
+          if (new Date(layAway.paymentDate) < new Date(latestBalDate)) {
             if (trans.id === "" || trans.id === undefined) {
               saveTransaction();
             }
             layAway.transactionId = trans.id;
             layAway.user = user;
             saveLayAwayPay();
-            // saveTranPayment();
-            // saveBalance();
             populate();
           } else {
             setMessage("Payment date must be less than current balance date");
