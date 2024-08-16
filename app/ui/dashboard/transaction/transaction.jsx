@@ -36,6 +36,7 @@ const Transaction = ({ emptyObj }) => {
   const [jewelry, setJewelry] = useState({});
   const [disableSavePay, setDisableSavePay] = useState(true);
   const [disableCancel, setDisableCancel] = useState(true);
+  const [cancelLabel, setCancelLabel] = useState("Cancel Date");
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -139,6 +140,7 @@ const Transaction = ({ emptyObj }) => {
         setTimeout(() => {
           disableCashSet();
           setDisableCancel(true);
+          setCancelLabel("Date Cancelled");
         }, 300);
       }
     }
@@ -1099,6 +1101,7 @@ const Transaction = ({ emptyObj }) => {
               <input
                 ref={volumeRef}
                 maxLength="10"
+                disabled
                 onChange={(e) => {
                   trans.volumeNo = e.target.value.toUpperCase();
                 }}
@@ -1138,6 +1141,7 @@ const Transaction = ({ emptyObj }) => {
                 ref={descriptionRef}
                 // placeholder="Description"
                 maxLength="30"
+                disabled
                 onChange={(e) => {
                   trans.description = e.target.value.toUpperCase();
                 }}
@@ -1149,6 +1153,7 @@ const Transaction = ({ emptyObj }) => {
                 ref={karatRef}
                 // placeholder="Karat"
                 maxLength="15"
+                disabled
                 onChange={(e) => {
                   trans.karat = e.target.value.toUpperCase();
                 }}
@@ -1156,6 +1161,7 @@ const Transaction = ({ emptyObj }) => {
               <label style={{ marginLeft: "15px" }}>Weight</label>
               <input
                 ref={weightRef}
+                disabled
                 // placeholder="Weight"
                 maxLength="15"
                 onChange={(e) => {
@@ -1167,6 +1173,7 @@ const Transaction = ({ emptyObj }) => {
               <label>Capital</label>
               <input
                 ref={capitalRef}
+                disabled
                 defaultValue="0.00"
                 maxLength="12"
                 style={{ textAlign: "right" }}
@@ -1179,6 +1186,7 @@ const Transaction = ({ emptyObj }) => {
               ></input>
               <label style={{ marginLeft: "15px" }}>Selling</label>
               <input
+                disabled
                 ref={sellingRef}
                 defaultValue="0.00"
                 maxLength="12"
@@ -1300,7 +1308,7 @@ const Transaction = ({ emptyObj }) => {
               <input ref={senderAddressRef} readOnly></input>
               <label>Contact No.</label>
               <input ref={senderContactNoRef} readOnly></input>
-              <label>Cancel Date</label>
+              <label>{cancelLabel}</label>
               <input type="date" ref={cancelDateRef}></input>
             </div>
             <div className={styles.buttonContainer4}>

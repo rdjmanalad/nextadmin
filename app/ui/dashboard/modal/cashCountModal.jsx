@@ -118,7 +118,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
 
   const validate = () => {
     if (ccdate === undefined) {
-      setMessage("Please enter cancelation date.");
+      setMessage("Please enter cash count date.");
       setOpenModal(true);
     } else {
       if (
@@ -135,7 +135,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
 
   const search = (e) => {
     if (ccdate === undefined) {
-      setMessage("Please enter cancelation date.");
+      setMessage("Please enter cash count date.");
       setOpenModal(true);
     } else {
       setCashCount(emptyArr);
@@ -229,7 +229,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
 
   const print = () => {
     if (ccdate === undefined) {
-      setMessage("Please enter cancelation date.");
+      setMessage("Please enter cash count date.");
       setOpenModal(true);
     } else {
       axios
@@ -305,7 +305,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
         <div className={styles.form}>
           <div className={styles.details}>
             <label>Denomination</label>
-            <label>No. of piece</label>
+            <label>No. of pieces</label>
             <label>Total</label>
             <label>1000 </label>
             <input
