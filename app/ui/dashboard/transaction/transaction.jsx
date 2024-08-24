@@ -83,6 +83,7 @@ const Transaction = ({ emptyObj }) => {
   const forfeitRef = useRef();
   const divRef = useRef();
   const cancelDateRef = useRef();
+  const dueDateRef = useRef();
 
   const router = useRouter();
 
@@ -234,6 +235,7 @@ const Transaction = ({ emptyObj }) => {
     sellingRef.current.value = currencyFormat(trans.sellingPrice);
     volumeRef.current.value = trans.volumeNo;
     cancelDateRef.current.value = formatDate(trans.canceledDate);
+    dueDateRef.current.value = formatDate(trans.dueDate);
     // forfeitedAmtRef.current.value = currencyFormat(trans.forfeitedAmt);
     setIsCash(trans.paymentTerm === "CASH" ? true : false);
     setPTerm(trans.paymentTerm);
@@ -408,6 +410,29 @@ const Transaction = ({ emptyObj }) => {
           // console.log(response.data);
           setTrans(response.data);
           setMessage("Details Saved");
+          setOpenModal(true);
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
+  const saveDueDate = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/transactions/save", trans, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          // console.log(response.data);
+          setTrans(response.data);
+          setMessage("Due Date Saved");
           setOpenModal(true);
         }
       })
@@ -1067,6 +1092,20 @@ const Transaction = ({ emptyObj }) => {
       });
   };
 
+  const handleSaveDueDate = (e) => {
+    e.preventDefault();
+    if (
+      trans.dueDate === null ||
+      trans.dueDate == undefined ||
+      trans.dueDate === ""
+    ) {
+      setMessage("Please select a date.");
+      setOpenModal(true);
+    } else {
+      saveDueDate();
+    }
+  };
+
   return (
     <div
       className={styles.container}
@@ -1516,6 +1555,24 @@ const Transaction = ({ emptyObj }) => {
                     trans.fullPaymentDate = e.target.value;
                   }}
                 ></input>
+              </div>
+              <div className={styles.due}>
+                <label>Due Date</label>
+                <input
+                  type="date"
+                  ref={dueDateRef}
+                  onChange={(e) => {
+                    trans.dueDate = e.target.value;
+                  }}
+                ></input>
+                <button
+                  onClick={(e) => {
+                    handleSaveDueDate(e);
+                  }}
+                >
+                  {" "}
+                  Save Due Date
+                </button>
               </div>
             </div>
             <div style={{ display: isForfeited ? "block" : "none" }}>

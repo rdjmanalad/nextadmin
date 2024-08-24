@@ -262,7 +262,7 @@ const TransactionList = () => {
     // { headerName: "Address", field: "address" },
     // { headerName: "Contact No", field: "contactNo" },
     { headerName: "Term", field: "paymentTerm", width: "120" },
-    { headerName: "Mode", field: "paymentMode", width: "120" },
+    // { headerName: "Mode", field: "paymentMode", width: "120" },
     {
       headerName: "Correcting Amt",
       field: "correctingAmt",

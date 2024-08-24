@@ -21,6 +21,7 @@ const PrintReports = () => {
   const router = useRouter();
   const [pm, setPm] = useState([]);
   const [pr, setPr] = useState([]);
+  const [ob, setOb] = useState([]);
   const [mode, setMode] = useState("");
   const [isCashPal, setIsCashPal] = useState(false);
   const [isOther, setIsOther] = useState(false);
@@ -33,6 +34,7 @@ const PrintReports = () => {
   const [sumTrans, setSumTrans] = useState(0);
   const [balDate, setBalDate] = useState(0);
   const [report, setReport] = useState("");
+  const [orderBy, setOrderBy] = useState("");
 
   const startDateRef = useRef();
   const endDateRef = useRef();
@@ -123,6 +125,22 @@ const PrintReports = () => {
       .then((response) => response.data)
       .then((data) => {
         setPr(data);
+        console.log(data);
+      });
+
+    pcode = "OB";
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/reference/byparent/" + pcode, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setOb(data);
         console.log(data);
       });
   };
@@ -220,6 +238,9 @@ const PrintReports = () => {
     } else if (report === "") {
       setMessage("Please select a report to print");
       setOpenModal(true);
+    } else if (orderBy === "") {
+      setMessage("Order by is empty");
+      setOpenModal(true);
     } else {
       var dateFrom = startDateRef.current.value;
       var dateTo = endDateRef.current.value;
@@ -231,7 +252,9 @@ const PrintReports = () => {
             "/" +
             dateTo +
             "/" +
-            report,
+            report +
+            "/" +
+            orderBy,
           {
             headers: {
               contentType: "application/json",
@@ -683,6 +706,21 @@ const PrintReports = () => {
               </option>
             ))}
           </select>
+          <div className={styles.inputDate}>
+            <label>Order By</label>
+            <select
+              onChange={(e) => {
+                setOrderBy(e.target.value);
+              }}
+            >
+              <option></option>
+              {ob.map((o, i) => (
+                <option value={ob[i].description} key={ob[i].id}>
+                  {ob[i].name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className={styles.inputDate}>
             <label>Starting Date</label>
             <input type="Date" ref={startDateRef}></input>

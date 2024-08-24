@@ -4,7 +4,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { AgGridReact } from "ag-grid-react";
 import axios from "axios";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import useLocalState from "@/app/hooks/useLocalState";
 import MessageModal from "../modal/messageModal";
 
@@ -29,6 +29,7 @@ const Reference = () => {
   const [name, setName] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [message, setMessage] = useState("");
+  const [data, setData] = useState(null);
 
   const gridRef = useRef();
 
@@ -193,6 +194,20 @@ const Reference = () => {
     }
   };
 
+  useEffect(() => {
+    if (data) {
+      alert(data.message);
+    }
+  }, [data]);
+
+  const updateJewelry = (e) => {
+    e.preventDefault();
+    fetch("/api/updateMasJewelry")
+      .then((response) => response.json())
+      .then((data) => setData(data))
+      .catch((error) => console.error("Error:", error));
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.container2}>
@@ -276,7 +291,9 @@ const Reference = () => {
         </div>
         {/* <br> </br> */}
       </div>
-      <div className={styles.container2}>{/* <h2>Balance</h2> */}</div>
+      {/* <div className={styles.container2}>
+        <button onClick={(e) => updateJewelry(e)}>Update jewelry list</button>
+      </div> */}
       {openModal && (
         <MessageModal setOpenModal={setOpenModal} message={message} />
       )}
