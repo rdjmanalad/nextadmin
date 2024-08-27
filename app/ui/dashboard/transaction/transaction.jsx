@@ -18,6 +18,7 @@ const Transaction = ({ emptyObj }) => {
   const [pm, setPm] = useState([]);
   const [sd, setSd] = useState([]);
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
+  const [role, setRole] = useLocalState("userRole", "");
   const [isCash, setIsCash] = useState(false);
   const [pTerm, setPTerm] = useState("TERM");
   const [pMode, setPMode] = useState("");
@@ -37,6 +38,8 @@ const Transaction = ({ emptyObj }) => {
   const [disableSavePay, setDisableSavePay] = useState(true);
   const [disableCancel, setDisableCancel] = useState(true);
   const [cancelLabel, setCancelLabel] = useState("Cancel Date");
+  const [permissions, setPermissions] = useState([]);
+  const [disableDuedate, setDisableDuedate] = useState(true);
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -97,6 +100,7 @@ const Transaction = ({ emptyObj }) => {
       window.sessionStorage.clear();
     }
     if (jwtToken && !isTokenExpired(jwtToken)) {
+      checkPermission();
       getReference();
       initiate();
       if (window.sessionStorage.getItem("jwt") != null) {
@@ -150,6 +154,16 @@ const Transaction = ({ emptyObj }) => {
       disablePayment();
     }
   }, [trans]);
+
+  useEffect(() => {
+    if (permissions) {
+      if (permissions.includes("transactions.due")) {
+        setDisableDuedate(false);
+      } else {
+        setDisableDuedate(true);
+      }
+    }
+  }, [permissions]);
 
   useEffect(() => {
     if (jewelry.length > 0) {
@@ -325,6 +339,24 @@ const Transaction = ({ emptyObj }) => {
         senderNameRef.current.value = data[0].name;
         senderAddressRef.current.value = data[1].name;
         senderContactNoRef.current.value = data[2].name;
+      });
+  };
+
+  const checkPermission = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/users/getRolePermission/" + role, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        console.log(data);
+        setPermissions(data);
       });
   };
 
@@ -1566,6 +1598,7 @@ const Transaction = ({ emptyObj }) => {
                   }}
                 ></input>
                 <button
+                  disabled={disableDuedate}
                   onClick={(e) => {
                     handleSaveDueDate(e);
                   }}

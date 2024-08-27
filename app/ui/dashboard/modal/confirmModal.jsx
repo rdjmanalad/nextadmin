@@ -39,6 +39,7 @@ const ConfirmmModal = ({ setOpenModalConf, message, confirmOk }) => {
             </button>
           </div>
         </div>
+        
       </div>
     </>
   );
