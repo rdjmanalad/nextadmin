@@ -40,6 +40,7 @@ const Transaction = ({ emptyObj }) => {
   const [cancelLabel, setCancelLabel] = useState("Cancel Date");
   const [permissions, setPermissions] = useState([]);
   const [disableDuedate, setDisableDuedate] = useState(true);
+  const [disablePaymentUI, setDisablePaymentUI] = useState(true);
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -161,6 +162,14 @@ const Transaction = ({ emptyObj }) => {
         setDisableDuedate(false);
       } else {
         setDisableDuedate(true);
+      }
+
+      if (permissions.includes("transaction.payment")) {
+        // alert("dd");
+        setDisablePaymentUI(true);
+      } else {
+        // alert("ww");
+        setDisablePaymentUI(false);
       }
     }
   }, [permissions]);
@@ -1395,161 +1404,90 @@ const Transaction = ({ emptyObj }) => {
               </button>
             </div>
           </div>
-          <div className={styles.row2}>
-            <div className={styles.cardContainer}>
-              <label>Payment Terms</label>
-              <select
-                ref={paymentTermRef}
-                // placeholder="Payment Terms"
-                value={trans.paymentTerm}
-                onChange={(e) => {
-                  onPayTerm(e);
-                  trans.paymentTerm = e.target.value;
-                }}
-              >
-                <option></option>
-                {pt.map((o, i) => (
-                  <option value={pt[i].name} key={pt[i].name}>
-                    {pt[i].name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {/* <div className={styles.layContainer}>
+          {disablePaymentUI && (
+            <div className={styles.row2}>
+              <div className={styles.cardContainer}>
+                <label>Payment Terms</label>
+                <select
+                  ref={paymentTermRef}
+                  // placeholder="Payment Terms"
+                  value={trans.paymentTerm}
+                  onChange={(e) => {
+                    onPayTerm(e);
+                    trans.paymentTerm = e.target.value;
+                  }}
+                >
+                  <option></option>
+                  {pt.map((o, i) => (
+                    <option value={pt[i].name} key={pt[i].name}>
+                      {pt[i].name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {/* <div className={styles.layContainer}>
               <label>{pTerm}</label>
             </div> */}
-            <div className={styles.cardContainer}>
-              <label>Payment Mode</label>
-              <select
-                ref={paymentModeRef}
-                value={trans.paymentMode}
-                // placeholder="Payment Mode"
-                onChange={(e) => {
-                  onPayMode(e);
-                  trans.paymentMode = e.target.value;
-                }}
-              >
-                <option></option>
-                {pm.map((o, i) => (
-                  <option value={pm[i].name} key={pm[i].name}>
-                    {pm[i].name}
-                  </option>
-                ))}
-              </select>
-              <label>Payment Date</label>
-              <input
-                ref={cashPaymentDateRef}
-                type="date"
-                placeholder="Payment Date"
-                onChange={(e) => {
-                  trans.cashPaymentDate = isCash ? e.target.value : "";
-                  layAway.paymentDate = !isCash ? e.target.value : "";
-                  getLastBaldate();
-                }}
-              ></input>
-              <label>Amount Received</label>
-              <input
-                ref={cashPaymentRef}
-                defaultValue="0.00"
-                // placeholder="Amount Received"
-                maxLength="12"
-                style={{ textAlign: "right" }}
-                onFocus={(event) => event.target.select()}
-                onChange={(e) => {
-                  const { value } = e.target;
-                  e.target.value = normalizeCurrency(value);
-                  trans.cashPayment = isCash
-                    ? value.replaceAll(",", "").replaceAll("₱", "")
-                    : "";
-                  layAway.amount = !isCash
-                    ? value.replaceAll(",", "").replaceAll("₱", "")
-                    : "";
-                }}
-              ></input>
-              <label>Reference No.</label>
-              <input
-                ref={referenceNoRef}
-                // placeholder="Reference ID"
-                onChange={(e) => {
-                  // trans.referenceNo = e.target.value;
-                  trans.referenceNo = isCash ? e.target.value : "";
-                  layAway.referenceNo = !isCash ? e.target.value : "";
-                }}
-              ></input>
-            </div>
-            {trans.correctingAmt != null && isCash && (
-              <div className={styles.cardContainer2}>
-                <label>Adjustment</label>
+              <div className={styles.cardContainer}>
+                <label>Payment Mode</label>
+                <select
+                  ref={paymentModeRef}
+                  value={trans.paymentMode}
+                  // placeholder="Payment Mode"
+                  onChange={(e) => {
+                    onPayMode(e);
+                    trans.paymentMode = e.target.value;
+                  }}
+                >
+                  <option></option>
+                  {pm.map((o, i) => (
+                    <option value={pm[i].name} key={pm[i].name}>
+                      {pm[i].name}
+                    </option>
+                  ))}
+                </select>
+                <label>Payment Date</label>
                 <input
-                  disabled
-                  value={currencyFormat(trans.correctingAmt)}
-                  style={{ textAlign: "right" }}
-                />
-              </div>
-            )}
-            {/* <div className={styles.layContainer}>
-              <label>Lay-Away</label>
-            </div> */}
-            <div style={{ display: isCash ? "none" : "block" }}>
-              <div className={styles.buttonContainer}>
-                <button
-                  className={styles.add}
-                  // disabled={isfullyPaid}
-                  ref={savePayMentRef}
-                  onClick={(e) => {
-                    addPayment(e);
+                  ref={cashPaymentDateRef}
+                  type="date"
+                  placeholder="Payment Date"
+                  onChange={(e) => {
+                    trans.cashPaymentDate = isCash ? e.target.value : "";
+                    layAway.paymentDate = !isCash ? e.target.value : "";
+                    getLastBaldate();
                   }}
-                >
-                  Save Payment
-                </button>
-                <button
-                  className={styles.forfeit}
-                  ref={forfeitRef}
-                  disabled={!allowForfeit}
-                  onClick={(e) => {
-                    forfeitItem(e);
-                  }}
-                >
-                  Forfeit
-                </button>
-              </div>
-              <div
-                style={{ display: isCash ? "none" : "block" }}
-                className={styles.buttonContainer}
-              >
-                <button
-                  className={styles.buttonLAP}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setOpenModalLA(true);
-                  }}
-                >
-                  Show Lay-Away Payments
-                </button>
-              </div>
-            </div>
-            <div style={{ display: isCash ? "none" : "block" }}>
-              <div className={styles.cardContainer2}>
-                <label>Total Payment</label>
+                ></input>
+                <label>Amount Received</label>
                 <input
-                  ref={totalPaymentRef}
+                  ref={cashPaymentRef}
                   defaultValue="0.00"
-                  // placeholder="Total Payment"
-                  disabled
+                  // placeholder="Amount Received"
                   maxLength="12"
                   style={{ textAlign: "right" }}
                   onFocus={(event) => event.target.select()}
                   onChange={(e) => {
                     const { value } = e.target;
                     e.target.value = normalizeCurrency(value);
-                    trans.totalPayment = value
-                      .replaceAll(",", "")
-                      .replaceAll("₱", "");
+                    trans.cashPayment = isCash
+                      ? value.replaceAll(",", "").replaceAll("₱", "")
+                      : "";
+                    layAway.amount = !isCash
+                      ? value.replaceAll(",", "").replaceAll("₱", "")
+                      : "";
                   }}
-                />
+                ></input>
+                <label>Reference No.</label>
+                <input
+                  ref={referenceNoRef}
+                  // placeholder="Reference ID"
+                  onChange={(e) => {
+                    // trans.referenceNo = e.target.value;
+                    trans.referenceNo = isCash ? e.target.value : "";
+                    layAway.referenceNo = !isCash ? e.target.value : "";
+                  }}
+                ></input>
               </div>
-
-              {trans.correctingAmt != null && (
+              {trans.correctingAmt != null && isCash && (
                 <div className={styles.cardContainer2}>
                   <label>Adjustment</label>
                   <input
@@ -1559,147 +1497,220 @@ const Transaction = ({ emptyObj }) => {
                   />
                 </div>
               )}
-              <div className={styles.cardContainer2}>
-                <label>Total Balance</label>
-                <input
-                  ref={balanceRef}
-                  // placeholder="Total Balance"
-                  // disabled={isCash}
-                  disabled
-                  defaultValue="0.00"
-                  maxLength="12"
-                  style={{ textAlign: "right" }}
-                  onFocus={(event) => event.target.select()}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    e.target.value = normalizeCurrency(value);
-                    trans.balance = value
-                      .replaceAll(",", "")
-                      .replaceAll("₱", "");
-                  }}
-                ></input>
-                <label>Date Fully Paid</label>
-                <input
-                  ref={fullPaymentDateRef}
-                  type="date"
-                  disabled
-                  onChange={(e) => {
-                    trans.fullPaymentDate = e.target.value;
-                  }}
-                ></input>
-              </div>
-              <div className={styles.due}>
-                <label>Due Date</label>
-                <input
-                  type="date"
-                  ref={dueDateRef}
-                  onChange={(e) => {
-                    trans.dueDate = e.target.value;
-                  }}
-                ></input>
-                <button
-                  disabled={disableDuedate}
-                  onClick={(e) => {
-                    handleSaveDueDate(e);
-                  }}
+              {/* <div className={styles.layContainer}>
+              <label>Lay-Away</label>
+            </div> */}
+              <div style={{ display: isCash ? "none" : "block" }}>
+                <div className={styles.buttonContainer}>
+                  <button
+                    className={styles.add}
+                    // disabled={isfullyPaid}
+                    ref={savePayMentRef}
+                    onClick={(e) => {
+                      addPayment(e);
+                    }}
+                  >
+                    Save Payment
+                  </button>
+                  <button
+                    className={styles.forfeit}
+                    ref={forfeitRef}
+                    disabled={!allowForfeit}
+                    onClick={(e) => {
+                      forfeitItem(e);
+                    }}
+                  >
+                    Forfeit
+                  </button>
+                </div>
+                <div
+                  style={{ display: isCash ? "none" : "block" }}
+                  className={styles.buttonContainer}
                 >
-                  {" "}
-                  Save Due Date
-                </button>
+                  <button
+                    className={styles.buttonLAP}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOpenModalLA(true);
+                    }}
+                  >
+                    Show Lay-Away Payments
+                  </button>
+                </div>
               </div>
-            </div>
-            <div style={{ display: isForfeited ? "block" : "none" }}>
-              <div className={styles.cardContainer2}>
-                {/* <label>Amount Paid</label>
-              <input placeholder="Total Payment" disabled={isCash}></input> */}
-                {/* <label>Less 50%</label>
-                <input placeholder="Total Balance" disabled={isCash}></input> */}
-                <label>Total Refund(50%)</label>
-                <input
-                  ref={forfeitedAmtRef}
-                  disabled={true}
-                  maxLength="12"
-                  style={{ textAlign: "right" }}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    e.target.value = normalizeCurrency(value);
-                    trans.forfeitedAmt = value
-                      .replaceAll(",", "")
-                      .replaceAll("₱", "");
-                  }}
-                ></input>
-                <label>Forfeited Date</label>
-                <input
-                  ref={forfeitedDateRef}
-                  type="date"
-                  // placeholder="Forfeited Date"
-                  onChange={(e) => {
-                    trans.forfeitedDate = e.target.value;
-                  }}
-                ></input>
-              </div>
-            </div>
-            <div className={styles.buttonContainer3}>
-              {isCash && (
-                <button
-                  className={styles.save}
-                  disabled={disableSavePay}
-                  onClick={(e) => save(e)}
-                >
-                  Save Payment
-                </button>
-              )}
-              {!isCash && (
-                <button
-                  disabled={!allowForfeit}
-                  className={styles.save}
-                  onClick={(e) => forfeit(e)}
-                >
-                  Save Forfeited
-                </button>
-              )}
-              <button
-                className={styles.printForfeited}
-                disabled={isfullyPaid || isCash || !isForfeited}
-                onClick={(e) => {
-                  e.preventDefault();
-                  printReceipt();
-                }}
-              >
-                Print Forfeited
-              </button>
-            </div>
-            <div className={styles.buttonContainer2}>
-              <button
-                className={styles.lbc}
-                onClick={(e) => {
-                  e.preventDefault();
-                  printLbc();
-                }}
-              >
-                Print LBC form
-              </button>
-              <button
-                className={styles.receipt}
-                onClick={(e) => {
-                  e.preventDefault();
-                  printReceipt();
-                }}
-              >
-                Print Receipt
-              </button>
-            </div>
+              <div style={{ display: isCash ? "none" : "block" }}>
+                <div className={styles.cardContainer2}>
+                  <label>Total Payment</label>
+                  <input
+                    ref={totalPaymentRef}
+                    defaultValue="0.00"
+                    // placeholder="Total Payment"
+                    disabled
+                    maxLength="12"
+                    style={{ textAlign: "right" }}
+                    onFocus={(event) => event.target.select()}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      e.target.value = normalizeCurrency(value);
+                      trans.totalPayment = value
+                        .replaceAll(",", "")
+                        .replaceAll("₱", "");
+                    }}
+                  />
+                </div>
 
-            <div className={styles.buttonContainer2}>
-              <button
-                onClick={(e) => {
-                  test(e);
-                }}
-              >
-                Clear/Refresh
-              </button>
+                {trans.correctingAmt != null && (
+                  <div className={styles.cardContainer2}>
+                    <label>Adjustment</label>
+                    <input
+                      disabled
+                      value={currencyFormat(trans.correctingAmt)}
+                      style={{ textAlign: "right" }}
+                    />
+                  </div>
+                )}
+                <div className={styles.cardContainer2}>
+                  <label>Total Balance</label>
+                  <input
+                    ref={balanceRef}
+                    // placeholder="Total Balance"
+                    // disabled={isCash}
+                    disabled
+                    defaultValue="0.00"
+                    maxLength="12"
+                    style={{ textAlign: "right" }}
+                    onFocus={(event) => event.target.select()}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      e.target.value = normalizeCurrency(value);
+                      trans.balance = value
+                        .replaceAll(",", "")
+                        .replaceAll("₱", "");
+                    }}
+                  ></input>
+                  <label>Date Fully Paid</label>
+                  <input
+                    ref={fullPaymentDateRef}
+                    type="date"
+                    disabled
+                    onChange={(e) => {
+                      trans.fullPaymentDate = e.target.value;
+                    }}
+                  ></input>
+                </div>
+                <div className={styles.due}>
+                  <label>Due Date</label>
+                  <input
+                    type="date"
+                    ref={dueDateRef}
+                    onChange={(e) => {
+                      trans.dueDate = e.target.value;
+                    }}
+                  ></input>
+                  <button
+                    disabled={disableDuedate}
+                    onClick={(e) => {
+                      handleSaveDueDate(e);
+                    }}
+                  >
+                    {" "}
+                    Save Due Date
+                  </button>
+                </div>
+              </div>
+              <div style={{ display: isForfeited ? "block" : "none" }}>
+                <div className={styles.cardContainer2}>
+                  {/* <label>Amount Paid</label>
+              <input placeholder="Total Payment" disabled={isCash}></input> */}
+                  {/* <label>Less 50%</label>
+                <input placeholder="Total Balance" disabled={isCash}></input> */}
+                  <label>Total Refund(50%)</label>
+                  <input
+                    ref={forfeitedAmtRef}
+                    disabled={true}
+                    maxLength="12"
+                    style={{ textAlign: "right" }}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      e.target.value = normalizeCurrency(value);
+                      trans.forfeitedAmt = value
+                        .replaceAll(",", "")
+                        .replaceAll("₱", "");
+                    }}
+                  ></input>
+                  <label>Forfeited Date</label>
+                  <input
+                    ref={forfeitedDateRef}
+                    type="date"
+                    // placeholder="Forfeited Date"
+                    onChange={(e) => {
+                      trans.forfeitedDate = e.target.value;
+                    }}
+                  ></input>
+                </div>
+              </div>
+              <div className={styles.buttonContainer3}>
+                {isCash && (
+                  <button
+                    className={styles.save}
+                    disabled={disableSavePay}
+                    onClick={(e) => save(e)}
+                  >
+                    Save Payment
+                  </button>
+                )}
+                {!isCash && (
+                  <button
+                    disabled={!allowForfeit}
+                    className={styles.save}
+                    onClick={(e) => forfeit(e)}
+                  >
+                    Save Forfeited
+                  </button>
+                )}
+                <button
+                  className={styles.printForfeited}
+                  disabled={isfullyPaid || isCash || !isForfeited}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    printReceipt();
+                  }}
+                >
+                  Print Forfeited
+                </button>
+              </div>
+              <div className={styles.buttonContainer2}>
+                <button
+                  className={styles.lbc}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    printLbc();
+                  }}
+                >
+                  Print LBC form
+                </button>
+                <button
+                  className={styles.receipt}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    printReceipt();
+                  }}
+                >
+                  Print Receipt
+                </button>
+              </div>
+
+              <div className={styles.buttonContainer2}>
+                <button
+                  onClick={(e) => {
+                    test(e);
+                  }}
+                >
+                  Clear/Refresh
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </form>
       {openModalLA && (

@@ -14,6 +14,7 @@ const Navbar = () => {
   const isClient = typeof window !== "undefined";
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [balDate, setBalDate] = useLocalState("balDate", "");
+  const [permissions, setPermissions] = useLocalState([]);
   const [userRole, setUserRole] = isClient
     ? useLocalState("userRole", "")
     : ["", () => {}];

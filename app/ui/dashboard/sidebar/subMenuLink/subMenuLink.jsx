@@ -12,19 +12,29 @@ const SubMenuLink = ({ item }) => {
     ? useLocalState("userRole", "")
     : ["", () => {}];
   const [isAdmin, setIsAdmin] = useState(true);
+  const [hasAccess, setHasAccess] = useState(true);
+  const [permissions, setPermissions] = useLocalState([]);
 
   useEffect(() => {
-    if (
-      userRole !== "ROLE_ADMIN" &&
-      item.title.toString() === "Add/Edit Users"
-    ) {
-      setIsAdmin(false);
+    if (permissions) {
+      if (permissions.includes(item.title.toString())) {
+        setHasAccess(true);
+      } else {
+        setHasAccess(false);
+      }
     }
+    // if (
+    //   userRole !== "ROLE_ADMIN" &&
+    //   item.title.toString() === "Add/Edit Users"
+    // ) {
+    //   setIsAdmin(false);
+    // }
   }, []);
 
   return (
     <div>
-      {isAdmin && (
+      {/* {isAdmin && ( */}
+      {hasAccess && (
         <Link
           href={item.path}
           className={`${styles.container} 

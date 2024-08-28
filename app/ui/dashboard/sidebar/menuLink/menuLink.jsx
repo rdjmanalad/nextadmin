@@ -11,17 +11,26 @@ const MenuLink = ({ item }) => {
   const pathname = usePathname();
   const [subM, setSubM] = useState(item.subMenu ? item.subMenu : {});
   const [active, setActive] = useState(true);
+  const [permissions, setPermissions] = useLocalState([]);
 
   const isClient = typeof window !== "undefined";
   const [userRole, setUserRole] = isClient
     ? useLocalState("userRole", "")
     : ["", () => {}];
-  const [isAdmin, setIsAdmin] = useState(true);
+  // const [isAdmin, setIsAdmin] = useState(true);
+  const [hasAccess, setHasAccess] = useState(true);
 
   useEffect(() => {
-    if (userRole !== "ROLE_ADMIN" && item.title.toString() === "Settings") {
-      setIsAdmin(false);
+    if (permissions) {
+      if (permissions.includes(item.title.toString())) {
+        setHasAccess(true);
+      } else {
+        setHasAccess(false);
+      }
     }
+    // if (userRole !== "ROLE_ADMIN" && item.title.toString() === "Settings") {
+    //   setIsAdmin(false);
+    // }
   }, []);
 
   // useEffect(() => {
@@ -37,34 +46,34 @@ const MenuLink = ({ item }) => {
 
   return (
     <div>
-      {item.subMenu ? (
-        <div
-          className={`${styles.container} `}
-          onClick={(e) => {
-            toggleActive(e);
-          }}
-        >
-          {item.icon}
-          {item.title}
-          {item.subMenu && (
-            <MdKeyboardArrowUp
-              className={`${styles.expand} ${active && styles.drop}`}
-            />
-          )}
-        </div>
-      ) : (
-        isAdmin && (
-          <Link
-            href={item.path}
-            className={`${styles.container} 
+      {item.subMenu
+        ? hasAccess && (
+            <div
+              className={`${styles.container} `}
+              onClick={(e) => {
+                toggleActive(e);
+              }}
+            >
+              {item.icon}
+              {item.title}
+              {item.subMenu && (
+                <MdKeyboardArrowUp
+                  className={`${styles.expand} ${active && styles.drop}`}
+                />
+              )}
+            </div>
+          )
+        : hasAccess && (
+            <Link
+              href={item.path}
+              className={`${styles.container} 
             ${pathname === item.path && styles.active}`}
-          >
-            {item.icon}
-            {item.title}
-            {item.subMenu && <MdKeyboardArrowDown />}
-          </Link>
-        )
-      )}
+            >
+              {item.icon}
+              {item.title}
+              {item.subMenu && <MdKeyboardArrowDown />}
+            </Link>
+          )}
 
       {item.subMenu && (
         <ul className={`${styles.list} ${active && styles.hide}`}>

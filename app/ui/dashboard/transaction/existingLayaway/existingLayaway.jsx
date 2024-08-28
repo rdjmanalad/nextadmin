@@ -79,6 +79,7 @@ const ExistingLayaway = ({ emptyObj }) => {
   const savePayMentRef = useRef();
   const forfeitRef = useRef();
   const divRef = useRef();
+  const dueDateRef = useRef();
 
   const router = useRouter();
 
@@ -220,6 +221,7 @@ const ExistingLayaway = ({ emptyObj }) => {
     forfeitedDateRef.current.value = formatDate(trans.forfeitedDate);
     sellingRef.current.value = currencyFormat(trans.sellingPrice);
     volumeRef.current.value = trans.volumeNo;
+    dueDateRef.current.value = formatDate(trans.dueDate);
     // forfeitedAmtRef.current.value = currencyFormat(trans.forfeitedAmt);
     setIsCash(trans.paymentTerm === "CASH" ? true : false);
     setPTerm(trans.paymentTerm);
@@ -1018,6 +1020,7 @@ const ExistingLayaway = ({ emptyObj }) => {
               <input
                 ref={volumeRef}
                 maxLength="10"
+                disabled
                 onChange={(e) => {
                   trans.volumeNo = e.target.value.toUpperCase();
                 }}
@@ -1057,6 +1060,7 @@ const ExistingLayaway = ({ emptyObj }) => {
                 ref={descriptionRef}
                 // placeholder="Description"
                 maxLength="30"
+                disabled
                 onChange={(e) => {
                   trans.description = e.target.value.toUpperCase();
                 }}
@@ -1068,6 +1072,7 @@ const ExistingLayaway = ({ emptyObj }) => {
                 ref={karatRef}
                 // placeholder="Karat"
                 maxLength="15"
+                disabled
                 onChange={(e) => {
                   trans.karat = e.target.value.toUpperCase();
                 }}
@@ -1075,6 +1080,7 @@ const ExistingLayaway = ({ emptyObj }) => {
               <label style={{ marginLeft: "15px" }}>Weight</label>
               <input
                 ref={weightRef}
+                disabled
                 // placeholder="Weight"
                 maxLength="15"
                 onChange={(e) => {
@@ -1088,6 +1094,7 @@ const ExistingLayaway = ({ emptyObj }) => {
                 ref={capitalRef}
                 defaultValue="0.00"
                 maxLength="12"
+                disabled
                 style={{ textAlign: "right" }}
                 onFocus={(event) => event.target.select()}
                 onChange={(e) => {
@@ -1101,6 +1108,7 @@ const ExistingLayaway = ({ emptyObj }) => {
                 ref={sellingRef}
                 defaultValue="0.00"
                 maxLength="12"
+                disabled
                 style={{ textAlign: "right" }}
                 onFocus={(event) => event.target.select()}
                 onChange={(e) => {
@@ -1394,6 +1402,16 @@ const ExistingLayaway = ({ emptyObj }) => {
                   disabled
                   onChange={(e) => {
                     trans.fullPaymentDate = e.target.value;
+                  }}
+                ></input>
+              </div>
+              <div className={styles.cardContainer2}>
+                <label>Due Date</label>
+                <input
+                  type="date"
+                  ref={dueDateRef}
+                  onChange={(e) => {
+                    trans.dueDate = e.target.value;
                   }}
                 ></input>
               </div>

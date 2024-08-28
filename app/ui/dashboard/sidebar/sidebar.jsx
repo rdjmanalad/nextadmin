@@ -76,6 +76,11 @@ const menuItems = [
             path: "/dashboard/userAdd",
             icon: <LuUserPlus />,
           },
+          {
+            title: "Roles",
+            path: "/dashboard/roles",
+            icon: <LuUserPlus />,
+          },
           // Add more sub-menu items as needed
         ],
       },

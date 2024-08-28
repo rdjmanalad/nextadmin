@@ -16,6 +16,7 @@ const LoginPage = () => {
   const [user, setUser] = useLocalState("user", "");
   const [userId, setUserId] = useLocalState("userId", "");
   const [userRole, setUserRole] = useLocalState("userRole", "");
+  const [permissions, setPermissions] = useLocalState([]);
   const [baseURL, setBaseURL] = useLocalState("baseURL", "");
   const [logi, setLogi] = useState(false);
   const [invalid, setInvalid] = useState(false);
@@ -25,12 +26,12 @@ const LoginPage = () => {
   // const baseURL = localStorage.getItem("baseURL");
 
   useEffect(() => {
+    // setPermissions([]);
     if (window.sessionStorage.getItem("jwt") != null) {
       router.push("/dashboard");
     }
-
-    // setBaseURL("http://localhost:8080");
-    setBaseURL("http://52.74.232.36:85");
+    setBaseURL("http://localhost:8080");
+    // setBaseURL("http://52.74.232.36:85");
   }, []);
 
   useEffect(() => {
@@ -87,6 +88,7 @@ const LoginPage = () => {
         window.sessionStorage.setItem("initial", 1);
         jw = data["accessToken"].split(".")[1];
         setUserRole(JSON.parse(window.atob(jw)).roles);
+        checkPermission(JSON.parse(window.atob(jw)).roles);
         setTimeout(() => {
           router.push("/dashboard");
         }, 1500);
@@ -110,6 +112,23 @@ const LoginPage = () => {
       .then((response) => response.data)
       .then((data) => {
         setUserId(data);
+      });
+  };
+
+  const checkPermission = (role) => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseURL + "/api/users/getRolePermission/" + role, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setPermissions(data);
       });
   };
 
