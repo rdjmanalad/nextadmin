@@ -23,7 +23,21 @@ const LoginPage = () => {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [initial, setInitial] = useLocalState("initial", 0);
-  // const baseURL = localStorage.getItem("baseURL");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showHide, setShowHide] = useState("Show");
+  const [passType, setPassType] = useState("password");
+
+  const togglePasswordVisibility = (e) => {
+    e.preventDefault();
+    setShowPassword(!showPassword);
+    if (showPassword) {
+      setShowHide("Show");
+      setPassType("password");
+    } else {
+      setShowHide("Hide");
+      setPassType("text");
+    }
+  };
 
   useEffect(() => {
     // setPermissions([]);
@@ -128,6 +142,7 @@ const LoginPage = () => {
       })
       .then((response) => response.data)
       .then((data) => {
+        console.log(data);
         setPermissions(data);
       });
   };
@@ -151,11 +166,16 @@ const LoginPage = () => {
           placeholder="username"
           onChange={(e) => setUsername(e.target.value)}
         />
-        <input
-          type="password"
-          placeholder="password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className={styles.pass}>
+          <input
+            type={passType}
+            placeholder="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button onClick={(e) => togglePasswordVisibility(e)}>
+            {showHide}
+          </button>
+        </div>
         <button
           className={styles.button}
           onClick={(e) => {

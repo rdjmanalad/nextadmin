@@ -27,3 +27,69 @@
   --ag-odd-row-background-color: rgb(241, 241, 241) !important;
   --ag-header-background-color: rgb(202, 202, 202) !important;
 }
+
+.container input {
+  width: 100%;
+  background-color: var(--inputBg);
+  border: 1px solid black;
+  height: 30px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  padding-left: 5px;
+  color: black;
+  font-weight: 800;
+  font-size: 14px;
+  padding-right: 20px;
+  text-transform: uppercase;
+}
+
+.container select {
+  width: 100%;
+  background-color: var(--inputBg);
+  border: 1px solid black;
+  height: 30px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  padding-left: 5px;
+  color: black;
+  font-weight: 800;
+  font-size: 14px;
+  padding-right: 20px;
+}
+
+.container button {
+  width: 50%;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  background-color: var(--buttonGreen);
+}
+
+.delete {
+  background-color: var(--buttonRed) !important;
+}
+
+.form2 {
+  margin-top: 40px;
+  display: grid;
+  align-items: left;
+  gap: 10px;
+  width: 400px;
+  margin-left: 40px;
+}
+
+.form2 button {
+  background-color: var(--buttonRed);
+  width: 75px;
+}
+
+.save {
+  background-color: var(--buttonGreen) !important;
+  width: 50% !important;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+}

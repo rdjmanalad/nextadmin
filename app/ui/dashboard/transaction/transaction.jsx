@@ -38,9 +38,10 @@ const Transaction = ({ emptyObj }) => {
   const [disableSavePay, setDisableSavePay] = useState(true);
   const [disableCancel, setDisableCancel] = useState(true);
   const [cancelLabel, setCancelLabel] = useState("Cancel Date");
-  const [permissions, setPermissions] = useState([]);
+  // const [permissions, setPermissions] = useState([]);
   const [disableDuedate, setDisableDuedate] = useState(true);
   const [disablePaymentUI, setDisablePaymentUI] = useState(true);
+  const [permissions, setPermissions] = useLocalState([]);
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -92,6 +93,7 @@ const Transaction = ({ emptyObj }) => {
   const router = useRouter();
 
   useEffect(() => {
+    allowPermission();
     const jwtToken = window.sessionStorage.getItem("jwt");
     if (window.sessionStorage.getItem("jwt") === null) {
       router.push("/login");
@@ -156,7 +158,25 @@ const Transaction = ({ emptyObj }) => {
     }
   }, [trans]);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (permissions) {
+  //     if (permissions.includes("transactions.due")) {
+  //       setDisableDuedate(false);
+  //     } else {
+  //       setDisableDuedate(true);
+  //     }
+
+  //     if (permissions.includes("transaction.payment")) {
+  //       // alert("dd");
+  //       setDisablePaymentUI(true);
+  //     } else {
+  //       // alert("ww");
+  //       setDisablePaymentUI(false);
+  //     }
+  //   }
+  // }, [permissions]);
+
+  const allowPermission = () => {
     if (permissions) {
       if (permissions.includes("transactions.due")) {
         setDisableDuedate(false);
@@ -172,7 +192,7 @@ const Transaction = ({ emptyObj }) => {
         setDisablePaymentUI(false);
       }
     }
-  }, [permissions]);
+  };
 
   useEffect(() => {
     if (jewelry.length > 0) {
@@ -1404,7 +1424,8 @@ const Transaction = ({ emptyObj }) => {
               </button>
             </div>
           </div>
-          {disablePaymentUI && (
+          {/* {disablePaymentUI && ( */}
+          <div className={!disablePaymentUI ? styles.disabled : ""}>
             <div className={styles.row2}>
               <div className={styles.cardContainer}>
                 <label>Payment Terms</label>
@@ -1710,7 +1731,8 @@ const Transaction = ({ emptyObj }) => {
                 </button>
               </div>
             </div>
-          )}
+          </div>
+          {/* // )} */}
         </div>
       </form>
       {openModalLA && (

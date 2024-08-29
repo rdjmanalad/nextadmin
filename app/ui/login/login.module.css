@@ -43,3 +43,19 @@
   border-radius: 5px;
   margin-bottom: 10px;
 }
+
+.pass {
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+}
+
+.pass button {
+  width: 50px;
+  background-color: white;
+  border-radius: 0 5px 5px 0 !important;
+  color: black;
+}
+
+.pass input {
+  border-radius: 5px 0 0 5px !important;
+}

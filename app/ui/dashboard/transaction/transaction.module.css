@@ -298,3 +298,8 @@
   margin-left: 5px;
   background-color: var(--buttonGreen);
 }
+
+.disabled {
+  pointer-events: none; /* Disables all mouse interactions */
+  opacity: 0.6; /* Optional: Makes the elements look disabled */
+}
