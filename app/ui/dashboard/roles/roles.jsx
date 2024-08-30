@@ -12,6 +12,7 @@ import MessageModal from "../modal/messageModal";
 import ConfirmmModal from "../modal/confirmModal";
 
 const Roles = () => {
+  const module = "Roles";
   const [role, setRole] = useState("");
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [rowData, setRowData] = useState([]);
@@ -24,6 +25,8 @@ const Roles = () => {
   const [message, setMessage] = useState("");
   const [deleteRolePermId, setDeleteRolePermId] = useState(0);
   const [openModalConf, setOpenModalConf] = useState(false);
+  const [permissions, setPermissions] = useLocalState([]);
+  const router = useRouter();
   const [rolePerm, setRolePerm] = useState({
     id: "",
     roleId: "",
@@ -38,6 +41,16 @@ const Roles = () => {
   const gridRef = useRef();
   const gridRef2 = useRef();
   const permissionRef = useRef();
+
+  useEffect(() => {
+    if (permissions) {
+      if (permissions.includes(module)) {
+        // setHasAccess(true);
+      } else {
+        router.push("/dashboard");
+      }
+    }
+  }, []);
 
   const ButtonRenderer = (props) => {
     const handleClick = () => {

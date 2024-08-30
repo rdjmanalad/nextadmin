@@ -7,8 +7,10 @@ import axios from "axios";
 import { useState, useCallback, useRef, useEffect } from "react";
 import useLocalState from "@/app/hooks/useLocalState";
 import MessageModal from "../modal/messageModal";
+import { useRouter } from "next/navigation";
 
 const Reference = () => {
+  const module = "Settings";
   const [references, setReferences] = useState([]);
   const isClient = typeof window !== "undefined";
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
@@ -30,8 +32,20 @@ const Reference = () => {
   const [openModal, setOpenModal] = useState(false);
   const [message, setMessage] = useState("");
   const [data, setData] = useState(null);
+  const [permissions, setPermissions] = useLocalState([]);
+  const router = useRouter();
 
   const gridRef = useRef();
+
+  useEffect(() => {
+    if (permissions) {
+      if (permissions.includes(module)) {
+        // setHasAccess(true);
+      } else {
+        router.push("/dashboard");
+      }
+    }
+  }, []);
 
   const onGridReady = useCallback((params) => {
     getReference();

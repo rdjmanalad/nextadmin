@@ -44,8 +44,8 @@ const LoginPage = () => {
     if (window.sessionStorage.getItem("jwt") != null) {
       router.push("/dashboard");
     }
-    // setBaseURL("http://localhost:8080");
-    setBaseURL("http://52.74.232.36:85");
+    setBaseURL("http://localhost:8080");
+    // setBaseURL("http://52.74.232.36:85");
   }, []);
 
   useEffect(() => {
