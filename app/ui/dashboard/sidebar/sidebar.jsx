@@ -20,6 +20,7 @@ import {
 } from "react-icons/md";
 import { LuUserCog, LuUserPlus } from "react-icons/lu";
 import { GiMoneyStack } from "react-icons/gi";
+import { LiaUserLockSolid } from "react-icons/lia";
 import SubMenuLink from "./subMenuLink/subMenuLink";
 
 const menuItems = [
@@ -79,7 +80,7 @@ const menuItems = [
           {
             title: "Roles",
             path: "/dashboard/roles",
-            icon: <LuUserPlus />,
+            icon: <LiaUserLockSolid />,
           },
           // Add more sub-menu items as needed
         ],
