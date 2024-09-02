@@ -17,7 +17,7 @@
   display: grid;
   align-items: left;
   gap: 5px;
-  width: 400px;
+  width: 500px;
   margin-left: 40px;
   background-color: var(--bg);
   padding: 10px 20px;
@@ -73,7 +73,7 @@
   border: 1px solid black;
   height: 30px;
   border-radius: 5px;
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */
   padding-left: 5px;
   color: black;
   font-weight: 800;
@@ -126,7 +126,7 @@
   border: 1px solid black;
   height: 30px;
   border-radius: 5px;
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */
   padding-left: 5px;
   color: black;
   font-weight: 800;

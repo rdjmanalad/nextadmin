@@ -35,6 +35,8 @@ const PrintReports = () => {
   const [balDate, setBalDate] = useState(0);
   const [report, setReport] = useState("");
   const [orderBy, setOrderBy] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [needCName, setNeedCName] = useState(false);
 
   const startDateRef = useRef();
   const endDateRef = useRef();
@@ -86,6 +88,14 @@ const PrintReports = () => {
       }
     }
   }, [transDate]);
+
+  useEffect(() => {
+    if (report === "layaway_existing_customer.jrxml") {
+      setNeedCName(true);
+    } else {
+      setNeedCName(false);
+    }
+  }, [report]);
 
   function getTodayDate() {
     const today = new Date();
@@ -240,6 +250,9 @@ const PrintReports = () => {
       setOpenModal(true);
     } else if (orderBy === "") {
       setMessage("Order by is empty");
+      setOpenModal(true);
+    } else if (needCName && customerName == "") {
+      setMessage("Customer name is empty");
       setOpenModal(true);
     } else {
       var dateFrom = startDateRef.current.value;
@@ -706,6 +719,16 @@ const PrintReports = () => {
               </option>
             ))}
           </select>
+          {needCName && (
+            <div className={styles.inputDate}>
+              <label>Customer Name</label>
+              <input
+                onChange={(e) => {
+                  setCustomerName(e.target.value);
+                }}
+              ></input>
+            </div>
+          )}
           <div className={styles.inputDate}>
             <label>Order By</label>
             <select
