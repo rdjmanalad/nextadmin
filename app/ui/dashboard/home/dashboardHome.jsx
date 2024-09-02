@@ -18,6 +18,7 @@ const DashboardHome = () => {
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [balance, setBalance] = useState();
+  const [appType, setAppType] = useLocalState("appType", "");
   const [userId, setUserId] = isClient
     ? useLocalState("userId", "")
     : ["", () => {}];
@@ -33,6 +34,9 @@ const DashboardHome = () => {
   const [balances, setBalances] = useState([]);
   const [cashPalawan, setCashPalawan] = useState("");
   const [displayRight, setDisplayRight] = useState(false);
+  const [error, setError] = useState(null);
+  const [error2, setError2] = useState(null);
+  const [refreshKey, setRefreshKey] = useLocalState("dashRefresh", 0);
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -40,6 +44,10 @@ const DashboardHome = () => {
   const onGridReady = useCallback((params) => {
     getAllBalances();
   }, []);
+
+  const handleRefresh = () => {
+    setRefreshKey((prevKey) => prevKey + 1);
+  };
 
   var balvar = {};
 
@@ -64,7 +72,6 @@ const DashboardHome = () => {
   };
 
   useEffect(() => {
-    // setJwt(window.sessionStorage.getItem("jwt"));
     const jwtToken = window.sessionStorage.getItem("jwt");
     if (window.sessionStorage.getItem("jwt") === null) {
       router.push("/login");
@@ -74,11 +81,11 @@ const DashboardHome = () => {
       window.sessionStorage.clear();
     }
     if (jwtToken && !isTokenExpired(jwtToken)) {
-      // getBalances();
-      getAllBalances();
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 1000);
+      if (appType === "GBW") {
+        getAllBalancesGBW();
+      } else {
+        getAllBalances();
+      }
     }
   }, []);
 
@@ -87,6 +94,15 @@ const DashboardHome = () => {
       setToDisplay(true);
     }
   }, [begBal, addBal, lesBal, endBal]);
+
+  useEffect(() => {
+    setRefreshKey(1);
+    setTimeout(() => {
+      if (refreshKey === "0") {
+        window.location.reload();
+      }
+    }, 500);
+  }, [balances]);
 
   function getTodayDate() {
     const today = new Date();
@@ -131,30 +147,54 @@ const DashboardHome = () => {
         setLesBal(data.lessBal);
         setEndBal(data.endingBal);
         setBegBal(data.beginningBal);
-
-        // console.log("begBal" + begBal);
-        // console.log(startingBal);
       });
   };
 
   const getAllBalances = async () => {
-    // const date = getTodayDate();
     const date = convertDateString(balDate);
     var jwt = window.sessionStorage.getItem("jwt");
     axios.defaults.headers.common["Authorization"] =
       "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-    axios
-      .get(baseUrl + "/api/dashboard/balance/all/" + date, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => response.data)
-      .then((data) => {
-        setBalances(data);
-        // console.log(data);
-      });
+    try {
+      const response = await axios.get(
+        baseUrl + "/api/dashboard/balance/all/" + date,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setBalances(response.data);
+      console.log(response.data);
+    } catch (err) {
+      setError(err);
+      console.error("Error fetching data:", err);
+    }
+  };
+
+  const getAllBalancesGBW = async () => {
+    const date = convertDateString(balDate);
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+
+    try {
+      const response = await axios.get(
+        baseUrl + "/api/dashboard/balance/gbw/all/" + date,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setBalances(response.data);
+      console.log(response.data);
+    } catch (err) {
+      setError2(err);
+      console.error("Error fetching data:", err);
+    }
   };
 
   const begBalFormatter = (params) => {

@@ -26,6 +26,8 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showHide, setShowHide] = useState("Show");
   const [passType, setPassType] = useState("password");
+  const [appType, setAppType] = useLocalState("appType", "");
+  const [refreshKey, setRefreshKey] = useLocalState("dashRefresh", 0);
 
   const togglePasswordVisibility = (e) => {
     e.preventDefault();
@@ -92,12 +94,14 @@ const LoginPage = () => {
       })
 
       .then(([data, headers, json]) => {
+        setRefreshKey(0);
         setInvalid(false);
         setLogi(true);
         setJwt(data["accessToken"]);
         window.sessionStorage.setItem("jwt", data["accessToken"]);
         setUserId(0);
-        getId();
+        // getId();
+        getUserDetails();
         setUser(username);
         window.sessionStorage.setItem("initial", 1);
         jw = data["accessToken"].split(".")[1];
@@ -126,6 +130,23 @@ const LoginPage = () => {
       .then((response) => response.data)
       .then((data) => {
         setUserId(data);
+      });
+  };
+
+  const getUserDetails = () => {
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseURL + "/api/users/getbyusername/" + username, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setUserId(data.userId);
+        setAppType(data.appType);
       });
   };
 

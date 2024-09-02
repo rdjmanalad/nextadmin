@@ -15,6 +15,9 @@ const Navbar = () => {
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [balDate, setBalDate] = useLocalState("balDate", "");
   const [permissions, setPermissions] = useLocalState([]);
+  const [appType, setAppType] = useLocalState("appType", "");
+  const [isGBW, setIsGBW] = useState(appType === "GBW" ? true : false);
+  const [sysName, setSysName] = useState("");
   const [userRole, setUserRole] = isClient
     ? useLocalState("userRole", "")
     : ["", () => {}];
@@ -29,9 +32,15 @@ const Navbar = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    setSysName(isGBW ? "GBW" : "AURORA JEWELRY COLLECTION");
     setUserr(user);
     setUserrRole(userRole);
-    getMaxBalanceDate();
+    if (isGBW) {
+      getMaxBalanceDateGBW();
+    } else {
+      getMaxBalanceDate();
+    }
+
     passwordCheckDate();
   }, []);
 
@@ -66,11 +75,34 @@ const Navbar = () => {
       })
       .then((response) => response.data)
       .then((data) => {
-        // alert(data);
         window.sessionStorage.setItem(
           "balDate",
           new Date(data).toLocaleDateString("en-US")
         );
+        setBalDate(new Date(data).toLocaleDateString("en-US"));
+        setLatestDate(
+          new Date(data).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        );
+      });
+  };
+
+  const getMaxBalanceDateGBW = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/dashboard/balance/gbw/getMaxBalDate", {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
         setBalDate(new Date(data).toLocaleDateString("en-US"));
         setLatestDate(
           new Date(data).toLocaleDateString("en-US", {
@@ -120,6 +152,7 @@ const Navbar = () => {
   return (
     <div className={styles.container}>
       <div className={styles.title}>{pathname.split("/").pop()}</div>
+      <h2>{sysName}</h2>
       <div className={styles.menu}>
         <div>
           {isUpdated && <label className={styles.labeltxt}>{balStatus}</label>}
