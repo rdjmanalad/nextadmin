@@ -251,10 +251,13 @@ const PrintReports = () => {
     } else if (orderBy === "") {
       setMessage("Order by is empty");
       setOpenModal(true);
-    } else if (needCName && customerName == "") {
+    } else if (needCName && customerName === "") {
       setMessage("Customer name is empty");
       setOpenModal(true);
     } else {
+      if (!needCName) {
+        setCustomerName("noName");
+      }
       var dateFrom = startDateRef.current.value;
       var dateTo = endDateRef.current.value;
       axios
@@ -267,7 +270,9 @@ const PrintReports = () => {
             "/" +
             report +
             "/" +
-            orderBy,
+            orderBy +
+            "/" +
+            customerName,
           {
             headers: {
               contentType: "application/json",
