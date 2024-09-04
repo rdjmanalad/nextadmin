@@ -254,6 +254,7 @@ const PrintReports = () => {
     } else if (needCName && customerName === "") {
       setMessage("Customer name is empty");
       setOpenModal(true);
+      setCustomerName(customerName.toLocaleUpperCase());
     } else {
       if (!needCName) {
         setCustomerName("noName");
@@ -728,6 +729,7 @@ const PrintReports = () => {
             <div className={styles.inputDate}>
               <label>Customer Name</label>
               <input
+                className={styles.inputName}
                 onChange={(e) => {
                   setCustomerName(e.target.value);
                 }}
