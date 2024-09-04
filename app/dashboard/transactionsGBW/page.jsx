@@ -1,4 +1,4 @@
-import Transaction from "@/app/ui/dashboard/transaction/transaction";
+import TransactionGBW from "@/app/ui/dashboard/transaction/transactionGBW";
 
 const Transactions = () => {
   const emptyObj = {
@@ -10,6 +10,7 @@ const Transactions = () => {
     karat: "",
     weight: "",
     capital: "0",
+    sellingPrice: "0",
     discountedPrice: "0",
     customerName: "",
     receiverName: "",
@@ -20,18 +21,13 @@ const Transactions = () => {
     cashPaymentDate: "",
     cashPayment: "0",
     referenceNo: "",
-    totalPayment: "0",
-    balance: "0",
-    fullPaymentDate: "",
-    forfeitedAmt: "0",
-    forfeitedDate: "",
     user: "",
     timeStamped: "",
   };
 
   return (
     <div>
-      <Transaction emptyObj={emptyObj} />
+      <TransactionGBW emptyObj={emptyObj} />
     </div>
   );
 };

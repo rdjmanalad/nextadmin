@@ -45,7 +45,7 @@ const menuItems = [
           },
           {
             title: "Add Transactions",
-            path: "/dashboard/transactions",
+            path: "/dashboard/transactionsGBW",
             icon: <MdPostAdd />,
           },
           {

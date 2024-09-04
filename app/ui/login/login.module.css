@@ -59,3 +59,30 @@
 .pass input {
   border-radius: 5px 0 0 5px !important;
 }
+
+.toggleButtonGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* .toggleButton {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+} */
+
+.toggleButton input {
+  display: none;
+}
+
+.toggleButton label {
+  padding: 7px 12px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toggleButton input:checked + label {
+  background-color: red;
+  color: white;
+}

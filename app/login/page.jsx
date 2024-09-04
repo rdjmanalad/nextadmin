@@ -28,6 +28,7 @@ const LoginPage = () => {
   const [passType, setPassType] = useState("password");
   const [appType, setAppType] = useLocalState("appType", "");
   const [refreshKey, setRefreshKey] = useLocalState("dashRefresh", 0);
+  const [selectedValue, setSelectedValue] = useState("AJC");
 
   const togglePasswordVisibility = (e) => {
     e.preventDefault();
@@ -46,8 +47,8 @@ const LoginPage = () => {
     if (window.sessionStorage.getItem("jwt") != null) {
       router.push("/dashboard");
     }
-    // setBaseURL("http://localhost:8080");
-    setBaseURL("http://52.74.232.36:85");
+    setBaseURL("http://localhost:8080");
+    // setBaseURL("http://52.74.232.36:85");
   }, []);
 
   useEffect(() => {
@@ -147,6 +148,11 @@ const LoginPage = () => {
       .then((data) => {
         setUserId(data.userId);
         setAppType(data.appType);
+        if (data.appType === "ALL") {
+          if (selectedValue === "GBW") {
+            setAppType("GBW");
+          }
+        }
       });
   };
 
@@ -168,10 +174,14 @@ const LoginPage = () => {
       });
   };
 
+  const handleChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
+
   return (
     <div className={styles.container}>
       <form action="" className={styles.form}>
-        <h4>AURORA JEWELRY COLLECTION</h4>
+        {/* <h4>AURORA JEWELRY COLLECTION</h4> */}
         <div className={styles.banner}>
           <Image
             className={styles.banner}
@@ -182,6 +192,30 @@ const LoginPage = () => {
           />
         </div>
         {/* <h2>Login</h2> */}
+        <div className={styles.toggleButtonGroup}>
+          <div className={styles.toggleButton}>
+            <input
+              type="radio"
+              id="option1"
+              name="toggle"
+              value="AJC"
+              checked={selectedValue === "AJC"}
+              onChange={(e) => handleChange(e)}
+            />
+            <label htmlFor="option1">AJC</label>
+          </div>
+          <div className={styles.toggleButton}>
+            <input
+              type="radio"
+              id="option2"
+              name="toggle"
+              value="GBW"
+              checked={selectedValue === "GBW"}
+              onChange={(e) => handleChange(e)}
+            />
+            <label htmlFor="option2">GBW</label>
+          </div>
+        </div>
         <input
           type="text"
           placeholder="username"

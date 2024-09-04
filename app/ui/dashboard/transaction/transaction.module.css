@@ -121,6 +121,9 @@
   background-color: var(--buttonGreen);
   margin-right: 5px;
 }
+.addGbw {
+  background-color: var(--buttonGreen);
+}
 
 .forfeit {
   background-color: var(--buttonRed);
@@ -277,6 +280,7 @@
 
 .cancel {
   background-color: var(--buttonRed);
+  margin-left: 0px !important;
 }
 
 .due {
@@ -302,4 +306,8 @@
 .disabled {
   pointer-events: none; /* Disables all mouse interactions */
   opacity: 0.6; /* Optional: Makes the elements look disabled */
+}
+
+.clearButton {
+  background-color: var(--buttonBlue);
 }
