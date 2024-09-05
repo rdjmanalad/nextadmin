@@ -456,27 +456,63 @@ const Transaction = ({ emptyObj }) => {
       });
   };
 
-  const saveDetailsOnly = () => {
-    var jwt = window.sessionStorage.getItem("jwt");
-    axios
-      .post(baseUrl + "/api/transactions/save", trans, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
-        },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          // console.log(response.data);
-          setTrans(response.data);
-          setMessage("Details Saved");
-          setOpenModal(true);
+  const saveDetailsOnly = async () => {
+    const isAllowed = await inventoryIsNotAllowed();
+    if (!isAllowed) {
+      setMessage("Inventory number is already used.");
+      setOpenModal(true);
+    } else {
+      var jwt = window.sessionStorage.getItem("jwt");
+      axios
+        .post(baseUrl + "/api/transactions/save", trans, {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+          },
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            setTrans(response.data);
+            setMessage("Details Saved");
+            setOpenModal(true);
+          }
+        })
+        .catch((error) => {
+          console.log(error.response.data.message);
+          if (error.response.data.message.includes("unique_inventory")) {
+            setMessage(
+              "Inventory no. " + trans.inventoryNo + " is already existing."
+            );
+            setOpenModal(true);
+          } else {
+            alert(error.response.data.message);
+          }
+        });
+    }
+  };
+
+  const inventoryIsNotAllowed = async () => {
+    let count = 0;
+    const jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/transactions/getCountInventory/${trans.inventoryNo}`,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
         }
-      })
-      .catch((message) => {
-        alert(message);
-      });
+      );
+      count = response.data;
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    }
+    return count <= 0;
   };
 
   const saveDueDate = () => {

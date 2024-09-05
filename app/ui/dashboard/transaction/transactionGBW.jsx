@@ -330,6 +330,7 @@ const TransactionGBW = ({ emptyObj }) => {
 
   const saveTransaction = () => {
     var jwt = window.sessionStorage.getItem("jwt");
+    console.log(trans);
     axios
       .post(baseUrl + "/api/transactions/gbw/save", trans, {
         headers: {
@@ -676,20 +677,14 @@ const TransactionGBW = ({ emptyObj }) => {
       setOpenModal(true);
     } else {
       if (validPayDetails()) {
-        if (!isCash) {
-          if (
-            // latestBalDate ===
-            balDate ===
-            new Date(layAway.paymentDate).toLocaleDateString("en-US")
-          ) {
-            if (trans.id === "" || trans.id === undefined) {
-              saveTransaction();
-            }
-            saveBalance();
-          } else {
-            setMessage("Payment date and balance date is not equal.");
-            setOpenModal(true);
-          }
+        if (
+          balDate ===
+          new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
+        ) {
+          saveTransaction();
+        } else {
+          setMessage("Payment date and balance date is not equal.");
+          setOpenModal(true);
         }
       } else {
         setMessage("Please fill all payment details.");
@@ -742,6 +737,31 @@ const TransactionGBW = ({ emptyObj }) => {
           disableCashSet();
         }
       }
+    }
+  };
+
+  const save = (e) => {
+    e.preventDefault();
+    console.log(trans);
+    if (validate()) {
+      if (
+        balDate ===
+        new Date(cashPaymentDateRef.current.value).toLocaleDateString("en-US")
+        // new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
+      ) {
+        if (trans.cashPayment < trans.discountedPrice) {
+          setMessage("Payment amount is less than discounted price");
+          setOpenModal(true);
+        } else {
+          saveTransaction();
+        }
+      } else {
+        setMessage("Payment date and balance date is not equal.");
+        setOpenModal(true);
+      }
+    } else {
+      setMessage("Please fill all fields.");
+      setOpenModal(true);
     }
   };
 
@@ -992,8 +1012,8 @@ const TransactionGBW = ({ emptyObj }) => {
                   value={trans.paymentMode}
                   // placeholder="Payment Mode"
                   onChange={(e) => {
-                    onPayMode(e);
                     trans.paymentMode = e.target.value;
+                    onPayMode(e);
                   }}
                 >
                   <option></option>
@@ -1009,28 +1029,23 @@ const TransactionGBW = ({ emptyObj }) => {
                   type="date"
                   placeholder="Payment Date"
                   onChange={(e) => {
-                    trans.cashPaymentDate = isCash ? e.target.value : "";
-                    layAway.paymentDate = !isCash ? e.target.value : "";
-                    getLastBaldate();
+                    trans.cashPaymentDate = e.target.value;
+                    // getLastBaldate();
                   }}
                 ></input>
                 <label>Amount Received</label>
                 <input
                   ref={cashPaymentRef}
                   defaultValue="0.00"
-                  // placeholder="Amount Received"
                   maxLength="12"
                   style={{ textAlign: "right" }}
                   onFocus={(event) => event.target.select()}
                   onChange={(e) => {
                     const { value } = e.target;
                     e.target.value = normalizeCurrency(value);
-                    trans.cashPayment = isCash
-                      ? value.replaceAll(",", "").replaceAll("₱", "")
-                      : "";
-                    layAway.amount = !isCash
-                      ? value.replaceAll(",", "").replaceAll("₱", "")
-                      : "";
+                    trans.cashPayment = value
+                      .replaceAll(",", "")
+                      .replaceAll("₱", "");
                   }}
                 ></input>
                 <label>Reference No.</label>
@@ -1039,8 +1054,7 @@ const TransactionGBW = ({ emptyObj }) => {
                   // placeholder="Reference ID"
                   onChange={(e) => {
                     // trans.referenceNo = e.target.value;
-                    trans.referenceNo = isCash ? e.target.value : "";
-                    layAway.referenceNo = !isCash ? e.target.value : "";
+                    trans.referenceNo = e.target.value;
                   }}
                 ></input>
               </div>

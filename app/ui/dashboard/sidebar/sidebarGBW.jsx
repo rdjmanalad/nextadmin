@@ -40,7 +40,7 @@ const menuItems = [
         subMenu: [
           {
             title: "All Transactions",
-            path: "/dashboard/listTransactions",
+            path: "/dashboard/listTransactionsGBW",
             icon: <MdList />,
           },
           {
