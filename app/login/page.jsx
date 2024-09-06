@@ -106,18 +106,13 @@ const LoginPage = () => {
         jw = data["accessToken"].split(".")[1];
         setUserRole(JSON.parse(window.atob(jw)).roles);
         checkPermission(JSON.parse(window.atob(jw)).roles);
-        // setTimeout(() => {
-        //   router.push("/dashboard");
-        // }, 1500);
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
       })
       .catch((message) => {
         setMessage(message);
         setInvalid(true);
-      })
-      .finally(() => {
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1000);
       });
   }
 

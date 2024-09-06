@@ -75,7 +75,7 @@ const menuItems = [
     list: [
       {
         title: "Reports",
-        path: "/dashboard/reports",
+        path: "/dashboard/reportsGBW",
         icon: <MdAnalytics />,
       },
     ],
