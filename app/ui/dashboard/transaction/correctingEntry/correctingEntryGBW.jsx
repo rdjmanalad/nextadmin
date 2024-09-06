@@ -8,11 +8,10 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useRouter } from "next/navigation";
 import { isTokenExpired } from "@/app/auth";
-import TransactionModal from "../../modal/transactionModal";
-import LayAwayTableCorr from "../../modal/layAwayCorr";
+import TransactionModalGBW from "../../modal/transactionModalGBW";
 import MessageModal from "../../modal/messageModal";
 
-const CorrectingEntry = () => {
+const CorrectingEntryGBW = () => {
   const router = useRouter();
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [rowData, setRowData] = useState([]);
@@ -20,23 +19,18 @@ const CorrectingEntry = () => {
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const gridRef = useRef();
   const [openModalTran, setOpenModalTran] = useState(false);
-  const [openModalLayAway, setOpenModalLayAway] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [message, setMessage] = useState("");
   const [rowSelected, setRowSelected] = useState([]);
-  const [layAway, setLayAway] = useState([]);
   const [tranId, setTranId] = useState("");
   const [reload, setReload] = useState(false);
-  const [balDate, setBalDate] = isClient
-    ? useState(window.sessionStorage.getItem("balDate"))
-    : ["", () => {}];
+  const [balDate, setBalDate] = useLocalState("balDate", "");
 
   const [corrEntry, setCorrEntry] = useState({
     id: "",
     transactionId: "",
     code: "",
-    discounted: "",
-    term: "",
+    selling: "",
     mode: "",
     paymentDate: "",
     referenceNo: "",
@@ -47,8 +41,7 @@ const CorrectingEntry = () => {
   });
 
   const codeRef = useRef();
-  const discountedRef = useRef();
-  const termRef = useRef();
+  const sellingRef = useRef();
   const modeRef = useRef();
   const paymentDateRef = useRef();
   const referenceNoRef = useRef();
@@ -87,57 +80,30 @@ const CorrectingEntry = () => {
       setTranId(rowSelected[0].id);
       corrEntry.transactionId = rowSelected[0].id;
       corrEntry.code = rowSelected[0].codeNo;
-      corrEntry.discounted = rowSelected[0].discountedPrice;
-      corrEntry.term = rowSelected[0].paymentTerm;
 
       codeRef.current.value = rowSelected[0].codeNo;
-      discountedRef.current.value = currencyFormat(
-        rowSelected[0].discountedPrice
-      );
-      termRef.current.value = rowSelected[0].paymentTerm;
-      if (rowSelected[0].paymentTerm === "LAY-AWAY") {
-        setOpenModalLayAway(true);
-        setOpenModalTran(false);
-        // alert("show layaway");
-      } else {
-        corrEntry.mode = rowSelected[0].paymentMode;
-        corrEntry.paymentDate = rowSelected[0].cashPaymentDate;
-        corrEntry.referenceNo = rowSelected[0].referenceNo;
-        corrEntry.paymentAmt = rowSelected[0].cashPayment;
-        corrEntry.userId = user;
+      sellingRef.current.value = currencyFormat(rowSelected[0].sellingPrice);
 
-        modeRef.current.value = rowSelected[0].paymentMode;
-        paymentDateRef.current.value = formatDate(
-          rowSelected[0].cashPaymentDate
-        );
-        referenceNoRef.current.value = rowSelected[0].referenceNo;
-        paymentAmtRef.current.value = currencyFormat(
-          rowSelected[0].cashPayment
-        );
-      }
+      corrEntry.selling = rowSelected[0].sellingPrice;
+      corrEntry.mode = rowSelected[0].paymentMode;
+      corrEntry.paymentDate = rowSelected[0].cashPaymentDate;
+      corrEntry.referenceNo = rowSelected[0].referenceNo;
+      corrEntry.paymentAmt = rowSelected[0].cashPayment;
+      corrEntry.userId = user;
+
+      modeRef.current.value = rowSelected[0].paymentMode;
+      paymentDateRef.current.value = formatDate(rowSelected[0].cashPaymentDate);
+      referenceNoRef.current.value = rowSelected[0].referenceNo;
+      paymentAmtRef.current.value = currencyFormat(rowSelected[0].cashPayment);
     }
   }, [rowSelected]);
-
-  useEffect(() => {
-    if (layAway.length > 0) {
-      corrEntry.mode = layAway[0].paymentMode;
-      corrEntry.paymentDate = layAway[0].paymentDate;
-      corrEntry.referenceNo = layAway[0].referenceNo;
-      corrEntry.paymentAmt = layAway[0].amount;
-      corrEntry.userId = user;
-      modeRef.current.value = layAway[0].paymentMode;
-      paymentDateRef.current.value = formatDate(layAway[0].paymentDate);
-      referenceNoRef.current.value = layAway[0].referenceNo;
-      paymentAmtRef.current.value = currencyFormat(layAway[0].amount);
-    }
-  }, [layAway]);
 
   const getAll = () => {
     var jwt = window.sessionStorage.getItem("jwt");
     axios.defaults.headers.common["Authorization"] =
       "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
     axios
-      .get(baseUrl + "/api/correcting/getAll/", {
+      .get(baseUrl + "/api/correcting/gbw/getAll/", {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -167,7 +133,7 @@ const CorrectingEntry = () => {
   const saveCorrection = () => {
     var jwt = window.sessionStorage.getItem("jwt");
     axios
-      .post(baseUrl + "/api/correcting/save", corrEntry, {
+      .post(baseUrl + "/api/correcting/gbw/save", corrEntry, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -233,12 +199,6 @@ const CorrectingEntry = () => {
     return "";
   };
 
-  //   const onSelectionChanged = useCallback(() => {
-  //     setButtonDis(false);
-  //     const selectedRows = gridRef.current.api.getSelectedRows();
-  //     setRowSelected(selectedRows);
-  //   }, []);
-
   const timestampFormatter = (params) => {
     const timestamp = params.data.timestamped;
     const formatedDate = new Date(timestamp).toLocaleDateString("us-CA");
@@ -261,8 +221,8 @@ const CorrectingEntry = () => {
     return formatedDate;
   };
 
-  const discountedFormatter = (params) => {
-    const amount = currencyFormat(params.data.discounted);
+  const sellingFormatter = (params) => {
+    const amount = currencyFormat(params.data.selling);
     return amount;
   };
 
@@ -314,17 +274,16 @@ const CorrectingEntry = () => {
       headerName: "Code No.",
       field: "code",
       filter: "agTextColumnFilter",
-      width: "180",
+      width: "120",
     },
 
     {
-      headerName: "Discounted",
-      field: "discountedPrice",
+      headerName: "Selling",
+      field: "selling",
       width: "120",
-      valueFormatter: discountedFormatter,
+      valueFormatter: sellingFormatter,
       cellStyle: { textAlign: "right" },
     },
-    { headerName: "Term", field: "term", width: "120" },
     { headerName: "Mode", field: "mode", width: "120" },
     { headerName: "Reference No.", field: "referenceNo", width: "120" },
     {
@@ -360,18 +319,10 @@ const CorrectingEntry = () => {
       <div className={styles.container}>
         <h3>Correcting Entry</h3>
         <br></br>
-        <div
-          className={`ag-theme-quartz ${styles.aggrid}`}
-          // style={{
-          //   "--ag-header-background-color": "rgb(202, 202, 202)",
-          //   "--ag-odd-row-background-color": "rgb(241, 241, 241)",
-          // }}
-        >
+        <div className={`ag-theme-quartz ${styles.aggrid}`}>
           <AgGridReact
             rowData={rowData}
-            // defaultColDef={{ flex: 1 }}
             columnDefs={columnDefs}
-            // domLayout="autoHeight"
             autoSizeStrategy={autoSizeStrategy}
             rowSelection={"single"}
             // onRowDoubleClicked={() => editRowSelect()}
@@ -391,38 +342,30 @@ const CorrectingEntry = () => {
             >
               Select Transaction to Correct
             </button>
-            <button
-              onClick={(e) => {
-                setOpenModalLayAway(true);
-              }}
-            >
-              Select Lay-away Payment
-            </button>
           </div>
           <br></br>
           <div className={styles.inputs}>
             <label>Code</label>
             <input ref={codeRef} disabled></input>
-            <label>Discounted</label>
+            <label>Selling Price</label>
             <input
-              ref={discountedRef}
+              ref={sellingRef}
               disabled
               style={{ textAlign: "right" }}
             ></input>
-            <label>Payment Term</label>
-            <input ref={termRef} disabled></input>
             <label>Payment Mode</label>
             <input ref={modeRef} disabled></input>
             <label>Ref. No.</label>
             <input ref={referenceNoRef} disabled></input>
-            <label>Payment Date</label>
-            <input ref={paymentDateRef} disabled></input>
             <label>Payment Amt</label>
             <input
               ref={paymentAmtRef}
               style={{ textAlign: "right" }}
               disabled
             ></input>
+            <label>Payment Date</label>
+            <input ref={paymentDateRef} disabled></input>
+
             <label>Adjustment Amt</label>
             <input
               ref={correctingAmtRef}
@@ -462,22 +405,14 @@ const CorrectingEntry = () => {
         </div>
         <div>
           {openModalTran && (
-            <TransactionModal
+            <TransactionModalGBW
               openModalTran={openModalTran}
               setOpenModalTran={setOpenModalTran}
               setTrans={setRowSelected}
             />
           )}
         </div>
-        <div>
-          {openModalLayAway && (
-            <LayAwayTableCorr
-              transactionId={tranId}
-              setOpenModalLayAway={setOpenModalLayAway}
-              layAway={setLayAway}
-            />
-          )}
-        </div>
+
         {openModal && (
           <MessageModal setOpenModal={setOpenModal} message={message} />
         )}
@@ -485,4 +420,4 @@ const CorrectingEntry = () => {
     </div>
   );
 };
-export default CorrectingEntry;
+export default CorrectingEntryGBW;

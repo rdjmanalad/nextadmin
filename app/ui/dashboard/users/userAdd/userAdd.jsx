@@ -40,6 +40,7 @@ const UserAdd = () => {
     username: "",
     password: "",
     roles: [{ roleId: "", roleName: "" }],
+    appType: "",
   });
   const [appUserEdit, setAppUserEdit] = useState({
     userId: "",
@@ -47,6 +48,7 @@ const UserAdd = () => {
     password: "",
     roles: [{ roleId: "", roleName: "" }],
     accountLocked: "",
+    appType: "",
   });
   const [rowData, setRowData] = useState([]);
   const [roleId, setRoleId] = useState("");
@@ -55,18 +57,47 @@ const UserAdd = () => {
   const [rowSelected, setRowSelected] = useState({});
   const [edUName, setEdUName] = useState("");
   const [edRole, setEdRole] = useState("");
+  const [edSys, setEdSys] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [message, setMessage] = useState("");
   const [lockedUsers, setLockedUsers] = useState([]);
+  const [st, setSt] = useState([]);
+  const [userSysAccess, setUserSysAccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showHide, setShowHide] = useState("Show");
+  const [showPassword1, setShowPassword1] = useState(false);
+  const [showHide1, setShowHide1] = useState("Show");
+  const [passType, setPassType] = useState("password");
+  const [passType1, setPassType1] = useState("password");
 
   const onGridReady = useCallback((params) => {
     getUsers();
     getLockedUsers();
   }, []);
 
-  //   useEffect(() => {
-  //     alert("fdfdf");
-  //   }, [rolesdp]);
+  const togglePasswordVisibility = (e) => {
+    e.preventDefault();
+    setShowPassword(!showPassword);
+    if (showPassword) {
+      setShowHide("Show");
+      setPassType("password");
+    } else {
+      setShowHide("Hide");
+      setPassType("text");
+    }
+  };
+
+  const togglePasswordVisibility1 = (e) => {
+    e.preventDefault();
+    setShowPassword1(!showPassword1);
+    if (showPassword1) {
+      setShowHide1("Show");
+      setPassType1("password");
+    } else {
+      setShowHide1("Hide");
+      setPassType1("text");
+    }
+  };
 
   useEffect(() => {
     // setJwt(window.sessionStorage.getItem("jwt"));
@@ -101,6 +132,9 @@ const UserAdd = () => {
           if (userRole === "") {
             setMessage("Choose a Role.");
             setOpenModal(true);
+          } else if (userSysAccess == "") {
+            setMessage("Choose a user system access.");
+            setOpenModal(true);
           } else {
             saveNewUser();
           }
@@ -132,7 +166,7 @@ const UserAdd = () => {
       .then((response) => response.data)
       .then((data) => {
         setRowData(data);
-        console.log(data);
+        // console.log(data);
       })
       .catch((message) => {
         alert(message);
@@ -182,6 +216,8 @@ const UserAdd = () => {
     appUser.username = userName;
     appUser.password = newPassword;
     appUser.roles[0].roleId = userRole;
+    appUser.appType = userSysAccess;
+    // console.log(appUser);
     axios
       .post(baseUrl + "/api/users/saveUser", appUser, {
         headers: {
@@ -194,8 +230,6 @@ const UserAdd = () => {
         if (response.status === 200) {
           // console.log(response.data);
           setAppUser(response.data);
-          // setErrorMessage("");
-          // setSuccessMessage("New User successfully created!");
           setMessage("New User successfully created!");
           setOpenModal(true);
           getUsers();
@@ -250,6 +284,22 @@ const UserAdd = () => {
       })
       .catch((message) => {
         alert(message);
+      });
+
+    let pcode = "ST";
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .get(baseUrl + "/api/reference/byparent/" + pcode, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setSt(data);
+        // console.log(data);
       });
   };
 
@@ -328,11 +378,25 @@ const UserAdd = () => {
       });
   };
 
+  const CheckboxRenderer = (props) => {
+    return (
+      <input
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        type="checkbox"
+        checked={props.value.accountLocked}
+      />
+    );
+  };
+
   const columnDefs = [
     {
       headerName: "Username",
       field: "username",
-      width: "180",
+      width: "120",
     },
     {
       headerName: "Role",
@@ -343,13 +407,24 @@ const UserAdd = () => {
         }
         return "";
       },
-      width: "160",
+      width: "120",
+    },
+    {
+      headerName: "System",
+      field: "appType",
+      width: "90",
+      cellStyle: { textAlign: "center" },
     },
     {
       headerName: "Locked",
       field: "accountLocked",
       width: "80",
-      // editable: true,
+      cellStyle: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        // backgroundColor: "black",
+      },
     },
   ];
 
@@ -373,6 +448,7 @@ const UserAdd = () => {
       setEdUName(selectedRows[0].username);
       setEdRole(selectedRows[0].roles[0].roleId);
       setAppUserEdit(selectedRows[0]);
+      setEdSys(selectedRows[0].appType);
     }
   }, []);
 
@@ -415,7 +491,7 @@ const UserAdd = () => {
   };
 
   const onCellValueChanged = (event) => {
-    console.log("Cell value changed", event.data);
+    // console.log("Cell value changed", event.data);
     setMessage("Unlock User?");
     setOpenModalConf(true);
   };
@@ -430,7 +506,7 @@ const UserAdd = () => {
 
   const handleUnlock = (e) => {
     e.preventDefault();
-    console.log(appUserEdit);
+    // console.log(appUserEdit);
     let msg = appUserEdit.accountLocked ? "Unlock user?" : "Lock user?";
     setMessage(msg);
     setOpenModalConf(true);
@@ -448,8 +524,8 @@ const UserAdd = () => {
       <div className={styles.container}>
         <div className={styles.form}>
           <h2>Add Users</h2>
-          <div className={styles.row} style={{ marginTop: "20px" }}>
-            <label>User Name:</label>
+          <div className={styles.row} style={{ marginTop: "10px" }}>
+            <label>User Name</label>
             <input
               ref={userNameRef}
               autoComplete="off"
@@ -459,28 +535,34 @@ const UserAdd = () => {
               onChange={(e) => setUserName(e.target.value)}
             />
           </div>
-          <div className={styles.row}>
-            <label>Password:</label>
+          <div className={styles.row1}>
+            <label>Password</label>
             <input
               ref={passRef}
               autoComplete="new-password"
-              type="password"
+              type={passType}
               id="newPassword"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
+            <button onClick={(e) => togglePasswordVisibility(e)}>
+              {showHide}
+            </button>
           </div>
-          <div className={styles.row}>
-            <label>Confirm Password:</label>
+          <div className={styles.row1}>
+            <label>Confirm Password</label>
             <input
-              type="password"
+              type={passType1}
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
+            <button onClick={(e) => togglePasswordVisibility1(e)}>
+              {showHide1}
+            </button>
           </div>
           <div className={styles.row}>
-            <label>User Role:</label>
+            <label>User Role</label>
             <select onChange={(e) => setUserRole(e.target.value)}>
               <option></option>
               {rolesdp.map((o, i) => (
@@ -490,6 +572,21 @@ const UserAdd = () => {
                   // onChange={(e) => setRoleId(rolesdp[i].roleId)}
                 >
                   {rolesdp[i].roleName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.row}>
+            <label>User System Access</label>
+            <select onChange={(e) => setUserSysAccess(e.target.value)}>
+              <option></option>
+              {st.map((o, i) => (
+                <option
+                  value={st[i].description}
+                  key={st[i].id}
+                  // onChange={(e) => setRoleId(rolesdp[i].roleId)}
+                >
+                  {st[i].name}
                 </option>
               ))}
             </select>
@@ -521,8 +618,8 @@ const UserAdd = () => {
                 alwaysShowHorizontalScroll={true}
               />
             </div>
-            <div className={styles.row} style={{ marginTop: "20px" }}>
-              <label>User Name:</label>
+            <div className={styles.row} style={{ marginTop: "10px" }}>
+              <label>User Name</label>
               <input
                 ref={editNameRef}
                 autoComplete="off"
@@ -534,7 +631,7 @@ const UserAdd = () => {
               />
             </div>
             <div className={styles.row}>
-              <label>User Role:</label>
+              <label>User Role</label>
               <select
                 onChange={(e) => handleChangeRole(e)}
                 ref={editRoleRef}
@@ -548,6 +645,24 @@ const UserAdd = () => {
                     // onChange={(e) => setRoleId(rolesdp[i].roleId)}
                   >
                     {rolesdp[i].roleName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className={styles.row}>
+              <label>User System Access</label>
+              <select
+                value={edSys}
+                onChange={(e) => (appUserEdit.appType = e.target.value)}
+              >
+                <option></option>
+                {st.map((o, i) => (
+                  <option
+                    value={st[i].description}
+                    key={st[i].id}
+                    // onChange={(e) => setRoleId(rolesdp[i].roleId)}
+                  >
+                    {st[i].name}
                   </option>
                 ))}
               </select>

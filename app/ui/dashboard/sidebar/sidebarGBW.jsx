@@ -50,7 +50,7 @@ const menuItems = [
           },
           {
             title: "Correcting Entry",
-            path: "/dashboard/correctingEntry",
+            path: "/dashboard/correctingEntryGBW",
             icon: <MdPlaylistAddCheck />,
           },
         ],
