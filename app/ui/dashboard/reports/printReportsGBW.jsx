@@ -4,12 +4,12 @@ import { useState, useEffect, useRef } from "react";
 import styles from "./printReports.module.css";
 import { isTokenExpired } from "@/app/auth";
 import useLocalState from "@/app/hooks/useLocalState";
-import axios from "axios";
+import axios, { all } from "axios";
 import { useRouter } from "next/navigation";
 import MessageModal from "../modal/messageModal";
 import ConfirmmModal from "../modal/confirmModal";
 import { getRequestMeta } from "next/dist/server/request-meta";
-import CashCountModal from "../modal/cashCountModal";
+import CashCountModalGBW from "../modal/cashCountModalGBW";
 
 const PrintReportsGBW = () => {
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
@@ -32,11 +32,15 @@ const PrintReportsGBW = () => {
   const [openCashCount, setOpenCashCount] = useState(false);
   const [transDate, setTransDate] = useState("");
   const [sumTrans, setSumTrans] = useState(0);
-  const [balDate, setBalDate] = useState(0);
+  // const [balDate, setBalDate] = useState(0);
+  const [balDate, setBalDate] = useLocalState("balDate", "");
   const [report, setReport] = useState("");
   const [orderBy, setOrderBy] = useState("");
-  const [customerName, setCustomerName] = useState("");
+  const [customerName, setCustomerName] = useState("noName");
   const [needCName, setNeedCName] = useState(false);
+  const [permissions, setPermissions] = useLocalState([]);
+  const [disablePost, setDisablePost] = useState(false);
+  const [disableSave, setDisableSave] = useState(false);
 
   const startDateRef = useRef();
   const endDateRef = useRef();
@@ -60,8 +64,9 @@ const PrintReportsGBW = () => {
   const ceRef2 = useRef();
 
   useEffect(() => {
+    allowPermission();
     const jwtToken = window.sessionStorage.getItem("jwt");
-    setBalDate(window.sessionStorage.getItem("balDate"));
+    // setBalDate(window.sessionStorage.getItem("balDate"));
     if (window.sessionStorage.getItem("jwt") === null) {
       router.push("/login");
     }
@@ -74,6 +79,22 @@ const PrintReportsGBW = () => {
       repDateRef.current.value = getTodayDate();
     }
   }, []);
+
+  const allowPermission = () => {
+    if (permissions) {
+      if (permissions.includes("Balance.post")) {
+        setDisablePost(false);
+      } else {
+        setDisablePost(true);
+      }
+
+      if (permissions.includes("Balance.save")) {
+        setDisableSave(false);
+      } else {
+        setDisableSave(true);
+      }
+    }
+  };
 
   useEffect(() => {
     if (mode !== "") {
@@ -138,7 +159,7 @@ const PrintReportsGBW = () => {
         console.log(data);
       });
 
-    pcode = "OB";
+    pcode = "OB-GBW";
     axios.defaults.headers.common["Authorization"] =
       "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
     axios
@@ -187,60 +208,6 @@ const PrintReportsGBW = () => {
     }
   };
 
-  const printLayaway = (e) => {
-    var jwt = window.sessionStorage.getItem("jwt");
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-    axios
-      .get(baseUrl + "/api/reports/layaway", {
-        headers: {
-          contentType: "application/json",
-          accept: "application/pdf",
-        },
-        responseType: "blob",
-      })
-      .then((response) => {
-        const file = new Blob([response.data], { type: "application/pdf" });
-        var w = window.open(window.URL.createObjectURL(file));
-      });
-  };
-
-  const printForfeited = (e) => {
-    var jwt = window.sessionStorage.getItem("jwt");
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-    axios
-      .get(baseUrl + "/api/reports/forfeited", {
-        headers: {
-          contentType: "application/json",
-          accept: "application/pdf",
-        },
-        responseType: "blob",
-      })
-      .then((response) => {
-        const file = new Blob([response.data], { type: "application/pdf" });
-        var w = window.open(window.URL.createObjectURL(file));
-      });
-  };
-
-  const printAvailable = (e) => {
-    var jwt = window.sessionStorage.getItem("jwt");
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-    axios
-      .get(baseUrl + "/api/reports/availableOnHand", {
-        headers: {
-          contentType: "application/json",
-          accept: "application/pdf",
-        },
-        responseType: "blob",
-      })
-      .then((response) => {
-        const file = new Blob([response.data], { type: "application/pdf" });
-        var w = window.open(window.URL.createObjectURL(file));
-      });
-  };
-
   const printReport = (e) => {
     if (startDateRef.current.value === "" || endDateRef.current.value === "") {
       setMessage("Please select starting and end date");
@@ -264,7 +231,7 @@ const PrintReportsGBW = () => {
       axios
         .get(
           baseUrl +
-            "/api/reports/print/" +
+            "/api/reports/gbw/print/" +
             dateFrom +
             "/" +
             dateTo +
@@ -309,7 +276,7 @@ const PrintReportsGBW = () => {
   const printDailySummary = (e) => {
     const date = repDateRef.current.value;
     axios
-      .get(baseUrl + "/api/reports/daily/summary/" + date, {
+      .get(baseUrl + "/api/reports/gbw/daily/summary/" + date, {
         headers: {
           contentType: "application/json",
           accept: "application/pdf",
@@ -324,66 +291,14 @@ const PrintReportsGBW = () => {
 
   const printDaily1 = (e) => {
     const date = repDateRef.current.value;
-    const begBal = begBalRef1.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const payRec = payRecRef1.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const lbcClaimed = lbcClaimedRef1.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const lbcFees = lbcFeesRef1.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const gamePrice = gamePriceRef1.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const forfeited = forfeitedRef1.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const bankTransfer = bankTransferRef1.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const transPo = transPoRef1.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const endBal = endBalRef1.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
     axios
-      .get(
-        baseUrl +
-          "/api/reports/daily1/" +
-          date +
-          "/" +
-          begBal +
-          "/" +
-          payRec +
-          "/" +
-          lbcClaimed +
-          "/" +
-          lbcFees +
-          "/" +
-          gamePrice +
-          "/" +
-          forfeited +
-          "/" +
-          bankTransfer +
-          "/" +
-          transPo +
-          "/" +
-          endBal +
-          "/" +
-          mode,
-        {
-          headers: {
-            contentType: "application/json",
-            accept: "application/pdf",
-          },
-          responseType: "blob",
-        }
-      )
+      .get(baseUrl + "/api/reports/gbw/daily1/" + date + "/" + mode, {
+        headers: {
+          contentType: "application/json",
+          accept: "application/pdf",
+        },
+        responseType: "blob",
+      })
       .then((response) => {
         const file = new Blob([response.data], { type: "application/pdf" });
         var w = window.open(window.URL.createObjectURL(file));
@@ -452,12 +367,15 @@ const PrintReportsGBW = () => {
     axios.defaults.headers.common["Authorization"] =
       "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
     axios
-      .get(baseUrl + "/api/dashboard/getBal/" + modes + "/" + date, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
+      .get(
+        baseUrl + "/api/dashboard/balance/gbw/getBal/" + modes + "/" + date,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((response) => response.data)
       .then((data) => {
         setBalances(data);
@@ -465,11 +383,11 @@ const PrintReportsGBW = () => {
           begBalRef1.current.value = currencyFormat(data.beginningBal);
           endBalRef1.current.value = currencyFormat(data.endingBal);
           payRecRef1.current.value = currencyFormat(data.addBal);
-          forfeitedRef1.current.value = currencyFormat(data.lessBal);
+          // forfeitedRef1.current.value = currencyFormat(data.lessBal);
           lbcClaimedRef1.current.value = currencyFormat(data.lbcClaimed);
           lbcFeesRef1.current.value = currencyFormat(data.lbcFees);
-          gamePriceRef1.current.value = currencyFormat(data.gamePrize);
-          forfeitedRef1.current.value = currencyFormat(data.forfeited);
+          // gamePriceRef1.current.value = currencyFormat(data.gamePrize);
+          // forfeitedRef1.current.value = currencyFormat(data.forfeited);
           bankTransferRef1.current.value = currencyFormat(data.bankTransfer);
           transPoRef1.current.value = currencyFormat(data.transPo);
           ceRef1.current.value = currencyFormat(data.correctingEntry);
@@ -477,52 +395,15 @@ const PrintReportsGBW = () => {
           begBalRef2.current.value = currencyFormat(data.beginningBal);
           endBalRef2.current.value = currencyFormat(data.endingBal);
           payRecRef2.current.value = currencyFormat(data.addBal);
-          forfeitedRef2.current.value = currencyFormat(data.lessBal);
-          gamePriceRef2.current.value = currencyFormat(data.gamePrize);
-          forfeitedRef2.current.value = currencyFormat(data.forfeited);
+          // forfeitedRef2.current.value = currencyFormat(data.lessBal);
+          // gamePriceRef2.current.value = currencyFormat(data.gamePrize);
+          // forfeitedRef2.current.value = currencyFormat(data.forfeited);
           bankTransferRef2.current.value = currencyFormat(data.bankTransfer);
           ceRef2.current.value = currencyFormat(data.correctingEntry);
         }
         // console.log(data);
       });
-    getSum();
-  };
-
-  const getSum = () => {
-    const date = repDateRef.current.value;
-    let sumCash = 0;
-    let sumLay = 0;
-    var jwt = window.sessionStorage.getItem("jwt");
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-    axios
-      .get(baseUrl + "/api/transactions/getSum/" + date + "/" + mode, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => response.data)
-      .then((data) => {
-        // alert(data);
-        sumCash = data;
-      });
-
-    axios
-      .get(baseUrl + "/api/layAwayPay/getSum/" + date + "/" + mode, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => response.data)
-      .then((data) => {
-        // alert(data);
-        sumLay = data;
-      });
-    setSumTrans(sumCash + sumLay);
-    // alert(sumCash);
-    // alert(sumLay);
+    // getSum();
   };
 
   const saveBalance = () => {
@@ -539,7 +420,7 @@ const PrintReportsGBW = () => {
 
     var jwt = window.sessionStorage.getItem("jwt");
     axios
-      .post(baseUrl + "/api/dashboard/save", balances, {
+      .post(baseUrl + "/api/dashboard/balance/gbw/save", balances, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -561,7 +442,7 @@ const PrintReportsGBW = () => {
   const generateBalance = () => {
     var jwt = window.sessionStorage.getItem("jwt");
     axios
-      .post(baseUrl + "/api/dashboard/balance/createNewBal", {
+      .post(baseUrl + "/api/dashboard/balance/gbw/post", {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -700,6 +581,7 @@ const PrintReportsGBW = () => {
           </button>
           <button
             className={styles.buttonsOra}
+            disabled={disablePost}
             onClick={(e) => {
               e.preventDefault();
               setMessage("Posting Balance for " + balDate + "?");
@@ -769,61 +651,6 @@ const PrintReportsGBW = () => {
             Print Report
           </button>
         </div>
-        {/* <div className={styles.form}>
-          <h3>Sold Monthly Reports</h3>
-          <div className={styles.inputDate}>
-            <label>Starting Date</label>
-            <input type="Date" ref={startDateRef}></input>
-          </div>
-          <div className={styles.inputDate}>
-            <label>End Date</label>
-            <input type="Date" ref={endDateRef}></input>
-          </div>
-          <button
-            className={styles.buttons}
-            onClick={(e) => {
-              e.preventDefault();
-              printSold(e);
-            }}
-          >
-            Print Report
-          </button>
-        </div> */}
-        {/* <div className={styles.form}>
-          <h3>Existing Lay-away</h3>
-          <button
-            className={styles.buttons}
-            onClick={(e) => {
-              e.preventDefault();
-              printLayaway(e);
-            }}
-          >
-            Print Report
-          </button>
-          <br></br>
-          <h3>Forfeited Lay-away</h3>
-          <button
-            className={styles.buttons}
-            onClick={(e) => {
-              e.preventDefault();
-              printForfeited(e);
-            }}
-          >
-            Print Report
-          </button>
-        </div>
-        <div className={styles.form}>
-          <h3>Available on Hand Items</h3>
-          <button
-            className={styles.buttons}
-            onClick={(e) => {
-              e.preventDefault();
-              printAvailable(e);
-            }}
-          >
-            Print Report
-          </button>
-        </div> */}
       </div>
       <div className={styles.container}>
         {/* for cash palawan transactions */}
@@ -832,10 +659,6 @@ const PrintReportsGBW = () => {
           className={styles.form}
           style={{ display: isCashPal ? "block" : "none" }}
         >
-          {/* <div className={styles.dailyForms}>
-            <label>Date:</label>
-            <input ref={dateRef1} type="Date" />
-          </div> */}
           <div>
             <button
               className={styles.buttonsOra}
@@ -924,52 +747,7 @@ const PrintReportsGBW = () => {
               }}
             />
           </div>
-          <div className={styles.dailyForms}>
-            <label>Game Prize:</label>
-            <input
-              ref={gamePriceRef1}
-              style={{ textAlign: "right" }}
-              maxLength="10"
-              onFocus={(event) => event.target.select()}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeCurrency(value);
-                balances.gamePrize = value
-                  .replaceAll(",", "")
-                  .replaceAll("₱", "");
-              }}
-              onBlur={(e) => {
-                const { value } = e.target;
-                balanceLess1(value.replaceAll(",", "").replaceAll("₱", ""));
-                if (!isNaN(value)) {
-                  e.target.value = currencyFormat(value);
-                }
-              }}
-            />
-          </div>
-          <div className={styles.dailyForms}>
-            <label>Refund/Forfeited:</label>
-            <input
-              ref={forfeitedRef1}
-              style={{ textAlign: "right" }}
-              maxLength="10"
-              onFocus={(event) => event.target.select()}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeCurrency(value);
-                balances.forfeited = value
-                  .replaceAll(",", "")
-                  .replaceAll("₱", "");
-              }}
-              onBlur={(e) => {
-                const { value } = e.target;
-                balanceLess1(value.replaceAll(",", "").replaceAll("₱", ""));
-                if (!isNaN(value)) {
-                  e.target.value = currencyFormat(value);
-                }
-              }}
-            />
-          </div>
+
           <div className={styles.dailyForms}>
             <label>Bank Transfer:</label>
             <input
@@ -1056,6 +834,7 @@ const PrintReportsGBW = () => {
             <button
               className={styles.buttonSave}
               onClick={(e) => {
+                disabled = { disableSave };
                 e.preventDefault();
                 saveBalance(e);
               }}
@@ -1104,52 +883,6 @@ const PrintReportsGBW = () => {
 
           <label className={styles.devider}>Less</label>
 
-          <div className={styles.dailyForms}>
-            <label>Game Price:</label>
-            <input
-              ref={gamePriceRef2}
-              style={{ textAlign: "right" }}
-              maxLength="10"
-              onFocus={(event) => event.target.select()}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeCurrency(value);
-                balances.gamePrize = value
-                  .replaceAll(",", "")
-                  .replaceAll("₱", "");
-              }}
-              onBlur={(e) => {
-                const { value } = e.target;
-                balanceLess2(value.replaceAll(",", "").replaceAll("₱", ""));
-                if (!isNaN(value)) {
-                  e.target.value = currencyFormat(value);
-                }
-              }}
-            />
-          </div>
-          <div className={styles.dailyForms}>
-            <label>Refund/Forfeited:</label>
-            <input
-              ref={forfeitedRef2}
-              style={{ textAlign: "right" }}
-              maxLength="10"
-              onFocus={(event) => event.target.select()}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeCurrency(value);
-                balances.forfeited = value
-                  .replaceAll(",", "")
-                  .replaceAll("₱", "");
-              }}
-              onBlur={(e) => {
-                const { value } = e.target;
-                balanceLess2(value.replaceAll(",", "").replaceAll("₱", ""));
-                if (!isNaN(value)) {
-                  e.target.value = currencyFormat(value);
-                }
-              }}
-            />
-          </div>
           <div className={styles.dailyForms}>
             <label>Bank Transfer:</label>
             <input
@@ -1211,6 +944,7 @@ const PrintReportsGBW = () => {
           <div className={styles.dailyForms}>
             <button
               className={styles.buttonSave}
+              disabled={disableSave}
               onClick={(e) => {
                 e.preventDefault();
                 saveBalance();
@@ -1241,7 +975,7 @@ const PrintReportsGBW = () => {
           />
         )}
         {openCashCount && (
-          <CashCountModal setOpenCashCount={setOpenCashCount} />
+          <CashCountModalGBW setOpenCashCount={setOpenCashCount} />
         )}
       </div>
       <br></br>

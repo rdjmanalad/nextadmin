@@ -37,6 +37,9 @@ const PrintReports = () => {
   const [orderBy, setOrderBy] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [needCName, setNeedCName] = useState(false);
+  const [permissions, setPermissions] = useLocalState([]);
+  const [disablePost, setDisablePost] = useState(false);
+  const [disableSave, setDisableSave] = useState(false);
 
   const startDateRef = useRef();
   const endDateRef = useRef();
@@ -60,6 +63,7 @@ const PrintReports = () => {
   const ceRef2 = useRef();
 
   useEffect(() => {
+    allowPermission();
     const jwtToken = window.sessionStorage.getItem("jwt");
     setBalDate(window.sessionStorage.getItem("balDate"));
     if (window.sessionStorage.getItem("jwt") === null) {
@@ -74,6 +78,22 @@ const PrintReports = () => {
       repDateRef.current.value = getTodayDate();
     }
   }, []);
+
+  const allowPermission = () => {
+    if (permissions) {
+      if (permissions.includes("Balance.post")) {
+        setDisablePost(false);
+      } else {
+        setDisablePost(true);
+      }
+
+      if (permissions.includes("Balance.save")) {
+        setDisableSave(false);
+      } else {
+        setDisableSave(true);
+      }
+    }
+  };
 
   useEffect(() => {
     if (mode !== "") {
@@ -700,6 +720,7 @@ const PrintReports = () => {
           </button>
           <button
             className={styles.buttonsOra}
+            disabled={disablePost}
             onClick={(e) => {
               e.preventDefault();
               setMessage("Posting Balance for " + balDate + "?");
@@ -1054,6 +1075,7 @@ const PrintReports = () => {
           <br></br>
           <div className={styles.dailyForms}>
             <button
+              disabled={disableSave}
               className={styles.buttonSave}
               onClick={(e) => {
                 e.preventDefault();
@@ -1210,6 +1232,7 @@ const PrintReports = () => {
           </div>
           <div className={styles.dailyForms}>
             <button
+              disabled={disableSave}
               className={styles.buttonSave}
               onClick={(e) => {
                 e.preventDefault();

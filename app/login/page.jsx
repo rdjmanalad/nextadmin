@@ -47,8 +47,8 @@ const LoginPage = () => {
     if (window.sessionStorage.getItem("jwt") != null) {
       router.push("/dashboard");
     }
-    // setBaseURL("http://localhost:8080");
-    setBaseURL("http://52.74.232.36:85");
+    setBaseURL("http://localhost:8080");
+    // setBaseURL("http://52.74.232.36:85");
   }, []);
 
   useEffect(() => {
@@ -86,6 +86,8 @@ const LoginPage = () => {
         } else if (response.status === 401) {
           return Promise.reject("Invalid Login Credentials");
         } else if (response.status === 403) {
+          return Promise.reject("Network Error");
+        } else if (response.status === 503) {
           return Promise.reject("Locked Account");
         } else {
           return Promise.reject("Unknown Error");
@@ -110,7 +112,13 @@ const LoginPage = () => {
           router.push("/dashboard");
         }, 1500);
       })
+      // .catch((message) => {
+      //   setMessage(message);
+      //   setInvalid(true);
+      // });
       .catch((message) => {
+        console.log("ss");
+        console.log(message);
         setMessage(message);
         setInvalid(true);
       });

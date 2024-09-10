@@ -833,7 +833,7 @@ const TransactionGBW = ({ emptyObj }) => {
     trans.canceledDate = cancelDateRef.current.value;
     var jwt = window.sessionStorage.getItem("jwt");
     axios
-      .post(baseUrl + "/api/transactions/save", trans, {
+      .post(baseUrl + "/api/transactions/gbw/save", trans, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",

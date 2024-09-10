@@ -5,7 +5,7 @@ import axios from "axios";
 import MessageModal from "./messageModal";
 import useLocalState from "@/app/hooks/useLocalState";
 
-const CashCountModal = ({ setOpenCashCount }) => {
+const CashCountModalGBW = ({ setOpenCashCount }) => {
   const isClient = typeof window !== "undefined";
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [total, setTotal] = useState(0);
@@ -109,7 +109,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
     cashCount.totalAmt = total;
     var jwt = window.sessionStorage.getItem("jwt");
     axios
-      .post(baseUrl + "/api/cashCount/saveCashCount", cashCount, {
+      .post(baseUrl + "/api/cashCount/gbw/saveCashCount", cashCount, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -160,7 +160,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
       axios.defaults.headers.common["Authorization"] =
         "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
       axios
-        .get(baseUrl + "/api/cashCount/getByDate/" + inDate, {
+        .get(baseUrl + "/api/cashCount/gbw/getByDate/" + inDate, {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -246,7 +246,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
       setOpenModal(true);
     } else {
       axios
-        .get(baseUrl + "/api/reports/cashcount/" + ccdate, {
+        .get(baseUrl + "/api/reports/gbw/cashcount/" + ccdate, {
           headers: {
             contentType: "application/json",
             accept: "application/pdf",
@@ -487,7 +487,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
           <button
             className={styles.modalButtonCancel}
             style={{ marginRight: "5px" }}
-            disabled={disableAll}
+            // disabled={disableAll}
             onClick={(e) => {
               e.preventDefault();
               print();
@@ -523,4 +523,4 @@ const CashCountModal = ({ setOpenCashCount }) => {
   );
 };
 
-export default CashCountModal;
+export default CashCountModalGBW;
