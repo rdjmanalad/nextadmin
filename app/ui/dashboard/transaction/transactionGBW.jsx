@@ -291,7 +291,7 @@ const TransactionGBW = ({ emptyObj }) => {
         setPm(data);
       });
 
-    pcode = "SD";
+    pcode = "SD-GBW";
     axios.defaults.headers.common["Authorization"] =
       "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
     axios
@@ -590,7 +590,7 @@ const TransactionGBW = ({ emptyObj }) => {
       axios.defaults.headers.common["Authorization"] =
         "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
       axios
-        .get(baseUrl + "/api/reports/receipt/" + id, {
+        .get(baseUrl + "/api/reports/gbw/receipt/" + id, {
           headers: {
             contentType: "application/json",
             accept: "application/pdf",

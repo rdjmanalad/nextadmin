@@ -23,7 +23,7 @@
   border: 1px solid black;
   height: 30px;
   border-radius: 5px;
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */
   padding-left: 5px;
   color: black;
   font-weight: 800;
@@ -39,4 +39,31 @@
   border: none;
   cursor: pointer;
   background-color: var(--buttonBlue);
+}
+
+.row1 {
+  display: grid;
+  grid-template-columns: 6fr 5fr 1fr;
+  /* gap: 5px; */
+}
+
+.row1 input {
+  width: 100%;
+  background-color: var(--inputBg);
+  /* border: 1px solid black; */
+  border: none;
+  height: 30px;
+  border-radius: 5px 0px 0px 5px;
+  /* margin-bottom: 5px; */
+  padding-left: 5px;
+  color: black;
+  font-weight: 800;
+  font-size: 14px;
+  padding-right: 20px;
+}
+
+.row1 button {
+  border: none;
+  border-radius: 0px 5px 5px 0px;
+  background-color: rgb(212, 212, 212);
 }

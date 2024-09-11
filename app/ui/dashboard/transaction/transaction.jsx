@@ -42,6 +42,8 @@ const Transaction = ({ emptyObj }) => {
   const [disableDuedate, setDisableDuedate] = useState(true);
   const [disablePaymentUI, setDisablePaymentUI] = useState(true);
   const [permissions, setPermissions] = useLocalState([]);
+  const [disableSaveDet, setDisableSaveDet] = useState(false);
+  const [disableDelete, setDisableDelete] = useState(true);
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -185,11 +187,17 @@ const Transaction = ({ emptyObj }) => {
       }
 
       if (permissions.includes("transaction.payment")) {
-        // alert("dd");
         setDisablePaymentUI(true);
       } else {
-        // alert("ww");
         setDisablePaymentUI(false);
+      }
+
+      if (permissions.includes("transaction.delete")) {
+        // alert("dd");
+        setDisableDelete(false);
+      } else {
+        // alert("ww");
+        setDisableDelete(true);
       }
     }
   };
@@ -457,8 +465,8 @@ const Transaction = ({ emptyObj }) => {
   };
 
   const saveDetailsOnly = async () => {
-    const isAllowed = await inventoryIsNotAllowed();
-    if (!isAllowed) {
+    const isAllowed = await inventoryIsAllowed();
+    if (isAllowed) {
       setMessage("Inventory number is already used.");
       setOpenModal(true);
     } else {
@@ -488,11 +496,14 @@ const Transaction = ({ emptyObj }) => {
           } else {
             alert(error.response.data.message);
           }
+        })
+        .finally(() => {
+          setDisableSaveDet(false);
         });
     }
   };
 
-  const inventoryIsNotAllowed = async () => {
+  const inventoryIsAllowed = async () => {
     let count = 0;
     const jwt = window.sessionStorage.getItem("jwt");
     axios.defaults.headers.common["Authorization"] =
@@ -512,7 +523,16 @@ const Transaction = ({ emptyObj }) => {
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
-    return count <= 0;
+    if (count > 0) {
+      if (trans.id === undefined) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
+    // return count <= 0;
   };
 
   const saveDueDate = () => {
@@ -737,19 +757,25 @@ const Transaction = ({ emptyObj }) => {
 
   const saveDetails = (e) => {
     e.preventDefault();
-    if (validateDetails()) {
-      // trans.cashPayment = transOrg.cashPayment;
-      // trans.paymentMode = transOrg.paymentMode;
-      // trans.cashPaymentDate = transOrg.cashPaymentDate;
-      // trans.referenceNo = transOrg.referenceNo;
-      if (trans.id === "" || trans.id === undefined) {
-        trans.cashPayment = 0;
+    if (!disableSaveDet) {
+      setDisableSaveDet(true);
+      if (validateDetails()) {
+        // trans.cashPayment = transOrg.cashPayment;
+        // trans.paymentMode = transOrg.paymentMode;
+        // trans.cashPaymentDate = transOrg.cashPaymentDate;
+        // trans.referenceNo = transOrg.referenceNo;
+        if (trans.id === "" || trans.id === undefined) {
+          trans.cashPayment = 0;
+        }
+        saveDetailsOnly();
+      } else {
+        setMessage("Please fill all fields.");
+        setOpenModal(true);
       }
-      saveDetailsOnly();
-    } else {
-      setMessage("Please fill all fields.");
-      setOpenModal(true);
     }
+    setTimeout(() => {
+      setDisableSaveDet(false);
+    }, 500);
   };
 
   const printLbc = () => {
@@ -1128,6 +1154,11 @@ const Transaction = ({ emptyObj }) => {
       }
       if (hasPaymentCash || hasPaymentLay) {
         setDisableCancel(true);
+        if (disableDelete) {
+          setDisableDelete(true);
+        } else {
+          setDisableDelete(false);
+        }
       } else {
         setDisableCancel(false);
       }
@@ -1448,6 +1479,14 @@ const Transaction = ({ emptyObj }) => {
               <input type="date" ref={cancelDateRef}></input>
             </div>
             <div className={styles.buttonContainer4}>
+              <div></div>
+              {/* <button
+                className={styles.cancel}
+                disabled={disableDelete}
+                onClick={(e) => cancelTrans(e)}
+              >
+                Delete
+              </button> */}
               <button
                 className={styles.cancel}
                 disabled={disableCancel}
@@ -1455,7 +1494,11 @@ const Transaction = ({ emptyObj }) => {
               >
                 Cancel Transaction
               </button>
-              <button className={styles.save} onClick={(e) => saveDetails(e)}>
+              <button
+                disbled={disableSaveDet}
+                className={styles.save}
+                onClick={(e) => saveDetails(e)}
+              >
                 Save Details
               </button>
             </div>

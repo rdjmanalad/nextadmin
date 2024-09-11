@@ -20,6 +20,12 @@ const UserEdit = () => {
   const [count, setCount] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showHide, setShowHide] = useState("Show");
+  const [showPassword1, setShowPassword1] = useState(false);
+  const [showHide1, setShowHide1] = useState("Show");
+  const [passType, setPassType] = useState("password");
+  const [passType1, setPassType1] = useState("password");
 
   const testPassword = (valid) => {
     if (valid) {
@@ -42,6 +48,30 @@ const UserEdit = () => {
       // setErrorMessage("Invalid current password. Please try again.");
       setMessage("Invalid current password. Please try again.");
       setOpenModal(true);
+    }
+  };
+
+  const togglePasswordVisibility = (e) => {
+    e.preventDefault();
+    setShowPassword(!showPassword);
+    if (showPassword) {
+      setShowHide("Show");
+      setPassType("password");
+    } else {
+      setShowHide("Hide");
+      setPassType("text");
+    }
+  };
+
+  const togglePasswordVisibility1 = (e) => {
+    e.preventDefault();
+    setShowPassword1(!showPassword1);
+    if (showPassword1) {
+      setShowHide1("Show");
+      setPassType1("password");
+    } else {
+      setShowHide1("Hide");
+      setPassType1("text");
     }
   };
 
@@ -117,23 +147,29 @@ const UserEdit = () => {
             onChange={(e) => setCurrentPassword(e.target.value)}
           />
         </div>
-        <div className={styles.row}>
+        <div className={styles.row1}>
           <label htmlFor="newPassword">New Password:</label>
           <input
-            type="password"
+            type={passType}
             id="newPassword"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
+          <button onClick={(e) => togglePasswordVisibility(e)}>
+            {showHide}
+          </button>
         </div>
-        <div className={styles.row}>
+        <div className={styles.row1}>
           <label htmlFor="confirmPassword">Confirm Password:</label>
           <input
-            type="password"
+            type={passType1}
             id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
+          <button onClick={(e) => togglePasswordVisibility1(e)}>
+            {showHide1}
+          </button>
         </div>
         <div className={styles.buttonDiv}>
           <button onClick={handlePasswordChange}>Change Password</button>

@@ -306,54 +306,15 @@ const PrintReportsGBW = () => {
   };
 
   const printDaily2 = (e) => {
-    const date = repDateRef.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const begBal = begBalRef2.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const payRec = payRecRef2.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const gamePrice = gamePriceRef2.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const forfeited = forfeitedRef2.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const bankTransfer = bankTransferRef2.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    const endBal = endBalRef2.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
+    const date = repDateRef.current.value;
     axios
-      .get(
-        baseUrl +
-          "/api/reports/daily2/" +
-          date +
-          "/" +
-          begBal +
-          "/" +
-          payRec +
-          "/" +
-          gamePrice +
-          "/" +
-          forfeited +
-          "/" +
-          bankTransfer +
-          "/" +
-          endBal +
-          "/" +
-          mode,
-        {
-          headers: {
-            contentType: "application/json",
-            accept: "application/pdf",
-          },
-          responseType: "blob",
-        }
-      )
+      .get(baseUrl + "/api/reports/gbw/daily2/" + date + "/" + mode, {
+        headers: {
+          contentType: "application/json",
+          accept: "application/pdf",
+        },
+        responseType: "blob",
+      })
       .then((response) => {
         const file = new Blob([response.data], { type: "application/pdf" });
         var w = window.open(window.URL.createObjectURL(file));
