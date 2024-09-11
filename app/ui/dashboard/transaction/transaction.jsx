@@ -466,7 +466,7 @@ const Transaction = ({ emptyObj }) => {
 
   const saveDetailsOnly = async () => {
     const isAllowed = await inventoryIsAllowed();
-    if (isAllowed) {
+    if (!isAllowed) {
       setMessage("Inventory number is already used.");
       setOpenModal(true);
     } else {
@@ -525,9 +525,9 @@ const Transaction = ({ emptyObj }) => {
     }
     if (count > 0) {
       if (trans.id === undefined) {
-        return true;
-      } else {
         return false;
+      } else {
+        return true;
       }
     } else {
       return true;

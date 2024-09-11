@@ -681,7 +681,12 @@ const TransactionGBW = ({ emptyObj }) => {
           balDate ===
           new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
         ) {
-          saveTransaction();
+          if (trans.cashPayment < trans.sellingPrice) {
+            setMessage("Payment amount is less than selling price");
+            setOpenModal(true);
+          } else {
+            saveTransaction();
+          }
         } else {
           setMessage("Payment date and balance date is not equal.");
           setOpenModal(true);
@@ -749,7 +754,7 @@ const TransactionGBW = ({ emptyObj }) => {
         new Date(cashPaymentDateRef.current.value).toLocaleDateString("en-US")
         // new Date(trans.cashPaymentDate).toLocaleDateString("en-US")
       ) {
-        if (trans.cashPayment < trans.discountedPrice) {
+        if (trans.cashPayment < trans.sellingPrice) {
           setMessage("Payment amount is less than discounted price");
           setOpenModal(true);
         } else {

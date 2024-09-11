@@ -32,7 +32,7 @@ const Navbar = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    setSysName(isGBW ? "GBW" : "AURORA JEWELRY COLLECTION");
+    setSysName(isGBW ? "GBW  SUBASTA  SALE" : "AURORA JEWELRY COLLECTION");
     setUserr(user);
     setUserrRole(userRole);
     if (isGBW) {

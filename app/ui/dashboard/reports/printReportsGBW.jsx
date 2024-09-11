@@ -794,8 +794,8 @@ const PrintReportsGBW = () => {
           <div className={styles.dailyForms}>
             <button
               className={styles.buttonSave}
+              disabled={disableSave}
               onClick={(e) => {
-                disabled = { disableSave };
                 e.preventDefault();
                 saveBalance(e);
               }}
