@@ -1495,7 +1495,15 @@ const Transaction = ({ emptyObj }) => {
                 Cancel Transaction
               </button>
               <button
-                disbled={disableSaveDet}
+                className={styles.regular}
+                onClick={(e) => {
+                  test(e);
+                }}
+              >
+                Clear/Refresh
+              </button>
+              <button
+                disabled={disableSaveDet}
                 className={styles.save}
                 onClick={(e) => saveDetails(e)}
               >
@@ -1800,7 +1808,7 @@ const Transaction = ({ emptyObj }) => {
                 </button>
               </div>
 
-              <div className={styles.buttonContainer2}>
+              {/* <div className={styles.buttonContainer2}>
                 <button
                   onClick={(e) => {
                     test(e);
@@ -1808,9 +1816,10 @@ const Transaction = ({ emptyObj }) => {
                 >
                   Clear/Refresh
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
+
           {/* // )} */}
         </div>
       </form>

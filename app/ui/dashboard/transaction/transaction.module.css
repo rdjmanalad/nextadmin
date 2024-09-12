@@ -286,6 +286,10 @@
   margin-left: 0px !important;
 }
 
+.regular {
+  background-color: var(--buttonBlue);
+}
+
 .due {
   display: grid;
   grid-template-columns: 2fr 2fr 1fr;

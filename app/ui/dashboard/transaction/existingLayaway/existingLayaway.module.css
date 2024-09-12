@@ -263,6 +263,7 @@
 .buttonContainer4 {
   display: flex;
   justify-content: right;
+  gap: 5px;
 }
 
 .buttonContainer4 button {
@@ -272,4 +273,8 @@
   border: none;
   cursor: pointer;
   margin: 0;
+}
+
+.regular {
+  background-color: var(--buttonBlue);
 }

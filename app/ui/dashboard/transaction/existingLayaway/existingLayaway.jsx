@@ -1229,6 +1229,14 @@ const ExistingLayaway = ({ emptyObj }) => {
               <input ref={senderContactNoRef} readOnly></input>
             </div>
             <div className={styles.buttonContainer4}>
+              <button
+                className={styles.regular}
+                onClick={(e) => {
+                  test(e);
+                }}
+              >
+                Clear/Refresh
+              </button>
               <button className={styles.save} onClick={(e) => saveDetails(e)}>
                 Save Details
               </button>
@@ -1495,16 +1503,6 @@ const ExistingLayaway = ({ emptyObj }) => {
                 }}
               >
                 Print Receipt
-              </button>
-            </div>
-
-            <div className={styles.buttonContainer2}>
-              <button
-                onClick={(e) => {
-                  test(e);
-                }}
-              >
-                Clear/Refresh
               </button>
             </div>
           </div>
