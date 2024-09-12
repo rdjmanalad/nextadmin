@@ -645,10 +645,18 @@ const PrintReports = () => {
       Number(balances.forfeited) +
       Number(balances.bankTransfer) +
       Number(balances.transPo);
-    const base = Number(balances.endingBal);
-    endBalRef1.current.value = currencyFormat(
-      Number(base) - Number(less) + Number(add)
-    );
+    // const base = Number(balances.endingBal);
+    // endBalRef1.current.value = currencyFormat(
+    //   Number(base) - Number(less) + Number(add)
+    // );
+    let endBal =
+      Number(balances.beginningBal) +
+      Number(balances.addBal) -
+      Number(less) +
+      Number(balances.correctingEntry) +
+      Number(balances.lbcClaimed);
+    endBalRef1.current.value = currencyFormat(endBal);
+    balances.endingBal = endBal;
     balances.lessBal = less;
   };
 
@@ -657,10 +665,17 @@ const PrintReports = () => {
       Number(balances.gamePrize) +
       Number(balances.forfeited) +
       Number(balances.bankTransfer);
-    const base = Number(balances.endingBal);
-    endBalRef2.current.value = currencyFormat(
-      Number(base) - Number(less) + Number(balances.correctingEntry)
-    );
+    // const base = Number(balances.endingBal);
+    // endBalRef2.current.value = currencyFormat(
+    //   Number(base) - Number(less) + Number(balances.correctingEntry)
+    // );
+    let endBal =
+      Number(balances.beginningBal) +
+      Number(balances.addBal) -
+      Number(less) +
+      Number(balances.correctingEntry);
+    endBalRef2.current.value = currencyFormat(endBal);
+    balances.endingBal = endBal;
     balances.lessBal = less;
   };
 

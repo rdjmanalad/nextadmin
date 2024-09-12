@@ -344,11 +344,11 @@ const PrintReportsGBW = () => {
           begBalRef1.current.value = currencyFormat(data.beginningBal);
           endBalRef1.current.value = currencyFormat(data.endingBal);
           payRecRef1.current.value = currencyFormat(data.addBal);
-          // forfeitedRef1.current.value = currencyFormat(data.lessBal);
+          forfeitedRef1.current.value = currencyFormat(data.lessBal);
           lbcClaimedRef1.current.value = currencyFormat(data.lbcClaimed);
           lbcFeesRef1.current.value = currencyFormat(data.lbcFees);
           // gamePriceRef1.current.value = currencyFormat(data.gamePrize);
-          // forfeitedRef1.current.value = currencyFormat(data.forfeited);
+          forfeitedRef1.current.value = currencyFormat(data.forfeited);
           bankTransferRef1.current.value = currencyFormat(data.bankTransfer);
           transPoRef1.current.value = currencyFormat(data.transPo);
           ceRef1.current.value = currencyFormat(data.correctingEntry);
@@ -356,9 +356,9 @@ const PrintReportsGBW = () => {
           begBalRef2.current.value = currencyFormat(data.beginningBal);
           endBalRef2.current.value = currencyFormat(data.endingBal);
           payRecRef2.current.value = currencyFormat(data.addBal);
-          // forfeitedRef2.current.value = currencyFormat(data.lessBal);
+          forfeitedRef2.current.value = currencyFormat(data.lessBal);
           // gamePriceRef2.current.value = currencyFormat(data.gamePrize);
-          // forfeitedRef2.current.value = currencyFormat(data.forfeited);
+          forfeitedRef2.current.value = currencyFormat(data.forfeited);
           bankTransferRef2.current.value = currencyFormat(data.bankTransfer);
           ceRef2.current.value = currencyFormat(data.correctingEntry);
         }
@@ -467,10 +467,18 @@ const PrintReportsGBW = () => {
       Number(balances.forfeited) +
       Number(balances.bankTransfer) +
       Number(balances.transPo);
-    const base = Number(balances.endingBal);
-    endBalRef1.current.value = currencyFormat(
-      Number(base) - Number(less) + Number(add)
-    );
+    // const base = Number(balances.endingBal);
+    // endBalRef1.current.value = currencyFormat(
+    //   Number(base) - Number(less) + Number(add)
+    // );
+    let endBal =
+      Number(balances.beginningBal) +
+      Number(balances.addBal) -
+      Number(less) +
+      Number(balances.correctingEntry) +
+      Number(balances.lbcClaimed);
+    endBalRef1.current.value = currencyFormat(endBal);
+    balances.endingBal = endBal;
     balances.lessBal = less;
   };
 
@@ -479,10 +487,17 @@ const PrintReportsGBW = () => {
       Number(balances.gamePrize) +
       Number(balances.forfeited) +
       Number(balances.bankTransfer);
-    const base = Number(balances.endingBal);
-    endBalRef2.current.value = currencyFormat(
-      Number(base) - Number(less) + Number(balances.correctingEntry)
-    );
+    // const base = Number(balances.endingBal);
+    // endBalRef2.current.value = currencyFormat(
+    //   Number(base) - Number(less) + Number(balances.correctingEntry)
+    // );
+    let endBal =
+      Number(balances.beginningBal) +
+      Number(balances.addBal) -
+      Number(less) +
+      Number(balances.correctingEntry);
+    endBalRef2.current.value = currencyFormat(endBal);
+    balances.endingBal = endBal;
     balances.lessBal = less;
   };
 
@@ -710,6 +725,30 @@ const PrintReportsGBW = () => {
           </div>
 
           <div className={styles.dailyForms}>
+            <label>Refund:</label>
+            <input
+              ref={forfeitedRef1}
+              style={{ textAlign: "right" }}
+              maxLength="10"
+              onFocus={(event) => event.target.select()}
+              onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeCurrency(value);
+                balances.forfeited = value
+                  .replaceAll(",", "")
+                  .replaceAll("₱", "");
+              }}
+              onBlur={(e) => {
+                const { value } = e.target;
+                balanceLess1(value.replaceAll(",", "").replaceAll("₱", ""));
+                if (!isNaN(value)) {
+                  e.target.value = currencyFormat(value);
+                }
+              }}
+            />
+          </div>
+
+          <div className={styles.dailyForms}>
             <label>Bank Transfer:</label>
             <input
               ref={bankTransferRef1}
@@ -843,6 +882,29 @@ const PrintReportsGBW = () => {
           </div>
 
           <label className={styles.devider}>Less</label>
+          <div className={styles.dailyForms}>
+            <label>Refund:</label>
+            <input
+              ref={forfeitedRef2}
+              style={{ textAlign: "right" }}
+              maxLength="10"
+              onFocus={(event) => event.target.select()}
+              onChange={(e) => {
+                const { value } = e.target;
+                e.target.value = normalizeCurrency(value);
+                balances.forfeited = value
+                  .replaceAll(",", "")
+                  .replaceAll("₱", "");
+              }}
+              onBlur={(e) => {
+                const { value } = e.target;
+                balanceLess2(value.replaceAll(",", "").replaceAll("₱", ""));
+                if (!isNaN(value)) {
+                  e.target.value = currencyFormat(value);
+                }
+              }}
+            />
+          </div>
 
           <div className={styles.dailyForms}>
             <label>Bank Transfer:</label>

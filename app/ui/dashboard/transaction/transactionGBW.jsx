@@ -233,7 +233,7 @@ const TransactionGBW = ({ emptyObj }) => {
     cashPaymentRef.current.value = currencyFormat(trans.cashPayment);
     referenceNoRef.current.value = trans.referenceNo;
     sellingRef.current.value = currencyFormat(trans.sellingPrice);
-    cancelDateRef.current.value = formatDate(trans.canceledDate);
+    // cancelDateRef.current.value = formatDate(trans.canceledDate);
     setIsCash(trans.paymentTerm === "CASH" ? true : false);
     setPTerm(trans.paymentTerm);
     setIsForfeited(trans.forfeitedAmt > 0);
@@ -988,17 +988,17 @@ const TransactionGBW = ({ emptyObj }) => {
               <input ref={senderAddressRef} readOnly></input>
               <label>Contact No.</label>
               <input ref={senderContactNoRef} readOnly></input>
-              <label>{cancelLabel}</label>
-              <input type="date" ref={cancelDateRef}></input>
+              {/* <label>{cancelLabel}</label>
+              <input type="date" ref={cancelDateRef}></input> */}
             </div>
             <div className={styles.buttonContainer4}>
-              <button
+              {/* <button
                 className={styles.cancel}
                 disabled={disableCancel}
                 onClick={(e) => cancelTrans(e)}
               >
                 Cancel Transaction
-              </button>
+              </button> */}
               <button className={styles.save} onClick={(e) => saveDetails(e)}>
                 Save Details
               </button>
