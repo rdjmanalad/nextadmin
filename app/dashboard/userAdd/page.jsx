@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import useLocalState from "@/app/hooks/useLocalState";
 
 const UsersAdd = () => {
-  const module = "UserAdd";
+  const module = "Add/Edit Users";
   const [permissions, setPermissions] = useLocalState([]);
   const router = useRouter();
   const [allowed, setAllowed] = useState(false);
