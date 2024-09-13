@@ -102,7 +102,6 @@ const CorrectingEntryGBW = () => {
   }, [openModal]);
 
   useEffect(() => {
-    // alert("ss");
     clearCorrEntry();
   }, [corrEntry]);
 

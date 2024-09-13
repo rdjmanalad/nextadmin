@@ -98,8 +98,6 @@ const PrintReportsGBW = () => {
   };
 
   const allowSaving = () => {
-    //   alert(balDate);
-    //   alert(new Date(repDateRef.current.value).toLocaleDateString("en-US"));
     let dateSelected = new Date(repDateRef.current.value).toLocaleDateString(
       "en-US"
     );

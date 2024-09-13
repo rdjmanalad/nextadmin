@@ -783,7 +783,8 @@ const Transaction = ({ emptyObj }) => {
       setMessage("Please save the transaction first.");
       setOpenModal(true);
     } else {
-      printReport();
+      // printReport();
+      printReportLBC();
     }
   };
 
@@ -820,6 +821,39 @@ const Transaction = ({ emptyObj }) => {
           responseType: "blob",
         }
       )
+      .then((response) => {
+        const file = new Blob([response.data], { type: "application/pdf" });
+        var w = window.open(window.URL.createObjectURL(file));
+        w.document.title = "sample";
+      });
+  };
+
+  const printReportLBC = () => {
+    var senderName = senderNameRef.current.value;
+    var senderAddress = senderAddressRef.current.value;
+    var senderContactNo = senderContactNoRef.current.value;
+    var receiverName = receiverNameRef.current.value;
+    var receiverAddress = addressRef.current.value;
+    var receiverContactNo = contactNoRef.current.value;
+    var jwt = window.sessionStorage.getItem("jwt");
+    let param = {
+      senderName: senderName,
+      senderAddress: senderAddress,
+      senderContactNo: senderContactNo,
+      receiverName: receiverName,
+      receiverAddress: receiverAddress,
+      receiverContactNo: receiverContactNo,
+    };
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    axios
+      .post(baseUrl + "/api/reports/lbc/param", param, {
+        headers: {
+          contentType: "application/json",
+          accept: "application/pdf",
+        },
+        responseType: "blob",
+      })
       .then((response) => {
         const file = new Blob([response.data], { type: "application/pdf" });
         var w = window.open(window.URL.createObjectURL(file));

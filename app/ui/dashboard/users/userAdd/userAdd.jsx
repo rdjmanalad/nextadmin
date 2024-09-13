@@ -266,6 +266,32 @@ const UserAdd = () => {
       });
   };
 
+  const saveEditNoEnc = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/users/saveUser/noEnc", appUserEdit, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          // console.log(response.data);
+          setAppUser(response.data);
+          // setErrorMessage("");
+          // setSuccessMessage("Changes Saved!");
+          setMessage("Changes Saved!");
+          setOpenModal(true);
+          getUsers();
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
   const getDropdown = () => {
     var jwt = window.sessionStorage.getItem("jwt");
     axios.defaults.headers.common["Authorization"] =
@@ -475,7 +501,7 @@ const UserAdd = () => {
       setMessage("Please fill Username and Role.");
       setOpenModal(true);
     } else {
-      saveEdit();
+      saveEditNoEnc();
     }
   };
 
@@ -581,11 +607,7 @@ const UserAdd = () => {
             <select onChange={(e) => setUserSysAccess(e.target.value)}>
               <option></option>
               {st.map((o, i) => (
-                <option
-                  value={st[i].description}
-                  key={st[i].id}
-                  // onChange={(e) => setRoleId(rolesdp[i].roleId)}
-                >
+                <option value={st[i].description} key={st[i].id}>
                   {st[i].name}
                 </option>
               ))}
@@ -653,7 +675,10 @@ const UserAdd = () => {
               <label>User System Access</label>
               <select
                 value={edSys}
-                onChange={(e) => (appUserEdit.appType = e.target.value)}
+                onChange={(e) => {
+                  appUserEdit.appType = e.target.value;
+                  setEdSys(e.target.value);
+                }}
               >
                 <option></option>
                 {st.map((o, i) => (
