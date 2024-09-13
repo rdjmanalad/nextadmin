@@ -42,9 +42,25 @@ const CorrectingEntry = () => {
     referenceNo: "",
     paymentAmt: "",
     correctingAmt: "",
+    correctingDate: "",
     userId: "",
     timeStamped: "",
   });
+
+  const emptyCorrEntry = {
+    id: "",
+    transactionId: "",
+    code: "",
+    selling: "",
+    mode: "",
+    paymentDate: "",
+    referenceNo: "",
+    paymentAmt: "",
+    correctingAmt: "",
+    correctingDate: "",
+    userId: "",
+    timeStamped: "",
+  };
 
   const codeRef = useRef();
   const discountedRef = useRef();
@@ -72,6 +88,21 @@ const CorrectingEntry = () => {
       //   getReference();
     }
   }, []);
+
+  const clearCorrEntry = () => {
+    codeRef.current.value = "";
+    discountedRef.current.value = "";
+    modeRef.current.value = "";
+    paymentDateRef.current.value = "";
+    referenceNoRef.current.value = "";
+    paymentAmtRef.current.value = "";
+    correctingAmtRef.current.value = "";
+    correctedAmtRef.current.value = "";
+  };
+
+  useEffect(() => {
+    clearCorrEntry();
+  }, [corrEntry]);
 
   useEffect(() => {
     if (!openModal) {
@@ -184,6 +215,9 @@ const CorrectingEntry = () => {
       })
       .catch((message) => {
         alert(message);
+      })
+      .finally(() => {
+        setCorrEntry(emptyCorrEntry);
       });
   };
 

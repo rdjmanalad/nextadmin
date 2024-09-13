@@ -36,9 +36,25 @@ const CorrectingEntryGBW = () => {
     referenceNo: "",
     paymentAmt: "",
     correctingAmt: "",
+    correctingDate: "",
     userId: "",
     timeStamped: "",
   });
+
+  const emptyCorrEntry = {
+    id: "",
+    transactionId: "",
+    code: "",
+    selling: "",
+    mode: "",
+    paymentDate: "",
+    referenceNo: "",
+    paymentAmt: "",
+    correctingAmt: "",
+    correctingDate: "",
+    userId: "",
+    timeStamped: "",
+  };
 
   const codeRef = useRef();
   const sellingRef = useRef();
@@ -66,6 +82,17 @@ const CorrectingEntryGBW = () => {
     }
   }, []);
 
+  const clearCorrEntry = () => {
+    codeRef.current.value = "";
+    sellingRef.current.value = "";
+    modeRef.current.value = "";
+    paymentDateRef.current.value = "";
+    referenceNoRef.current.value = "";
+    paymentAmtRef.current.value = "";
+    correctingAmtRef.current.value = "";
+    correctedAmtRef.current.value = "";
+  };
+
   useEffect(() => {
     if (!openModal) {
       if (reload) {
@@ -73,6 +100,11 @@ const CorrectingEntryGBW = () => {
       }
     }
   }, [openModal]);
+
+  useEffect(() => {
+    // alert("ss");
+    clearCorrEntry();
+  }, [corrEntry]);
 
   useEffect(() => {
     // console.log(rowSelected[0]);
@@ -124,6 +156,7 @@ const CorrectingEntryGBW = () => {
       setMessage("Adjustment amount is empty.");
       setOpenModal(true);
     } else {
+      // setCorrEntry(emptyCorrEntry);
       saveCorrection();
     }
 
@@ -131,6 +164,7 @@ const CorrectingEntryGBW = () => {
   };
 
   const saveCorrection = () => {
+    corrEntry.correctingDate = corrDateRef.current.value;
     var jwt = window.sessionStorage.getItem("jwt");
     axios
       .post(baseUrl + "/api/correcting/gbw/save", corrEntry, {
@@ -150,6 +184,9 @@ const CorrectingEntryGBW = () => {
       })
       .catch((message) => {
         alert(message);
+      })
+      .finally(() => {
+        setCorrEntry(emptyCorrEntry);
       });
   };
 

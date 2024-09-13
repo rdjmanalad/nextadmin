@@ -672,6 +672,7 @@ const TransactionGBW = ({ emptyObj }) => {
 
   const addPayment = (e) => {
     e.preventDefault();
+    trans.paymentTerm = "CASH";
     if (trans.id === undefined) {
       setMessage("Please save the transaction first.");
       setOpenModal(true);
@@ -809,7 +810,7 @@ const TransactionGBW = ({ emptyObj }) => {
     cashPaymentRef.current.disabled = true;
     cashPaymentDateRef.current.disabled = true;
     referenceNoRef.current.disabled = true;
-    savePayMentRef.current.disabled = true;
+    // savePayMentRef.current.disabled = true;
     setDisableSavePay(true);
   };
 
@@ -819,7 +820,7 @@ const TransactionGBW = ({ emptyObj }) => {
     cashPaymentRef.current.disabled = false;
     cashPaymentDateRef.current.disabled = false;
     referenceNoRef.current.disabled = false;
-    savePayMentRef.current.disabled = false;
+    // savePayMentRef.current.disabled = false;
     setDisableSavePay(false);
   };
 
@@ -999,6 +1000,14 @@ const TransactionGBW = ({ emptyObj }) => {
               >
                 Cancel Transaction
               </button> */}
+              <button
+                className={styles.clearButton}
+                onClick={(e) => {
+                  test(e);
+                }}
+              >
+                Clear/Refresh
+              </button>
               <button className={styles.save} onClick={(e) => saveDetails(e)}>
                 Save Details
               </button>
@@ -1056,9 +1065,7 @@ const TransactionGBW = ({ emptyObj }) => {
                 <label>Reference No.</label>
                 <input
                   ref={referenceNoRef}
-                  // placeholder="Reference ID"
                   onChange={(e) => {
-                    // trans.referenceNo = e.target.value;
                     trans.referenceNo = e.target.value;
                   }}
                 ></input>
@@ -1073,7 +1080,8 @@ const TransactionGBW = ({ emptyObj }) => {
                   />
                 </div>
               )}
-              <div style={{ display: isCash ? "none" : "block" }}>
+              {/* <div style={{ display: isCash ? "block" : "none" }}> */}
+              <div>
                 <div className={styles.buttonContainer}>
                   <button
                     className={styles.addGbw}
@@ -1108,16 +1116,7 @@ const TransactionGBW = ({ emptyObj }) => {
                   </button>
                 </div>
 
-                <div className={styles.buttonContainer}>
-                  <button
-                    className={styles.clearButton}
-                    onClick={(e) => {
-                      test(e);
-                    }}
-                  >
-                    Clear/Refresh
-                  </button>
-                </div>
+                <div className={styles.buttonContainer}></div>
               </div>
             </div>
           </div>

@@ -77,6 +77,7 @@ const PrintReportsGBW = () => {
     if (jwtToken && !isTokenExpired(jwtToken)) {
       getReference();
       repDateRef.current.value = getTodayDate();
+      // allowSaving();
     }
   }, []);
 
@@ -93,6 +94,23 @@ const PrintReportsGBW = () => {
       } else {
         setDisableSave(true);
       }
+    }
+  };
+
+  const allowSaving = () => {
+    //   alert(balDate);
+    //   alert(new Date(repDateRef.current.value).toLocaleDateString("en-US"));
+    let dateSelected = new Date(repDateRef.current.value).toLocaleDateString(
+      "en-US"
+    );
+    if (balDate === dateSelected) {
+      if (permissions.includes("Balance.save")) {
+        setDisableSave(false);
+      } else {
+        setDisableSave(true);
+      }
+    } else {
+      setDisableSave(true);
     }
   };
 
@@ -188,6 +206,7 @@ const PrintReportsGBW = () => {
       setIsCashPal(false);
       setIsOther(false);
     }
+    allowSaving();
   };
 
   const showFormCal = (e) => {
@@ -206,6 +225,7 @@ const PrintReportsGBW = () => {
         setIsOther(false);
       }
     }
+    allowSaving();
   };
 
   const printReport = (e) => {

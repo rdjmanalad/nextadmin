@@ -95,6 +95,21 @@ const PrintReports = () => {
     }
   };
 
+  const allowSaving = () => {
+    let dateSelected = new Date(repDateRef.current.value).toLocaleDateString(
+      "en-US"
+    );
+    if (balDate === dateSelected) {
+      if (permissions.includes("Balance.save")) {
+        setDisableSave(false);
+      } else {
+        setDisableSave(true);
+      }
+    } else {
+      setDisableSave(true);
+    }
+  };
+
   useEffect(() => {
     if (mode !== "") {
       getBalances();
@@ -187,6 +202,7 @@ const PrintReports = () => {
       setIsCashPal(false);
       setIsOther(false);
     }
+    allowSaving();
   };
 
   const showFormCal = (e) => {
@@ -205,6 +221,7 @@ const PrintReports = () => {
         setIsOther(false);
       }
     }
+    allowSaving();
   };
 
   const printLayaway = (e) => {
