@@ -56,7 +56,6 @@ const CashCountModalGBW = ({ setOpenCashCount, cDate }) => {
   const b5ref = useRef();
   const b1ref = useRef();
   const bdeciref = useRef();
-  const dateRef = useRef();
 
   let emptyArr = {
     id: "",
@@ -103,7 +102,6 @@ const CashCountModalGBW = ({ setOpenCashCount, cDate }) => {
   }, [cashCount]);
 
   useEffect(() => {
-    // setCcDate(cDate);
     search();
   }, []);
 
@@ -198,8 +196,6 @@ const CashCountModalGBW = ({ setOpenCashCount, cDate }) => {
       cashCount.cashCountDate = inDate;
       setDisableAll(false);
       var jwt = window.sessionStorage.getItem("jwt");
-
-      // var inDate = e.target.value;
       axios.defaults.headers.common["Authorization"] =
         "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
       axios
@@ -346,7 +342,6 @@ const CashCountModalGBW = ({ setOpenCashCount, cDate }) => {
           <label>Cash count date</label>
           <input
             value={ccdate}
-            ref={dateRef}
             type={"date"}
             onChange={(e) => {
               //   cashCount.cashCountDate = e.target.value;
