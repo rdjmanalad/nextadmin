@@ -5,7 +5,7 @@ import axios from "axios";
 import MessageModal from "./messageModal";
 import useLocalState from "@/app/hooks/useLocalState";
 
-const CashCountModal = ({ setOpenCashCount }) => {
+const CashCountModal = ({ setOpenCashCount, cDate }) => {
   const isClient = typeof window !== "undefined";
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [total, setTotal] = useState(0);
@@ -19,7 +19,9 @@ const CashCountModal = ({ setOpenCashCount }) => {
   const [b5, setB5] = useState(0);
   const [b1, setB1] = useState(0);
   const [bDeci, setBDeci] = useState(0);
-  const [ccdate, setCcDate] = useState();
+  const [ccdate, setCcDate] = useState(
+    new Date(cDate).toLocaleDateString("en-CA")
+  );
   const [openModal, setOpenModal] = useState(false);
   const [message, setMessage] = useState("");
   const [disableAll, setDisableAll] = useState(false);
@@ -88,11 +90,22 @@ const CashCountModal = ({ setOpenCashCount }) => {
         new Date(cashCount.cashCountDate).toLocaleDateString("en-CA") !=
         new Date(balDate).toLocaleDateString("en-CA")
       ) {
-        // alert("ss");
-        setDisableAll(true);
+        if (
+          new Date(balDate).toLocaleDateString("en-CA") ===
+          new Date(ccdate).toLocaleDateString("en-CA")
+        ) {
+          setDisableAll(false);
+        } else {
+          setDisableAll(true);
+        }
+        // setDisableAll(true);
       }
     }
   }, [cashCount]);
+
+  useEffect(() => {
+    search();
+  }, []);
 
   const allowPermission = () => {
     if (permissions) {
@@ -175,6 +188,35 @@ const CashCountModal = ({ setOpenCashCount }) => {
     }
   };
 
+  const search2 = (e) => {
+    let inDate = e.target.value;
+    if (e.target.value === undefined) {
+      setMessage("Please enter cash count date.");
+      setOpenModal(true);
+    } else {
+      setCashCount(emptyArr);
+      cashCount.cashCountDate = inDate;
+      setDisableAll(false);
+      var jwt = window.sessionStorage.getItem("jwt");
+      axios.defaults.headers.common["Authorization"] =
+        "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+      axios
+        .get(baseUrl + "/api/cashCount/getByDate/" + inDate, {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          if (response.status === 403) {
+            router.push("/login");
+          }
+          setCashCount(response.data);
+          // enableUIInput();
+        });
+    }
+  };
+
   const normalizeNumber = (value) => {
     if (value != undefined) {
       return value.replace(/[^0-9]/g, "");
@@ -237,7 +279,8 @@ const CashCountModal = ({ setOpenCashCount }) => {
     b10ref.current.value = normalizeCurrency(10 * cashCount.b10);
     b5ref.current.value = normalizeCurrency(5 * cashCount.b5);
     b1ref.current.value = normalizeCurrency(1 * cashCount.b1);
-    bdeciref.current.value = cashCount.bdecimal;
+    bdeciref.current.value = normalizeCurrency(1 * cashCount.bdecimal);
+    // bdeciref.current.value = cashCount.bdecimal;
   };
 
   const print = () => {
@@ -301,19 +344,20 @@ const CashCountModal = ({ setOpenCashCount }) => {
           <label>Cash count date</label>
           <input
             type={"date"}
+            value={ccdate}
             onChange={(e) => {
-              //   cashCount.cashCountDate = e.target.value;
               setCcDate(e.target.value);
-              //   search(e);
+              search2(e);
+              search2(e);
             }}
           ></input>
-          <button
+          {/* <button
             onClick={(e) => {
               search(e);
             }}
           >
             Search
-          </button>
+          </button> */}
         </div>
         <div className={styles.form}>
           <div className={styles.details}>
@@ -487,7 +531,7 @@ const CashCountModal = ({ setOpenCashCount }) => {
           <button
             className={styles.modalButtonCancel}
             style={{ marginRight: "5px" }}
-            disabled={disableAll}
+            // disabled={disableAll}
             onClick={(e) => {
               e.preventDefault();
               print();

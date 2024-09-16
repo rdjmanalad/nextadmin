@@ -62,6 +62,8 @@ const PrintReports = () => {
   const ceRef1 = useRef();
   const ceRef2 = useRef();
 
+  const [cDate, setCDate] = useState(new Date());
+
   useEffect(() => {
     allowPermission();
     const jwtToken = window.sessionStorage.getItem("jwt");
@@ -718,6 +720,7 @@ const PrintReports = () => {
               ref={repDateRef}
               onChange={(e) => {
                 setTransDate(e.target.value);
+                setCDate(e.target.value);
                 showFormCal(e);
               }}
             ></input>
@@ -1296,7 +1299,7 @@ const PrintReports = () => {
           />
         )}
         {openCashCount && (
-          <CashCountModal setOpenCashCount={setOpenCashCount} />
+          <CashCountModal setOpenCashCount={setOpenCashCount} cDate={cDate} />
         )}
       </div>
       <br></br>

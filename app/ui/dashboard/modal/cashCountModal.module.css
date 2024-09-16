@@ -139,3 +139,8 @@
   width: 100%;
   margin: 5px 0 5px 0;
 }
+
+.disabled {
+  pointer-events: none; /* Disables all mouse interactions */
+  opacity: 0.6; /* Optional: Makes the elements look disabled */
+}

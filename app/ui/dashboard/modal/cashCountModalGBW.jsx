@@ -5,7 +5,7 @@ import axios from "axios";
 import MessageModal from "./messageModal";
 import useLocalState from "@/app/hooks/useLocalState";
 
-const CashCountModalGBW = ({ setOpenCashCount }) => {
+const CashCountModalGBW = ({ setOpenCashCount, cDate }) => {
   const isClient = typeof window !== "undefined";
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
   const [total, setTotal] = useState(0);
@@ -19,7 +19,9 @@ const CashCountModalGBW = ({ setOpenCashCount }) => {
   const [b5, setB5] = useState(0);
   const [b1, setB1] = useState(0);
   const [bDeci, setBDeci] = useState(0);
-  const [ccdate, setCcDate] = useState();
+  const [ccdate, setCcDate] = useState(
+    new Date(cDate).toLocaleDateString("en-CA")
+  );
   const [openModal, setOpenModal] = useState(false);
   const [message, setMessage] = useState("");
   const [disableAll, setDisableAll] = useState(false);
@@ -54,6 +56,7 @@ const CashCountModalGBW = ({ setOpenCashCount }) => {
   const b5ref = useRef();
   const b1ref = useRef();
   const bdeciref = useRef();
+  const dateRef = useRef();
 
   let emptyArr = {
     id: "",
@@ -81,18 +84,28 @@ const CashCountModalGBW = ({ setOpenCashCount }) => {
       setCashCount(emptyArr);
     }
     if (cashCount.cashCountDate != "") {
-      //   alert(new Date(cashCount.cashCountDate).toLocaleDateString("en-CA"));
-      //   alert(new Date(balDate).toLocaleDateString("en-CA"));
       populate();
       if (
         new Date(cashCount.cashCountDate).toLocaleDateString("en-CA") !=
         new Date(balDate).toLocaleDateString("en-CA")
       ) {
-        // alert("ss");
-        setDisableAll(true);
+        if (
+          new Date(balDate).toLocaleDateString("en-CA") ===
+          new Date(ccdate).toLocaleDateString("en-CA")
+        ) {
+          setDisableAll(false);
+        } else {
+          setDisableAll(true);
+        }
+        // setDisableAll(true);
       }
     }
   }, [cashCount]);
+
+  useEffect(() => {
+    // setCcDate(cDate);
+    search();
+  }, []);
 
   const allowPermission = () => {
     if (permissions) {
@@ -175,6 +188,37 @@ const CashCountModalGBW = ({ setOpenCashCount }) => {
     }
   };
 
+  const search2 = (e) => {
+    let inDate = e.target.value;
+    if (e.target.value === undefined) {
+      setMessage("Please enter cash count date.");
+      setOpenModal(true);
+    } else {
+      setCashCount(emptyArr);
+      cashCount.cashCountDate = inDate;
+      setDisableAll(false);
+      var jwt = window.sessionStorage.getItem("jwt");
+
+      // var inDate = e.target.value;
+      axios.defaults.headers.common["Authorization"] =
+        "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+      axios
+        .get(baseUrl + "/api/cashCount/gbw/getByDate/" + inDate, {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          if (response.status === 403) {
+            router.push("/login");
+          }
+          setCashCount(response.data);
+          // enableUIInput();
+        });
+    }
+  };
+
   const normalizeNumber = (value) => {
     if (value != undefined) {
       return value.replace(/[^0-9]/g, "");
@@ -237,7 +281,8 @@ const CashCountModalGBW = ({ setOpenCashCount }) => {
     b10ref.current.value = normalizeCurrency(10 * cashCount.b10);
     b5ref.current.value = normalizeCurrency(5 * cashCount.b5);
     b1ref.current.value = normalizeCurrency(1 * cashCount.b1);
-    bdeciref.current.value = cashCount.bdecimal;
+    bdeciref.current.value = normalizeCurrency(1 * cashCount.bdecimal);
+    // bdeciref.current.value = cashCount.bdecimal;
   };
 
   const print = () => {
@@ -300,173 +345,177 @@ const CashCountModalGBW = ({ setOpenCashCount }) => {
           <br></br>
           <label>Cash count date</label>
           <input
+            value={ccdate}
+            ref={dateRef}
             type={"date"}
             onChange={(e) => {
               //   cashCount.cashCountDate = e.target.value;
               setCcDate(e.target.value);
-              //   search(e);
+              search2(e);
             }}
           ></input>
-          <button
+          {/* <button
             onClick={(e) => {
               search(e);
             }}
           >
             Search
-          </button>
+          </button> */}
         </div>
         <div className={styles.form}>
-          <div className={styles.details}>
-            <label>Denomination</label>
-            <label>No. of pieces</label>
-            <label>Total</label>
-            <label>1000 </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.b1000}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeNumber(value);
-                setB1000(e.target.value);
-                cashCount.b1000 = e.target.value;
-              }}
-            ></input>
-            <input
-              disabled
-              ref={b1000ref}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeCurrency(value);
-              }}
-            ></input>
-            <label>500 </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.b500}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeNumber(value);
-                setB500(e.target.value);
-                cashCount.b500 = e.target.value;
-              }}
-            ></input>
-            <input disabled ref={b500ref}></input>
-            <label>200 </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.b200}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeNumber(value);
-                setB200(e.target.value);
-                cashCount.b200 = e.target.value;
-              }}
-            ></input>
-            <input disabled ref={b200ref}></input>
-            <label>100 </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.b100}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeNumber(value);
-                setB100(e.target.value);
-                cashCount.b100 = e.target.value;
-              }}
-            ></input>
-            <input disabled ref={b100ref}></input>
-            <label>50 </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.b50}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeNumber(value);
-                setB50(e.target.value);
-                cashCount.b50 = e.target.value;
-              }}
-            ></input>
-            <input disabled ref={b50ref}></input>
-            <label>20 </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.b20}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeNumber(value);
-                setB20(e.target.value);
-                cashCount.b20 = e.target.value;
-              }}
-            ></input>
-            <input disabled ref={b20ref}></input>
-            <label>10 </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.b10}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeNumber(value);
-                setB10(e.target.value);
-                cashCount.b10 = e.target.value;
-              }}
-            ></input>
-            <input disabled ref={b10ref}></input>
-            <label>5 </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.b5}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeNumber(value);
-                setB5(e.target.value);
-                cashCount.b5 = e.target.value;
-              }}
-            ></input>
-            <input disabled ref={b5ref}></input>
-            <label>1 </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.b1}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeNumber(value);
-                setB1(e.target.value);
-                cashCount.b1 = e.target.value;
-              }}
-            ></input>
-            <input disabled ref={b1ref}></input>
-            <label>Decimal </label>
-            <input
-              maxLength={10}
-              onFocus={(event) => event.target.select()}
-              value={cashCount.bdecimal}
-              disabled={disableAll}
-              onChange={(e) => {
-                const { value } = e.target;
-                e.target.value = normalizeDecimal(value);
-                setBDeci(e.target.value);
-                cashCount.bdecimal = e.target.value;
-              }}
-            ></input>
-            <input disabled ref={bdeciref}></input>
+          <div>
+            <div className={styles.details}>
+              <label>Denomination</label>
+              <label>No. of pieces</label>
+              <label>Total</label>
+              <label>1000 </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.b1000}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeNumber(value);
+                  setB1000(e.target.value);
+                  cashCount.b1000 = e.target.value;
+                }}
+              ></input>
+              <input
+                disabled
+                ref={b1000ref}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeCurrency(value);
+                }}
+              ></input>
+              <label>500 </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.b500}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeNumber(value);
+                  setB500(e.target.value);
+                  cashCount.b500 = e.target.value;
+                }}
+              ></input>
+              <input disabled ref={b500ref}></input>
+              <label>200 </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.b200}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeNumber(value);
+                  setB200(e.target.value);
+                  cashCount.b200 = e.target.value;
+                }}
+              ></input>
+              <input disabled ref={b200ref}></input>
+              <label>100 </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.b100}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeNumber(value);
+                  setB100(e.target.value);
+                  cashCount.b100 = e.target.value;
+                }}
+              ></input>
+              <input disabled ref={b100ref}></input>
+              <label>50 </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.b50}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeNumber(value);
+                  setB50(e.target.value);
+                  cashCount.b50 = e.target.value;
+                }}
+              ></input>
+              <input disabled ref={b50ref}></input>
+              <label>20 </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.b20}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeNumber(value);
+                  setB20(e.target.value);
+                  cashCount.b20 = e.target.value;
+                }}
+              ></input>
+              <input disabled ref={b20ref}></input>
+              <label>10 </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.b10}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeNumber(value);
+                  setB10(e.target.value);
+                  cashCount.b10 = e.target.value;
+                }}
+              ></input>
+              <input disabled ref={b10ref}></input>
+              <label>5 </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.b5}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeNumber(value);
+                  setB5(e.target.value);
+                  cashCount.b5 = e.target.value;
+                }}
+              ></input>
+              <input disabled ref={b5ref}></input>
+              <label>1 </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.b1}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeNumber(value);
+                  setB1(e.target.value);
+                  cashCount.b1 = e.target.value;
+                }}
+              ></input>
+              <input disabled ref={b1ref}></input>
+              <label>Decimal </label>
+              <input
+                maxLength={10}
+                onFocus={(event) => event.target.select()}
+                value={cashCount.bdecimal}
+                disabled={disableAll}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  e.target.value = normalizeDecimal(value);
+                  setBDeci(e.target.value);
+                  cashCount.bdecimal = e.target.value;
+                }}
+              ></input>
+              <input disabled ref={bdeciref}></input>
+            </div>
           </div>
           <hr className={styles.line}></hr>
         </div>
