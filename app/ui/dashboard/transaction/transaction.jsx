@@ -392,7 +392,6 @@ const Transaction = ({ emptyObj }) => {
       })
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
         setPermissions(data);
       });
   };
@@ -487,7 +486,6 @@ const Transaction = ({ emptyObj }) => {
           }
         })
         .catch((error) => {
-          console.log(error.response.data.message);
           if (error.response.data.message.includes("unique_inventory")) {
             setMessage(
               "Inventory no. " + trans.inventoryNo + " is already existing."
@@ -1165,7 +1163,6 @@ const Transaction = ({ emptyObj }) => {
     if (trans.id != "" || trans.id != undefined) {
       let hasPaymentCash = false;
       let hasPaymentLay = false;
-      console.log("trans.cashPayment:" + trans.cashPayment);
       if (
         trans.cashPayment === 0 ||
         trans.cashPayment === "" ||

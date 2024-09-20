@@ -174,7 +174,6 @@ const PrintReportsGBW = () => {
       .then((response) => response.data)
       .then((data) => {
         setPr(data);
-        console.log(data);
       });
 
     pcode = "OB-GBW";
@@ -190,7 +189,6 @@ const PrintReportsGBW = () => {
       .then((response) => response.data)
       .then((data) => {
         setOb(data);
-        console.log(data);
       });
   };
 

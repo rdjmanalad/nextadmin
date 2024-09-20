@@ -29,7 +29,6 @@ const LayAwayTableCorr = ({ transactionId, setOpenModalLayAway, layAway }) => {
       })
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
         setRowData(data);
       });
   };

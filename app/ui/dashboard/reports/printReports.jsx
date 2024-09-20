@@ -172,7 +172,6 @@ const PrintReports = () => {
       .then((response) => response.data)
       .then((data) => {
         setPr(data);
-        console.log(data);
       });
 
     pcode = "OB";
@@ -188,7 +187,6 @@ const PrintReports = () => {
       .then((response) => response.data)
       .then((data) => {
         setOb(data);
-        console.log(data);
       });
   };
 
@@ -262,7 +260,7 @@ const PrintReports = () => {
       });
   };
 
-  const printAvailable = (e) => {
+  const printAvailable1 = (e) => {
     var jwt = window.sessionStorage.getItem("jwt");
     axios.defaults.headers.common["Authorization"] =
       "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
@@ -358,6 +356,37 @@ const PrintReports = () => {
       .then((response) => {
         const file = new Blob([response.data], { type: "application/pdf" });
         var w = window.open(window.URL.createObjectURL(file));
+      });
+  };
+
+  const printAvailable = (e) => {
+    axios
+      .get(baseUrl + "/api/reports/availableOnHand", {
+        headers: {
+          contentType: "application/json",
+          accept:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Accept header for Excel format
+        },
+        responseType: "blob", // Ensure the response is in blob format
+      })
+      .then((response) => {
+        // Create a new Blob object with the Excel file data
+        const file = new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        // Create a link element to trigger the file download
+        const link = document.createElement("a");
+        const url = window.URL.createObjectURL(file);
+        link.href = url;
+        link.download = "layaway_report.xlsx"; // Specify the file name
+        document.body.appendChild(link); // Append the link to the body
+        link.click(); // Simulate a click to trigger the download
+        document.body.removeChild(link); // Clean up
+        window.URL.revokeObjectURL(url); // Release the object URL
+      })
+      .catch((error) => {
+        console.error("Error downloading the file", error);
       });
   };
 
@@ -820,6 +849,7 @@ const PrintReports = () => {
             onClick={(e) => {
               e.preventDefault();
               printReport(e);
+              // printAvailable1();
             }}
           >
             Print Report

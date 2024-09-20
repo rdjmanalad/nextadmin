@@ -117,8 +117,6 @@ const LoginPage = () => {
       //   setInvalid(true);
       // });
       .catch((message) => {
-        console.log("ss");
-        console.log(message);
         setMessage(message);
         setInvalid(true);
       });
@@ -175,7 +173,6 @@ const LoginPage = () => {
       })
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
         setPermissions(data);
       });
   };

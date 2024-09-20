@@ -278,10 +278,7 @@ const UserAdd = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          // console.log(response.data);
           setAppUser(response.data);
-          // setErrorMessage("");
-          // setSuccessMessage("Changes Saved!");
           setMessage("Changes Saved!");
           setOpenModal(true);
           getUsers();

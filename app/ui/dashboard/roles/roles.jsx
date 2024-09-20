@@ -157,7 +157,6 @@ const Roles = () => {
       .then((response) => response.data)
       .then((data) => {
         setRowData2(data);
-        console.log(data);
       });
   };
 
@@ -175,7 +174,6 @@ const Roles = () => {
       .then((response) => response.data)
       .then((data) => {
         setPermAlias(data);
-        console.log(data);
       });
   };
 
@@ -191,7 +189,6 @@ const Roles = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
           setMessage("Role permission saved.");
           setOpenModal(true);
           getPermissions();
@@ -204,7 +201,6 @@ const Roles = () => {
   };
 
   const saveRole = () => {
-    console.log(roleSave);
     if (roleSave.roleName === "" || roleSave.roleName === undefined) {
       setMessage("Role name is empty.");
       setOpenModal(true);
@@ -225,7 +221,6 @@ const Roles = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
           setMessage("Role saved.");
           setOpenModal(true);
           getRoles();

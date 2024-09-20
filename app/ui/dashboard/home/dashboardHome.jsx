@@ -166,7 +166,6 @@ const DashboardHome = () => {
         }
       );
       setBalances(response.data);
-      console.log(response.data);
     } catch (err) {
       setError(err);
       console.error("Error fetching data:", err);
@@ -190,7 +189,6 @@ const DashboardHome = () => {
         }
       );
       setBalances(response.data);
-      console.log(response.data);
     } catch (err) {
       setError2(err);
       console.error("Error fetching data:", err);

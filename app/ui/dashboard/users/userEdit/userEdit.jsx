@@ -121,10 +121,7 @@ const UserEdit = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
-          //   setValidPass(false);
           setErrorMessage("");
-          // setSuccessMessage("Password updated successfully!");
           setMessage("Password updated successfully!");
           setOpenModal(true);
         }

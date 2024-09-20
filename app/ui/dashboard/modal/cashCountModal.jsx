@@ -132,7 +132,6 @@ const CashCountModal = ({ setOpenCashCount, cDate }) => {
       .then((response) => {
         if (response.status === 200) {
           setCashCount(response.data);
-          console.log(response.date);
           setMessage("Cash Count Saved.");
           setOpenModal(true);
         }
