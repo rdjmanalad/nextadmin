@@ -63,6 +63,15 @@ const PrintReports = () => {
   const ceRef2 = useRef();
 
   const [cDate, setCDate] = useState(new Date());
+  const addOrder = [
+    {
+      id: 9999,
+      parent: "OB",
+      code: "OB99",
+      name: "DATE",
+      description: "a.cashPaymentDate ASC, fullPaymentDate ASC",
+    },
+  ];
 
   useEffect(() => {
     allowPermission();
@@ -132,6 +141,10 @@ const PrintReports = () => {
     } else {
       setNeedCName(false);
     }
+    if (report === "sold_report.jrxml") {
+      let reOrder = [...ob, ...addOrder];
+      setOb(reOrder);
+    }
   }, [report]);
 
   function getTodayDate() {
@@ -187,6 +200,7 @@ const PrintReports = () => {
       .then((response) => response.data)
       .then((data) => {
         setOb(data);
+        // console.log(data);
       });
   };
 
