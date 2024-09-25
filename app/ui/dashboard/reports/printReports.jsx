@@ -72,6 +72,8 @@ const PrintReports = () => {
       description: "a.cashPaymentDate ASC, fullPaymentDate ASC",
     },
   ];
+  const [newOb, setNewOb] = useState([]);
+  const [origOb, setOrigOb] = useState([]);
 
   useEffect(() => {
     allowPermission();
@@ -142,8 +144,9 @@ const PrintReports = () => {
       setNeedCName(false);
     }
     if (report === "sold_report.jrxml") {
-      let reOrder = [...ob, ...addOrder];
-      setOb(reOrder);
+      setOb(newOb);
+    } else {
+      setOb(origOb);
     }
   }, [report]);
 
@@ -200,7 +203,8 @@ const PrintReports = () => {
       .then((response) => response.data)
       .then((data) => {
         setOb(data);
-        // console.log(data);
+        setOrigOb(data);
+        setNewOb([...data, ...addOrder]);
       });
   };
 
