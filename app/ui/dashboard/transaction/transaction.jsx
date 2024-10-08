@@ -503,7 +503,6 @@ const Transaction = ({ emptyObj }) => {
 
   const inventoryIsAllowed = async () => {
     if (trans.id != undefined) {
-      alert("aa");
       return true;
     } else {
       let count = 0;
