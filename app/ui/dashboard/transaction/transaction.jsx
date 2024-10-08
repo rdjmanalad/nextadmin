@@ -502,34 +502,39 @@ const Transaction = ({ emptyObj }) => {
   };
 
   const inventoryIsAllowed = async () => {
-    let count = 0;
-    const jwt = window.sessionStorage.getItem("jwt");
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
-
-    try {
-      const response = await axios.get(
-        `${baseUrl}/api/transactions/getCountInventory/${trans.inventoryNo}`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      count = response.data;
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-    }
-    if (count > 0) {
-      // if (trans.id === undefined) {
-      //   return false;
-      // } else {
-      //   return true;
-      // }
-      return false;
-    } else {
+    if (trans.id != undefined) {
+      alert("aa");
       return true;
+    } else {
+      let count = 0;
+      const jwt = window.sessionStorage.getItem("jwt");
+      axios.defaults.headers.common["Authorization"] =
+        "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/transactions/getCountInventory/${trans.inventoryNo}`,
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        count = response.data;
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+      if (count > 0) {
+        // if (trans.id === undefined) {
+        //   return false;
+        // } else {
+        //   return true;
+        // }
+        return false;
+      } else {
+        return true;
+      }
     }
     // return count <= 0;
   };
