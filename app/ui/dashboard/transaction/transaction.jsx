@@ -522,11 +522,12 @@ const Transaction = ({ emptyObj }) => {
       alert(`Error: ${error.message}`);
     }
     if (count > 0) {
-      if (trans.id === undefined) {
-        return false;
-      } else {
-        return true;
-      }
+      // if (trans.id === undefined) {
+      //   return false;
+      // } else {
+      //   return true;
+      // }
+      return false;
     } else {
       return true;
     }

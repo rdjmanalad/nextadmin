@@ -40,6 +40,7 @@ const PrintReports = () => {
   const [permissions, setPermissions] = useLocalState([]);
   const [disablePost, setDisablePost] = useState(false);
   const [disableSave, setDisableSave] = useState(false);
+  const [showExport, setShowExport] = useState(false);
 
   const startDateRef = useRef();
   const endDateRef = useRef();
@@ -147,6 +148,18 @@ const PrintReports = () => {
       setOb(newOb);
     } else {
       setOb(origOb);
+    }
+    if (report === "layaway_existing.jrxml") {
+      alert(newOb[newOb.length - 1].description);
+      newOb[newOb.length - 1].description = "b.paymentDate";
+      setOb(newOb);
+    } else {
+      setOb(origOb);
+    }
+    if (report === "canceled_items.jrxml") {
+      setShowExport(true);
+    } else {
+      setShowExport(false);
     }
   }, [report]);
 
@@ -340,6 +353,72 @@ const PrintReports = () => {
         .then((response) => {
           const file = new Blob([response.data], { type: "application/pdf" });
           var w = window.open(window.URL.createObjectURL(file));
+        });
+    }
+  };
+
+  const exportReport = (e) => {
+    if (startDateRef.current.value === "" || endDateRef.current.value === "") {
+      setMessage("Please select starting and end date");
+      setOpenModal(true);
+    } else if (report === "") {
+      setMessage("Please select a report to print");
+      setOpenModal(true);
+    } else if (orderBy === "") {
+      setMessage("Order by is empty");
+      setOpenModal(true);
+    } else if (needCName && customerName === "") {
+      setMessage("Customer name is empty");
+      setOpenModal(true);
+      setCustomerName(customerName.toLocaleUpperCase());
+    } else {
+      if (!needCName) {
+        setCustomerName("noName");
+      }
+
+      var dateFrom = startDateRef.current.value;
+      var dateTo = endDateRef.current.value;
+      // var jwt = window.sessionStorage.getItem("jwt");
+      // axios.defaults.headers.common["Authorization"] =
+      //   "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+      axios
+        .get(
+          baseUrl +
+            "/api/reports/export/" +
+            dateFrom +
+            "/" +
+            dateTo +
+            "/" +
+            report +
+            "/" +
+            orderBy,
+          {
+            headers: {
+              contentType: "application/json",
+              accept:
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Accept header for Excel format
+            },
+            responseType: "blob", // Ensure the response is in blob format
+          }
+        )
+        .then((response) => {
+          // Create a new Blob object with the Excel file data
+          const file = new Blob([response.data], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+
+          // Create a link element to trigger the file download
+          const link = document.createElement("a");
+          const url = window.URL.createObjectURL(file);
+          link.href = url;
+          link.download = "layaway_report.xlsx"; // Specify the file name
+          document.body.appendChild(link); // Append the link to the body
+          link.click(); // Simulate a click to trigger the download
+          document.body.removeChild(link); // Clean up
+          window.URL.revokeObjectURL(url); // Release the object URL
+        })
+        .catch((error) => {
+          console.error("Error downloading the file", error);
         });
     }
   };
@@ -872,6 +951,17 @@ const PrintReports = () => {
           >
             Print Report
           </button>
+          {showExport && (
+            <button
+              className={styles.buttons}
+              onClick={(e) => {
+                e.preventDefault();
+                exportReport(e);
+              }}
+            >
+              Export to Excel
+            </button>
+          )}
         </div>
         {/* <div className={styles.form}>
           <h3>Sold Monthly Reports</h3>
