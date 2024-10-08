@@ -150,7 +150,6 @@ const PrintReports = () => {
       setOb(origOb);
     }
     if (report === "layaway_existing.jrxml") {
-      alert(newOb[newOb.length - 1].description);
       newOb[newOb.length - 1].description = "b.paymentDate";
       setOb(newOb);
     } else {
