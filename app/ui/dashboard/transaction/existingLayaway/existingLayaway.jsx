@@ -382,27 +382,77 @@ const ExistingLayaway = ({ emptyObj }) => {
       });
   };
 
-  const saveDetailsOnly = () => {
-    var jwt = window.sessionStorage.getItem("jwt");
-    axios
-      .post(baseUrl + "/api/transactions/save", trans, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
-        },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          // console.log(response.data);
-          setTrans(response.data);
-          setMessage("Saved");
-          setOpenModal(true);
-        }
-      })
-      .catch((message) => {
-        alert(message);
-      });
+  const saveDetailsOnly = async () => {
+    const isAllowed = await inventoryIsAllowed();
+    if (!isAllowed) {
+      setMessage("Inventory number is already used.");
+      setOpenModal(true);
+    } else {
+      var jwt = window.sessionStorage.getItem("jwt");
+      axios
+        .post(baseUrl + "/api/transactions/save", trans, {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+          },
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            setTrans(response.data);
+            setMessage("Details Saved");
+            setOpenModal(true);
+          }
+        })
+        .catch((error) => {
+          if (error.response.data.message.includes("unique_inventory")) {
+            setMessage(
+              "Inventory no. " + trans.inventoryNo + " is already existing."
+            );
+            setOpenModal(true);
+          } else {
+            alert(error.response.data.message);
+          }
+        })
+        .finally(() => {});
+    }
+  };
+
+  const inventoryIsAllowed = async () => {
+    if (trans.id != undefined) {
+      return true;
+    } else {
+      let count = 0;
+      const jwt = window.sessionStorage.getItem("jwt");
+      axios.defaults.headers.common["Authorization"] =
+        "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/transactions/getCountInventory/${trans.inventoryNo}`,
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        count = response.data;
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+      if (count > 0) {
+        // if (trans.id === undefined) {
+        //   return false;
+        // } else {
+        //   return true;
+        // }
+        return false;
+      } else {
+        return true;
+      }
+    }
+    // return count <= 0;
   };
 
   const saveLayAwayPay = () => {

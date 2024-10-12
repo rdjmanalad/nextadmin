@@ -45,6 +45,8 @@ const LayAwayTable = ({ transactionId }) => {
       balDate
     ) {
       amountRef.current.disabled = false;
+      pmRef.current.disabled = false;
+      refNoRef.current.disabled = false;
     }
   }, []);
 
