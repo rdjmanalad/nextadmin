@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useLocalState from "@/app/hooks/useLocalState";
-import CancelledTransactions from "@/app/ui/dashboard/transaction/cancelledTransactions/CancelledTransactions";
+import CancelledTransactions from "@/app/ui/dashboard/transaction/cancelledTransactions/cancelledTransactions";
+// import CancelledTransactions from "@/app/ui/dashboard/transaction/cancelledTransactions/CancelledTransactions";
 // import CancelledTransactions from "@/app/ui/dashboard/transaction/ca"
 
 const Cancelled = () => {
