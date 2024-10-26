@@ -17,6 +17,7 @@ import {
   MdKeyboardArrowDown,
   MdPlaylistAddCheck,
   MdEditNote,
+  MdOutlineCancelPresentation,
 } from "react-icons/md";
 import { LuUserCog, LuUserPlus } from "react-icons/lu";
 import { GiMoneyStack } from "react-icons/gi";
@@ -58,6 +59,11 @@ const menuItems = [
             path: "/dashboard/existingLayaway",
             icon: <MdEditNote />,
           },
+          // {
+          //   title: "Cancelled Transactions",
+          //   path: "/dashboard/cancelledTransactions",
+          //   icon: <MdOutlineCancelPresentation />,
+          // },
           // Add more sub-menu items as needed
         ],
       },

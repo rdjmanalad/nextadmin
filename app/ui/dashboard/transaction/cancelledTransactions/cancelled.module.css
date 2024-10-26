@@ -1,0 +1,76 @@
+.container {
+  background-color: var(--bgSoft);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.aggrid {
+  height: 400px;
+  /* --ag-grid-size: 10px;
+    --ag-list-item-height: 40px; */
+  --ag-selected-row-background-color: rgba(0, 12, 120, 0.26);
+  --ag-odd-row-background-color: rgb(241, 241, 241) !important;
+  --ag-header-background-color: rgb(202, 202, 202) !important;
+}
+
+.inputs {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 2fr 1fr 2fr;
+  gap: 10px;
+}
+
+.inputs input {
+  width: 100%;
+  background-color: var(--inputBg);
+  border: 1px solid black;
+  height: 30px;
+  border-radius: 5px;
+  padding-left: 5px;
+  color: black;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  padding-right: 20px;
+}
+
+.inputs label {
+  padding-top: 6px;
+  font-size: 14px;
+}
+
+.quickSearch {
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.quickSearch input {
+  background-color: var(--inputBg);
+  border: 1px solid black;
+  height: 30px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  padding-left: 5px;
+  color: blue;
+  font-weight: 800;
+  font-size: 14px;
+  background-color: rgb(166, 247, 204);
+}
+
+.quickSearch input:focus {
+  outline: none;
+}
+
+.buttons {
+  text-align: right;
+}
+
+.buttons button {
+  width: 100%;
+  width: 200px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: var(--buttonGreen);
+  cursor: pointer;
+}

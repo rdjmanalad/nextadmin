@@ -117,7 +117,9 @@ const CashCountModalGBW = ({ setOpenCashCount, cDate }) => {
 
   const save = () => {
     cashCount.cashCountDate = ccdate;
-    cashCount.totalAmt = total;
+    // alert(total);
+    // alert(cashCount.totalAmt);
+    cashCount.totalAmt = total === 0 ? cashCount.totalAmt : total;
     var jwt = window.sessionStorage.getItem("jwt");
     axios
       .post(baseUrl + "/api/cashCount/gbw/saveCashCount", cashCount, {

@@ -119,7 +119,7 @@ const CashCountModal = ({ setOpenCashCount, cDate }) => {
 
   const save = () => {
     cashCount.cashCountDate = ccdate;
-    cashCount.totalAmt = total;
+    cashCount.totalAmt = total === 0 ? cashCount.totalAmt : total;
     var jwt = window.sessionStorage.getItem("jwt");
     axios
       .post(baseUrl + "/api/cashCount/saveCashCount", cashCount, {
