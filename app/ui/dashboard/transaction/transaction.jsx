@@ -12,6 +12,7 @@ import { MdSearch } from "react-icons/md";
 import ConfirmmModal from "../modal/confirmModal";
 
 const Transaction = ({ emptyObj }) => {
+  const [onDelete, setOnDelete] = useLocalState(false);
   const [trans, setTrans] = useState({});
   const [transOrg, setTransOrg] = useState({});
   const [pt, setPt] = useState([]);
@@ -29,6 +30,9 @@ const Transaction = ({ emptyObj }) => {
   const [openModalLA, setOpenModalLA] = useState(false);
   const [openModalJewel, setOpenModalJewel] = useState(false);
   const [openModalConf, setOpenModalConf] = useState(false);
+  const [openModalDel, setOpenModalDel] = useState(false);
+  const [openModalReset, setOpenModalReset] = useState(false);
+  const [openModalD, setOpenModalD] = useState(false);
   const isClient = typeof window !== "undefined";
   const [user, setUser] = isClient ? useLocalState("user", "") : ["", () => {}];
   const [isfullyPaid, setIsfullyPaid] = useState(false);
@@ -44,6 +48,9 @@ const Transaction = ({ emptyObj }) => {
   const [permissions, setPermissions] = useLocalState([]);
   const [disableSaveDet, setDisableSaveDet] = useState(false);
   const [disableDelete, setDisableDelete] = useState(true);
+  const [delPermission, setDelPermission] = useState(false);
+  const [allowReset, setAllowReset] = useState(false);
+
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -157,26 +164,9 @@ const Transaction = ({ emptyObj }) => {
     if (emptyObj.id != "") {
       populate();
       disablePayment();
+      disableTerm();
     }
   }, [trans]);
-
-  // useEffect(() => {
-  //   if (permissions) {
-  //     if (permissions.includes("transactions.due")) {
-  //       setDisableDuedate(false);
-  //     } else {
-  //       setDisableDuedate(true);
-  //     }
-
-  //     if (permissions.includes("transaction.payment")) {
-  //       // alert("dd");
-  //       setDisablePaymentUI(true);
-  //     } else {
-  //       // alert("ww");
-  //       setDisablePaymentUI(false);
-  //     }
-  //   }
-  // }, [permissions]);
 
   const allowPermission = () => {
     if (permissions) {
@@ -193,11 +183,9 @@ const Transaction = ({ emptyObj }) => {
       }
 
       if (permissions.includes("transaction.delete")) {
-        // alert("dd");
-        setDisableDelete(false);
+        setDelPermission(true);
       } else {
-        // alert("ww");
-        setDisableDelete(true);
+        setDelPermission(false);
       }
     }
   };
@@ -604,6 +592,29 @@ const Transaction = ({ emptyObj }) => {
           setTrans(response.data);
           // alert("Saved");
           setMessage("Transaction saved.");
+          setOpenModal(true);
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
+  const resetPayment = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/transactions/reset", trans, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          // console.log(response.data);
+          setTrans(response.data);
+          setMessage("Payment reset.");
           setOpenModal(true);
         }
       })
@@ -1190,13 +1201,15 @@ const Transaction = ({ emptyObj }) => {
       }
       if (hasPaymentCash || hasPaymentLay) {
         setDisableCancel(true);
-        if (disableDelete) {
-          setDisableDelete(true);
-        } else {
-          setDisableDelete(false);
-        }
+        setDisableDelete(true);
       } else {
+        setDisableDelete(false);
         setDisableCancel(false);
+        if (delPermission) {
+          setDisableDelete(false);
+        } else {
+          setDisableDelete(true);
+        }
       }
     }
   };
@@ -1209,6 +1222,7 @@ const Transaction = ({ emptyObj }) => {
     referenceNoRef.current.disabled = true;
     savePayMentRef.current.disabled = true;
     setDisableSavePay(true);
+    setAllowReset(true);
   };
 
   const enableCashSet = () => {
@@ -1219,6 +1233,16 @@ const Transaction = ({ emptyObj }) => {
     referenceNoRef.current.disabled = false;
     savePayMentRef.current.disabled = false;
     setDisableSavePay(false);
+    setAllowReset(false);
+  };
+
+  const disableTerm = () => {
+    if (trans.cashPayment > 0) {
+      paymentTermRef.current.disabled = true;
+    }
+    if (trans.totalPayment > 0) {
+      paymentTermRef.current.disabled = true;
+    }
   };
 
   const cancelTrans = (e) => {
@@ -1230,6 +1254,12 @@ const Transaction = ({ emptyObj }) => {
       setMessage("Confirm cancelation of transaction.");
       setOpenModalConf(true);
     }
+  };
+
+  const deleteDetails = (e) => {
+    e.preventDefault();
+    setMessage("Confirm deletion of transaction.");
+    setOpenModalDel(true);
   };
 
   const confirmOk = () => {
@@ -1256,6 +1286,33 @@ const Transaction = ({ emptyObj }) => {
       });
   };
 
+  const confirmOkDel = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .delete(baseUrl + "/api/transactions/delete/" + trans.id, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setMessage("Transaction deleted. Please refresh the page.");
+          setOpenModalD(true);
+          setOnDelete(true);
+          // window.location.reload();
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
+  const confirmOkReset = () => {
+    resetPayment();
+  };
+
   const handleSaveDueDate = (e) => {
     e.preventDefault();
     if (
@@ -1268,6 +1325,12 @@ const Transaction = ({ emptyObj }) => {
     } else {
       saveDueDate();
     }
+  };
+
+  const reset = (e) => {
+    e.preventDefault();
+    setMessage("Confirm reset of payment.");
+    setOpenModalReset(true);
   };
 
   return (
@@ -1516,13 +1579,13 @@ const Transaction = ({ emptyObj }) => {
             </div>
             <div className={styles.buttonContainer4}>
               <div></div>
-              {/* <button
+              <button
                 className={styles.cancel}
                 disabled={disableDelete}
-                onClick={(e) => cancelTrans(e)}
+                onClick={(e) => deleteDetails(e)}
               >
                 Delete
-              </button> */}
+              </button>
               <button
                 className={styles.cancel}
                 disabled={disableCancel}
@@ -1843,16 +1906,13 @@ const Transaction = ({ emptyObj }) => {
                   Print Receipt
                 </button>
               </div>
-
-              {/* <div className={styles.buttonContainer2}>
-                <button
-                  onClick={(e) => {
-                    test(e);
-                  }}
-                >
-                  Clear/Refresh
-                </button>
-              </div> */}
+              {isCash && (
+                <div className={styles.buttonContainer2}>
+                  <button disabled={allowReset} onClick={(e) => reset(e)}>
+                    Reset Payment
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1869,6 +1929,9 @@ const Transaction = ({ emptyObj }) => {
       {openModal && (
         <MessageModal setOpenModal={setOpenModal} message={message} />
       )}
+      {openModalD && (
+        <MessageModal setOpenModal={setOpenModalD} message={message} />
+      )}
       {openModalJewel && (
         <JewelryModal
           setOpenModalJewel={setOpenModalJewel}
@@ -1880,6 +1943,20 @@ const Transaction = ({ emptyObj }) => {
           setOpenModalConf={setOpenModalConf}
           message={message}
           confirmOk={confirmOk}
+        />
+      )}
+      {openModalDel && (
+        <ConfirmmModal
+          setOpenModalConf={setOpenModalDel}
+          message={message}
+          confirmOk={confirmOkDel}
+        />
+      )}
+      {openModalReset && (
+        <ConfirmmModal
+          setOpenModalConf={setOpenModalReset}
+          message={message}
+          confirmOk={confirmOkReset}
         />
       )}
     </div>

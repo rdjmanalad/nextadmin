@@ -7,6 +7,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import MessageModal from "./messageModal";
 import axios from "axios";
 import useLocalState from "@/app/hooks/useLocalState";
+import ConfirmmModal from "./confirmModal";
 
 const LayAwayTable = ({ transactionId }) => {
   const isClient = typeof window !== "undefined";
@@ -16,6 +17,10 @@ const LayAwayTable = ({ transactionId }) => {
   const [rowSelected, setRowSelected] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [pm, setPm] = useState([]);
+  const [openModalDel, setOpenModalDel] = useState(false);
+  const [id, setId] = useState();
+  const [disableDel, setDisableDel] = useState(true);
+  const [disableSave, setDisableSave] = useState(true);
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
     : ["", () => {}];
@@ -39,6 +44,7 @@ const LayAwayTable = ({ transactionId }) => {
     amountRef.current.value = selectedRows[0].amount;
     refNoRef.current.value = selectedRows[0].referenceNo;
     pmRef.current.value = selectedRows[0].paymentMode;
+    setId(selectedRows[0].id);
 
     if (
       new Date(selectedRows[0].paymentDate).toLocaleDateString("en-US") ===
@@ -47,6 +53,8 @@ const LayAwayTable = ({ transactionId }) => {
       amountRef.current.disabled = false;
       pmRef.current.disabled = false;
       refNoRef.current.disabled = false;
+      setDisableDel(false);
+      setDisableSave(false);
     }
   }, []);
 
@@ -79,11 +87,6 @@ const LayAwayTable = ({ transactionId }) => {
           "Content-Type": "application/json",
         },
       })
-      // .then((response) => response.data)
-      // .then((data) => {
-      //   console.log(data);
-      //   setRowData(data);
-      // });
       .then((response) => {
         if (response.status === 200) {
           setRowData(response.data);
@@ -138,6 +141,35 @@ const LayAwayTable = ({ transactionId }) => {
         if (response.status === 200) {
           setMessage("Edit Saved.");
           setOpenModal(true);
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
+  const deleteLayaway = (e) => {
+    e.preventDefault();
+    setMessage("Confirm layaway payment deletion.");
+    setOpenModalDel(true);
+  };
+
+  const confirmOkDel = () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .delete(baseUrl + "/api/layAwayPay/delete/" + id, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setMessage("Layaway deleted.");
+          setOpenModal(true);
+          getLayAway();
+          // window.location.reload();
         }
       })
       .catch((message) => {
@@ -245,15 +277,32 @@ const LayAwayTable = ({ transactionId }) => {
       <div className={styles.buttonDiv}>
         <button
           className={styles.modalButtonSave}
+          disabled={disableSave}
           onClick={(e) => {
             save(e);
           }}
         >
           Save
         </button>
+        <button
+          className={styles.modalButtonDel}
+          disabled={disableDel}
+          onClick={(e) => {
+            deleteLayaway(e);
+          }}
+        >
+          Delete
+        </button>
       </div>
       {openModal && (
         <MessageModal setOpenModal={setOpenModal} message={message} />
+      )}
+      {openModalDel && (
+        <ConfirmmModal
+          setOpenModalConf={setOpenModalDel}
+          message={message}
+          confirmOk={confirmOkDel}
+        />
       )}
     </div>
   );

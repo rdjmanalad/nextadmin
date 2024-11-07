@@ -69,4 +69,15 @@
   padding-bottom: 5px;
   display: inline-flex;
   justify-content: right;
+  gap: 5px;
+}
+
+.modalButtonDel {
+  width: 150px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: var(--buttonRed);
+  cursor: pointer;
+  gap: 20px;
 }
