@@ -703,11 +703,9 @@ const PrintReportsGBW = () => {
               onChange={(e) => {
                 const { value } = e.target;
                 e.target.value = normalizeCurrency(value);
-                const { nvalue } = value
+                balances.lbcClaimed = value
                   .replaceAll(",", "")
                   .replaceAll("₱", "");
-
-                balances.lbcClaimed = value;
               }}
               onBlur={(e) => {
                 const { value } = e.target;
