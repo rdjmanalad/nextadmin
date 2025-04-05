@@ -8,6 +8,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import useLocalState from "@/app/hooks/useLocalState";
 import MessageModal from "../modal/messageModal";
 import { useRouter } from "next/navigation";
+import EditBalance from "../modal/editBalance";
 
 const Reference = () => {
   const module = "Settings";
@@ -33,6 +34,7 @@ const Reference = () => {
   const [message, setMessage] = useState("");
   const [data, setData] = useState(null);
   const [permissions, setPermissions] = useLocalState([]);
+  const [openEditBal, setOpenEditBal] = useState(false);
   const router = useRouter();
 
   const gridRef = useRef();
@@ -208,6 +210,11 @@ const Reference = () => {
     }
   };
 
+  const editBalance = (e) => {
+    e.preventDefault();
+    setOpenEditBal(true);
+  };
+
   useEffect(() => {
     if (data) {
       alert(data.message);
@@ -305,12 +312,23 @@ const Reference = () => {
         </div>
         {/* <br> </br> */}
       </div>
+      <div>
+        <button
+          className={styles.buttonSave}
+          onClick={(e) => {
+            editBalance(e);
+          }}
+        >
+          Edit Balance
+        </button>
+      </div>
       {/* <div className={styles.container2}>
         <button onClick={(e) => updateJewelry(e)}>Update jewelry list</button>
       </div> */}
       {openModal && (
         <MessageModal setOpenModal={setOpenModal} message={message} />
       )}
+      {openEditBal && <EditBalance setOpenEditBal={setOpenEditBal} />}
     </div>
   );
 };
