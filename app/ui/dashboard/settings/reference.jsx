@@ -9,6 +9,7 @@ import useLocalState from "@/app/hooks/useLocalState";
 import MessageModal from "../modal/messageModal";
 import { useRouter } from "next/navigation";
 import EditBalance from "../modal/editBalance";
+import RemoveCashPay from "../modal/removeCashPay";
 
 const Reference = () => {
   const module = "Settings";
@@ -35,6 +36,7 @@ const Reference = () => {
   const [data, setData] = useState(null);
   const [permissions, setPermissions] = useLocalState([]);
   const [openEditBal, setOpenEditBal] = useState(false);
+  const [openRemoveCashPay, setOpenRemoveCashPay] = useState(false);
   const router = useRouter();
 
   const gridRef = useRef();
@@ -215,6 +217,11 @@ const Reference = () => {
     setOpenEditBal(true);
   };
 
+  const removeCashPayment = (e) => {
+    e.preventDefault();
+    setOpenRemoveCashPay(true);
+  };
+
   useEffect(() => {
     if (data) {
       alert(data.message);
@@ -313,14 +320,26 @@ const Reference = () => {
         {/* <br> </br> */}
       </div>
       <div>
-        <button
-          className={styles.buttonSave}
-          onClick={(e) => {
-            editBalance(e);
-          }}
-        >
-          Edit Balance
-        </button>
+        <div className={styles.buttonEdit}>
+          <button
+            className={styles.buttonSave}
+            onClick={(e) => {
+              editBalance(e);
+            }}
+          >
+            Edit Balance
+          </button>
+        </div>
+        <div className={styles.buttonEdit}>
+          <button
+            className={styles.buttonSave}
+            onClick={(e) => {
+              removeCashPayment(e);
+            }}
+          >
+            Remove Cash Payment
+          </button>
+        </div>
       </div>
       {/* <div className={styles.container2}>
         <button onClick={(e) => updateJewelry(e)}>Update jewelry list</button>
@@ -329,6 +348,9 @@ const Reference = () => {
         <MessageModal setOpenModal={setOpenModal} message={message} />
       )}
       {openEditBal && <EditBalance setOpenEditBal={setOpenEditBal} />}
+      {openRemoveCashPay && (
+        <RemoveCashPay setOpenRemoveCashPay={setOpenRemoveCashPay} />
+      )}
     </div>
   );
 };

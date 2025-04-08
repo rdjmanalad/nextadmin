@@ -38,21 +38,12 @@ const EditBalance = ({ setOpenEditBal }) => {
   const onSelectionChanged = useCallback(() => {
     const selectedRows = gridRef.current.api.getSelectedRows();
     setRowSelected(selectedRows);
-    beginningRef.current.value = selectedRows[0].beginningBal;
-    addRef.current.value = selectedRows[0].addBal;
-    lessRef.current.value = selectedRows[0].lessBal;
-    endingRef.current.value = selectedRows[0].endingBal;
-    // setId(selectedRows[0].id);
-    // if (
-    //   new Date(selectedRows[0].paymentDate).toLocaleDateString("en-US") ===
-    //   balDate
-    // ) {
-    //   amountRef.current.disabled = false;
-    //   pmRef.current.disabled = false;
-    //   refNoRef.current.disabled = false;
-    //   setDisableDel(false);
-    //   setDisableSave(false);
-    // }
+    if (selectedRows[0]) {
+      beginningRef.current.value = selectedRows[0].beginningBal;
+      addRef.current.value = selectedRows[0].addBal;
+      lessRef.current.value = selectedRows[0].lessBal;
+      endingRef.current.value = selectedRows[0].endingBal;
+    }
   }, []);
 
   const getAllBalances = async () => {
@@ -71,11 +62,34 @@ const EditBalance = ({ setOpenEditBal }) => {
         }
       );
       setRowData(response.data);
-      console.table(response.data);
+      //   console.table(response.data);
     } catch (err) {
       setError(err);
       console.error("Error fetching data:", err);
     }
+  };
+
+  const handleSave = () => {
+    const bal = rowSelected[0];
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/dashboard/save", bal, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setMessage("Balance Saved!");
+          setOpenModal(true);
+          getAllBalances();
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
   };
 
   const dateFormatter = (params) => {
@@ -106,9 +120,7 @@ const EditBalance = ({ setOpenEditBal }) => {
 
   const save = (e) => {
     e.preventDefault();
-    alert("save");
-    console.table(rowSelected[0]);
-    // saveLayAwayPay();
+    handleSave();
   };
 
   const convertDateString = (dateStr) => {
@@ -124,33 +136,6 @@ const EditBalance = ({ setOpenEditBal }) => {
     }
     const formattedDate = `${year}-${month}-${day}`;
     return formattedDate;
-  };
-
-  const saveLayAwayPay = () => {
-    let layAway = rowSelected[0];
-    layAway.amount = amountRef.current.value
-      .replaceAll(",", "")
-      .replaceAll("₱", "");
-    layAway.referenceNo = refNoRef.current.value;
-    layAway.paymentMode = pmRef.current.value;
-    var jwt = window.sessionStorage.getItem("jwt");
-    axios
-      .post(baseUrl + "/api/layAwayPay/save", layAway, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
-        },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          setMessage("Edit Saved.");
-          setOpenModal(true);
-        }
-      })
-      .catch((message) => {
-        alert(message);
-      });
   };
 
   const normalizeCurrency = (value) => {
@@ -237,7 +222,7 @@ const EditBalance = ({ setOpenEditBal }) => {
             onChange={(e) => {
               const { value } = e.target;
               e.target.value = normalizeCurrency(value);
-              // trans.discountedPrice = value
+              rowSelected[0].beginningBal = e.target.value;
             }}
           ></input>
           <label className={styles.modalInputLabel}>Add Bal</label>
@@ -251,7 +236,7 @@ const EditBalance = ({ setOpenEditBal }) => {
             onChange={(e) => {
               const { value } = e.target;
               e.target.value = normalizeCurrency(value);
-              // trans.discountedPrice = value
+              rowSelected[0].addBal = e.target.value;
             }}
           ></input>
         </div>
@@ -267,7 +252,7 @@ const EditBalance = ({ setOpenEditBal }) => {
             onChange={(e) => {
               const { value } = e.target;
               e.target.value = normalizeCurrency(value);
-              // trans.discountedPrice = value
+              rowSelected[0].lessBal = e.target.value;
             }}
           ></input>
           <label className={styles.modalInputLabel}>Running Bal</label>
@@ -281,7 +266,7 @@ const EditBalance = ({ setOpenEditBal }) => {
             onChange={(e) => {
               const { value } = e.target;
               e.target.value = normalizeCurrency(value);
-              // trans.discountedPrice = value
+              rowSelected[0].endingBal = e.target.value;
             }}
           ></input>
         </div>
@@ -292,7 +277,7 @@ const EditBalance = ({ setOpenEditBal }) => {
               save(e);
             }}
           >
-            Saves
+            Save
           </button>
         </div>
         <div className={styles.modalFooter}>
