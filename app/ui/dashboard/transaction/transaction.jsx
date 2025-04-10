@@ -566,6 +566,7 @@ const Transaction = ({ emptyObj }) => {
           setLayAway(response.data);
           setMessage("Saved");
           setOpenModal(true);
+          saveBalance();
           setTimeout(() => {
             inventorySearch();
           }, 1500);
@@ -983,7 +984,8 @@ const Transaction = ({ emptyObj }) => {
             layAway.user = user;
             saveLayAwayPay();
             // saveTranPayment();
-            saveBalance();
+            // move saveBalance inside saveLayAwayPay()
+            // saveBalance();
           } else {
             setMessage("Payment date and balance date is not equal.");
             setOpenModal(true);

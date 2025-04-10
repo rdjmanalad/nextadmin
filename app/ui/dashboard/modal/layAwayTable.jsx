@@ -45,7 +45,7 @@ const LayAwayTable = ({ transactionId }) => {
     refNoRef.current.value = selectedRows[0].referenceNo;
     pmRef.current.value = selectedRows[0].paymentMode;
     setId(selectedRows[0].id);
-
+    setDisableDel(false);
     if (
       new Date(selectedRows[0].paymentDate).toLocaleDateString("en-US") ===
       balDate
@@ -291,7 +291,7 @@ const LayAwayTable = ({ transactionId }) => {
             deleteLayaway(e);
           }}
         >
-          Delete
+          Delete...
         </button>
       </div>
       {openModal && (

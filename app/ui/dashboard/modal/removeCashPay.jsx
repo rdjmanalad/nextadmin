@@ -57,17 +57,34 @@ const RemoveCashPay = ({ setOpenRemoveCashPay }) => {
     setOpenModalDel(true);
     console.log(rowData);
     console.log(rowData[0].paymentTerm);
-    // console.table(rowData);
     rowData[0].paymentTerm = "";
     rowData[0].paymentMode = "";
     rowData[0].cashPayment = 0;
     rowData[0].referenceNo = "";
     rowData[0].cashPaymentDate = null;
-    console.log(rowData);
   };
 
   const confirmOkDel = () => {
-    alert("deleted");
+    const data = rowData[0];
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/transactions/save", data, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setMessage("Payment Removed!");
+          setOpenModal(true);
+          getTransaction();
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
   };
 
   const autoSizeStrategy = {
