@@ -15,6 +15,7 @@ const EditBalance = ({ setOpenEditBal }) => {
   const [rowData, setRowData] = useState([]);
   const gridRef = useRef();
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
+  //   const [appType, setAppType] = useLocalState("appType", "");
   const [rowSelected, setRowSelected] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [pm, setPm] = useState([]);
@@ -29,9 +30,14 @@ const EditBalance = ({ setOpenEditBal }) => {
   const addRef = useRef();
   const lessRef = useRef();
   const endingRef = useRef();
+  const [btnName, setBtnName] = useState("Switch to GBW");
+  const [isGbw, setIsGbw] = useState(false);
+  const [gbwDate, setGbwDate] = useState("");
 
   const onGridReady = useCallback((params) => {
+    getGBWLatestDate();
     getAllBalances();
+
     // alert(balDate);
   }, []);
 
@@ -64,13 +70,63 @@ const EditBalance = ({ setOpenEditBal }) => {
       setRowData(response.data);
       //   console.table(response.data);
     } catch (err) {
-      setError(err);
+      console.error("Error fetching data:", err);
+    }
+  };
+
+  const getGBWBalances = async () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    try {
+      const response = await axios.get(
+        baseUrl + "/api/dashboard/balance/gbw/all/" + gbwDate,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setRowData(response.data);
+      //   console.table(response.data);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    }
+  };
+
+  const getGBWLatestDate = async () => {
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1");
+    try {
+      const response = await axios.get(
+        baseUrl + "/api/dashboard/balance/gbw/getMaxBalDate",
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      let gbwd = new Date(response.data).toISOString().split("T")[0];
+      setGbwDate(gbwd);
+    } catch (err) {
       console.error("Error fetching data:", err);
     }
   };
 
   const handleSave = () => {
+    if (!isGbw) {
+      saveJARV();
+    } else {
+      saveGBW();
+    }
+  };
+
+  const saveJARV = () => {
     const bal = rowSelected[0];
+    console.table(bal);
     var jwt = window.sessionStorage.getItem("jwt");
     axios
       .post(baseUrl + "/api/dashboard/save", bal, {
@@ -85,6 +141,30 @@ const EditBalance = ({ setOpenEditBal }) => {
           setMessage("Balance Saved!");
           setOpenModal(true);
           getAllBalances();
+        }
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+
+  const saveGBW = () => {
+    const bal = rowSelected[0];
+    console.table(bal);
+    var jwt = window.sessionStorage.getItem("jwt");
+    axios
+      .post(baseUrl + "/api/dashboard/balance/gbw/save", bal, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt.replace(/^"(.+(?="$))"$/, "$1"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          setMessage("GBW Balance Saved!");
+          setOpenModal(true);
+          getGBWBalances();
         }
       })
       .catch((message) => {
@@ -121,6 +201,27 @@ const EditBalance = ({ setOpenEditBal }) => {
   const save = (e) => {
     e.preventDefault();
     handleSave();
+  };
+
+  const switched = (e) => {
+    e.preventDefault();
+    clear();
+    var isGBW = !isGbw;
+    if (isGBW) {
+      setBtnName("Switch to JARV");
+      getGBWBalances();
+    } else {
+      setBtnName("Switch to GBW");
+      getAllBalances();
+    }
+    setIsGbw(!isGbw);
+  };
+
+  const clear = () => {
+    addRef.current.value = "";
+    beginningRef.current.value = "";
+    lessRef.current.value = "";
+    endingRef.current.value = "";
   };
 
   const convertDateString = (dateStr) => {
@@ -222,7 +323,7 @@ const EditBalance = ({ setOpenEditBal }) => {
             onChange={(e) => {
               const { value } = e.target;
               e.target.value = normalizeCurrency(value);
-              rowSelected[0].beginningBal = e.target.value;
+              rowSelected[0].beginningBal = value;
             }}
           ></input>
           <label className={styles.modalInputLabel}>Add Bal</label>
@@ -236,7 +337,7 @@ const EditBalance = ({ setOpenEditBal }) => {
             onChange={(e) => {
               const { value } = e.target;
               e.target.value = normalizeCurrency(value);
-              rowSelected[0].addBal = e.target.value;
+              rowSelected[0].addBal = value;
             }}
           ></input>
         </div>
@@ -252,7 +353,7 @@ const EditBalance = ({ setOpenEditBal }) => {
             onChange={(e) => {
               const { value } = e.target;
               e.target.value = normalizeCurrency(value);
-              rowSelected[0].lessBal = e.target.value;
+              rowSelected[0].lessBal = value;
             }}
           ></input>
           <label className={styles.modalInputLabel}>Running Bal</label>
@@ -266,11 +367,19 @@ const EditBalance = ({ setOpenEditBal }) => {
             onChange={(e) => {
               const { value } = e.target;
               e.target.value = normalizeCurrency(value);
-              rowSelected[0].endingBal = e.target.value;
+              rowSelected[0].endingBal = value;
             }}
           ></input>
         </div>
         <div className={styles.buttonDiv}>
+          <button
+            className={styles.modalButtonSave}
+            onClick={(e) => {
+              switched(e);
+            }}
+          >
+            {btnName}
+          </button>
           <button
             className={styles.modalButtonSave}
             onClick={(e) => {

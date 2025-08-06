@@ -135,7 +135,11 @@
 
 .buttonDiv {
   display: flex;
-  margin-left: auto;
+  justify-content: space-between;
+  width: 100%;
+  /* gap: 20px; */
+  align-items: left;
+  /* margin-left: auto; */
 }
 
 .modalFooter {

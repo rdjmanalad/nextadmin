@@ -566,7 +566,7 @@ const Transaction = ({ emptyObj }) => {
           setLayAway(response.data);
           setMessage("Saved");
           setOpenModal(true);
-          saveBalance();
+          // saveBalance(); -- remove, move this to trigger
           setTimeout(() => {
             inventorySearch();
           }, 1500);
