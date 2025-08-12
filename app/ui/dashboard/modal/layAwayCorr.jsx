@@ -7,7 +7,12 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import axios from "axios";
 import useLocalState from "@/app/hooks/useLocalState";
 
-const LayAwayTableCorr = ({ transactionId, setOpenModalLayAway, layAway }) => {
+const LayAwayTableCorr = ({
+  transactionId,
+  setOpenModalLayAway,
+  layAway,
+  onClose,
+}) => {
   const [rowData, setRowData] = useState([]);
   const gridRef = useRef();
   const [baseUrl, setBaseUrl] = useLocalState("baseURL", "");
@@ -117,6 +122,7 @@ const LayAwayTableCorr = ({ transactionId, setOpenModalLayAway, layAway }) => {
               onClick={(e) => {
                 e.preventDefault();
                 setOpenModalLayAway(false);
+                onClose();
               }}
             >
               Close

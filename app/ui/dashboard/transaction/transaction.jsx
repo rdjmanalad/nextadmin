@@ -50,6 +50,7 @@ const Transaction = ({ emptyObj }) => {
   const [disableDelete, setDisableDelete] = useState(true);
   const [delPermission, setDelPermission] = useState(false);
   const [allowReset, setAllowReset] = useState(false);
+  const [wasOpen, setWasOpen] = useState(false);
 
   const [balDate, setBalDate] = isClient
     ? useLocalState("balDate", "")
@@ -146,6 +147,15 @@ const Transaction = ({ emptyObj }) => {
     const nextIndex = (currentIndex + 1) % focusableArray.length;
     focusableArray[nextIndex].focus();
   };
+
+  useEffect(() => {
+    if (wasOpen && !openModalLA) {
+      handleModalClosed();
+    }
+    if (openModalLA) {
+      setWasOpen(true);
+    }
+  }, [openModalLA]);
 
   useEffect(() => {
     if (trans) {
@@ -1335,6 +1345,10 @@ const Transaction = ({ emptyObj }) => {
     setOpenModalReset(true);
   };
 
+  const handleModalClosed = () => {
+    inventorySearch();
+  };
+
   return (
     <div
       className={styles.container}
@@ -1926,6 +1940,7 @@ const Transaction = ({ emptyObj }) => {
           openModalLA={openModalLA}
           setOpenModalLA={setOpenModalLA}
           transactionId={trans.id != undefined ? trans.id : "0"}
+          onClose={handleModalClosed}
         />
       )}
       {openModal && (
